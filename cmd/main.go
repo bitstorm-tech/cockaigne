@@ -7,6 +7,7 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/account"
 	"github.com/bitstorm-tech/cockaigne/internal/db"
 	"github.com/bitstorm-tech/cockaigne/internal/games"
+	"github.com/bitstorm-tech/cockaigne/internal/header"
 	"github.com/bitstorm-tech/cockaigne/internal/highscores"
 	"github.com/bitstorm-tech/cockaigne/internal/home"
 	"github.com/gofiber/fiber/v2"
@@ -33,6 +34,7 @@ func main() {
 
 	app.Static("/static", "./static")
 
+	header.Register(app)
 	home.Register(app)
 	account.Register(app)
 	games.Register(app)

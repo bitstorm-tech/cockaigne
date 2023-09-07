@@ -1,0 +1,52 @@
+<nav id="header" class="bg-gray-500">
+    <div class="px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-12">
+            <div class="text-yellow-200 italic text-xl font-bold">Cockaigne City</div>
+            <div class="hidden md:flex gap-1">
+                <a class="py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700"
+                    href="/games">Games</a>
+                <a class="py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700"
+                    href="/highscores">Highscores</a>
+                <a class="py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700"
+                    href="/account">Account</a>
+                <a class="py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700"
+                    href="/create-account">Creatge Account</a>
+            </div>
+            <div class="-mr-2 flex md:hidden">
+                <div class="text-yellow-200 cursor-pointer h-6 w-6">
+                    <span class="sr-only">Open main menu</span>
+                    {{ if .showMenu }}
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" hx-get="/header?showMenu=false"
+                        hx-target="#header">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                    {{ else }}
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" hx-get="/header?showMenu=true"
+                        hx-target="#header">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                            d="M4 6h16M4 12h16M4 18h16">
+                        </path>
+                    </svg>
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Mobile menu, show/hide based on menu state -->
+    {{ if .showMenu }}
+    <div class="md:hidden">
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <a class="block py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700"
+                href="/games">Games</a>
+            <a class="block py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700"
+                href="/highscores">Highscores</a>
+            <a class="block py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700"
+                href="/account">Account</a>
+            <a class="block py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700"
+                href="/create-account">Creatge
+                Account</a>
+        </div>
+    </div>
+    {{ end }}
+</nav>
