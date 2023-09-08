@@ -6,11 +6,11 @@ import (
 
 	"github.com/bitstorm-tech/cockaigne/internal/account"
 	"github.com/bitstorm-tech/cockaigne/internal/auth"
-	"github.com/bitstorm-tech/cockaigne/internal/db"
 	"github.com/bitstorm-tech/cockaigne/internal/games"
 	"github.com/bitstorm-tech/cockaigne/internal/header"
 	"github.com/bitstorm-tech/cockaigne/internal/highscores"
 	"github.com/bitstorm-tech/cockaigne/internal/home"
+	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
 	_ "github.com/joho/godotenv/autoload"
@@ -24,8 +24,8 @@ func main() {
 
 	log.Printf("Starting Cockaigne server (on %s) ...", hostAndPort)
 
-	db.Init()
-	defer db.Conn.Close()
+	persistence.ConnectToDb()
+	persistence.DB.AutoMigrate(&auth.Account{}, &games.GameMetadata{})
 
 	engine := html.New("./views", ".html")
 

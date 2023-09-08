@@ -1,15 +1,17 @@
-package db
+package persistence
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-var Conn *sql.DB
+var DB *gorm.DB
 
-func Init() {
+func ConnectToDb() {
 	pgHost := os.Getenv("PG_HOST")
 	pgPort := os.Getenv("PG_PORT")
 	pgDatabase := os.Getenv("PG_DATABASE")
@@ -21,19 +23,11 @@ func Init() {
 
 	connectionString += " password=" + pgPassword
 	var err error
-	Conn, err = sql.Open("postgres", connectionString)
+	DB, err = gorm.Open(postgres.Open(connectionString), &gorm.Config{})
 
 	if err != nil {
 		log.Fatal("Can't open database connection", err)
 	}
 
 	log.Println("Database connection opened successfully")
-
-	err = Conn.Ping()
-
-	if err != nil {
-		log.Fatal("Can't ping database", err)
-	}
-
-	log.Println("Database pinged successfully")
 }

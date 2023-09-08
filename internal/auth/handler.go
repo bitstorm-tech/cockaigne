@@ -1,17 +1,18 @@
 package auth
 
 import (
+	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 )
 
 func Register(app *fiber.App) {
-	app.Get("/auth/login", func(c *fiber.Ctx) error {
-		return c.Render("auth/login/index", nil)
+	app.Get("/login", func(c *fiber.Ctx) error {
+		return c.Render("pages/login", nil)
 	})
 
-	app.Get("/auth/signup", func(c *fiber.Ctx) error {
-		return c.Render("auth/signup/index", nil, "layouts/annonym")
+	app.Get("/signup", func(c *fiber.Ctx) error {
+		return c.Render("pages/signup", nil, "layouts/annonym")
 	})
 
 	app.Post("/api/signup", signup)
@@ -28,9 +29,13 @@ func signup(c *fiber.Ctx) error {
 		})
 	}
 
-	log.Debugf("Account: %+v", acc)
+	log.Debugf("New account: %+v", acc.Email)
 
-	return c.JSON(fiber.Map{
-		"message": "signup",
-	})
+	err = persistence.DB.Create(&acc).Error
+
+	if err != nil {
+		return c.Render("partials/alert", fiber.Map{"message": err.Error()})
+	}
+
+	return c.Redirect("/login")
 }

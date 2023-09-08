@@ -1,9 +1,10 @@
-<form action="/api/signup" method="post">
+<form hx-post="/api/signup" hx-target="#alert">
     <input type="text" placeholder="Email" name="email">
     <input type="password" placeholder="Passwort" name="password">
     <input type="text" placeholder="Benutzername" name="username">
-    <div class="grid grid-cols-2">
+    <div class="flex gap-2 mt-4 justify-center">
         <button>Registrieren</button>
-        <button>Abbrechen</button>
+        <a class="btn" href="/">Abbrechen</a>
     </div>
 </form>
+<div id="alert"></div>

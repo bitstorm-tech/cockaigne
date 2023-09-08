@@ -11,7 +11,7 @@ var score = 0
 
 func Register(app *fiber.App) {
 	app.Get("/highscores", func(c *fiber.Ctx) error {
-		return c.Render("highscores/index", nil, "layouts/main")
+		return c.Render("pages/highscores", nil, "layouts/main")
 	})
 
 	app.Get("/highscores/increment", func(c *fiber.Ctx) error {
