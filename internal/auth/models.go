@@ -7,8 +7,8 @@ import (
 
 type Account struct {
 	gorm.Model
-	ID       uuid.UUID `gorm:"type:uuid;default:gen_random_uuid()"`
-	Username string    `gorm:"not null; unique"`
-	Password string    `grom:"not null"`
-	Email    string    `gorm:"not null; unique"`
+	ID       uuid.UUID `gorm:"not null; default: gen_random_uuid(); type: uuid"`
+	Username string    `gorm:"not null; default: null; unique"`
+	Password string    `grom:"not null; default: null"`
+	Email    string    `gorm:"not null; default: null; unique"`
 }
