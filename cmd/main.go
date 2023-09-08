@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/bitstorm-tech/cockaigne/internal/account"
+	"github.com/bitstorm-tech/cockaigne/internal/auth"
 	"github.com/bitstorm-tech/cockaigne/internal/db"
 	"github.com/bitstorm-tech/cockaigne/internal/games"
 	"github.com/bitstorm-tech/cockaigne/internal/header"
@@ -34,6 +35,7 @@ func main() {
 
 	app.Static("/static", "./static")
 
+	auth.Register(app)
 	header.Register(app)
 	home.Register(app)
 	account.Register(app)

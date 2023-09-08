@@ -1,16 +1,14 @@
 <nav id="header" class="bg-gray-500">
     <div class="px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-12">
-            <div class="text-yellow-200 italic text-xl font-bold">Cockaigne City</div>
+            <a href="/" class="text-yellow-200 italic text-xl font-bold">Cockaigne City</a>
             <div class="hidden md:flex gap-1">
-                <a class="py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700"
-                    href="/games">Games</a>
-                <a class="py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700"
-                    href="/highscores">Highscores</a>
-                <a class="py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700"
-                    href="/account">Account</a>
-                <a class="py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700"
-                    href="/create-account">Creatge Account</a>
+                <a class="menu-item" href="/auth/signup">Registieren</a>
+                <a class="menu-item" href="/auth/login">Login</a>
+                <a class="menu-item" href="/games">Games</a>
+                <a class="menu-item" href="/highscores">Highscores</a>
+                <a class="menu-item" href="/account">Account</a>
+                <a class="menu-item" href="/create-account">Creatge Account</a>
             </div>
             <div class="-mr-2 flex md:hidden">
                 <div class="text-yellow-200 cursor-pointer h-6 w-6">
@@ -37,14 +35,12 @@
     {{ if .showMenu }}
     <div class="md:hidden">
         <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <a class="block py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700"
-                href="/games">Games</a>
-            <a class="block py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700"
-                href="/highscores">Highscores</a>
-            <a class="block py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700"
-                href="/account">Account</a>
-            <a class="block py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700"
-                href="/create-account">Creatge
+            <a class="block menu-item" href="/auth/signup">Registieren</a>
+            <a class="block menu-item" href="/auth/login">Login</a>
+            <a class="block menu-item" href="/games">Games</a>
+            <a class="block menu-item" href="/highscores">Highscores</a>
+            <a class="block menu-item" href="/account">Account</a>
+            <a class="block menu-item" href="/create-account">Creatge
                 Account</a>
         </div>
     </div>
