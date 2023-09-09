@@ -439,7 +439,7 @@ button, .btn {
   -webkit-user-select: none;
      -moz-user-select: none;
           user-select: none;
-  border-radius: 9999px;
+  border-radius: 0.75rem;
   border-width: 1px;
   --tw-border-opacity: 1;
   border-color: rgb(99 102 241 / var(--tw-border-opacity));
