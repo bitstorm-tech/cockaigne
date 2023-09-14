@@ -25,6 +25,8 @@ func Register(app *fiber.App) {
 
 	app.Post("/api/login", login)
 
+	app.Get("/logout", logout)
+
 	app.Get("/signup-fields", signupFields)
 }
 
@@ -104,7 +106,24 @@ func login(c *fiber.Ctx) error {
 		c.Set("HX-Location", "/user")
 	}
 
+	jwt := CreateJwtToken(acc)
+	c.Cookie(&fiber.Cookie{
+		Name:     "jwt",
+		Value:    jwt,
+		HTTPOnly: true,
+	})
+
 	return nil
+}
+
+func logout(c *fiber.Ctx) error {
+	c.Cookie(&fiber.Cookie{
+		Name:     "jwt",
+		Value:    "",
+		HTTPOnly: true,
+	})
+
+	return c.Redirect("/login")
 }
 
 func signupFields(c *fiber.Ctx) error {
