@@ -23,6 +23,8 @@ func Register(app *fiber.App) {
 	app.Post("/api/signup", signup)
 
 	app.Post("/api/login", login)
+
+	app.Get("/signup-fields", signupFields)
 }
 
 func signup(c *fiber.Ctx) error {
@@ -57,12 +59,7 @@ func signup(c *fiber.Ctx) error {
 		return c.Render("partials/alert", fiber.Map{"message": err.Error()})
 	}
 
-	acc := account.Account{
-		Username: request.Username,
-		Password: string(passwordHash),
-		Email:    request.Email,
-		IsDealer: request.IsDealer,
-	}
+	acc := request.ToAccount(string(passwordHash))
 
 	err = persistence.DB.Create(&acc).Error
 	if err != nil {
@@ -107,4 +104,14 @@ func login(c *fiber.Ctx) error {
 	}
 
 	return nil
+}
+
+func signupFields(c *fiber.Ctx) error {
+	isDealer := c.Query("isDealer") == "on"
+
+	if isDealer {
+		return c.Render("partials/signup-dealer", nil)
+	}
+
+	return c.Render("partials/signup-user", nil)
 }

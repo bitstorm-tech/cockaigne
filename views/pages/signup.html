@@ -1,12 +1,10 @@
 <form hx-post="/api/signup" hx-target="#alert">
-    <input type="text" placeholder="Email" name="email">
-    <input type="text" placeholder="Benutzername" name="username">
-    <input type="password" placeholder="Passwort" name="password">
-    <input type="password" placeholder="Passwort wiederholen" name="passwordRepeat">
-    <div class="flex justify-start">
-        <input id="is-dealer" type="checkbox" name="isDealer">
+    <div class="gap-4 flex items-center select-none">
+        <input id="is-dealer" hx-get="/signup-fields" hx-target="#signup-fields" class="checkbox" type="checkbox"
+            name="isDealer">
         <label for="is-dealer">Ich bin ein Dealer</label>
     </div>
+    <div id="signup-fields" hx-trigger="load once" hx-get="/signup-fields" hx-target="this"></div>
     <div class="flex gap-2 mt-4 justify-center">
         <button>Registrieren</button>
         <a class="btn" href="/">Abbrechen</a>

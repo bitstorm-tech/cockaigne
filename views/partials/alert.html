@@ -1,5 +1,4 @@
-<div id="alert"
-    class="absolute left-6 bottom-6 flex gap-2 items-center bg-red-400 justify-around px-4 rounded-xl right-6">
-    <span>{{ .message }}</span>
+<div id="alert" class="absolute left-6 bottom-6 flex gap-2 items-center bg-red-400 justify-between rounded-xl right-6">
+    <span class="pl-4">{{ .message }}</span>
     <button hx-target="closest #alert" hx-delete="/delete">OK</button>
 </div>
