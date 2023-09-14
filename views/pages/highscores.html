@@ -1,7 +1,0 @@
-<h1>Highscores</h1>
-<button hx-get="/highscores/decrement" hx-target="#score">--</button>
-<button hx-get="/highscores/increment" hx-target="#score">++</button>
-<button hx-get="/highscores/reset" hx-target="#score">Reset</button>
-<button hx-get="/highscores/wait" hx-target="#score" hx-indicator="#loading">Warte...</button>
-<div id="score" hx-get="/highscores/current" hx-swap="innerHtml" hx-trigger="load"></div>
-<div id="loading" class="htmx-indicator">Warte halt mal ...</div>

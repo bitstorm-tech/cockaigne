@@ -5,9 +5,6 @@
             <div class="hidden md:flex gap-1">
                 <a class="menu-item" href="/signup">Registieren</a>
                 <a class="menu-item" href="/login">Login</a>
-                <a class="menu-item" href="/games">Games</a>
-                <a class="menu-item" href="/highscores">Highscores</a>
-                <a class="menu-item" href="/account">Account</a>
             </div>
             <div class="-mr-2 flex md:hidden">
                 <div class="text-yellow-200 cursor-pointer h-6 w-6" hx-get="/header?showMenu={{ not .showMenu }}"
@@ -35,9 +32,6 @@
         <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <a class="block menu-item" href="/signup">Registieren</a>
             <a class="block menu-item" href="/login">Login</a>
-            <a class="block menu-item" href="/games">Games</a>
-            <a class="block menu-item" href="/highscores">Highscores</a>
-            <a class="block menu-item" href="/account">Account</a>
         </div>
     </div>
     {{ end }}

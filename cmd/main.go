@@ -9,9 +9,7 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/auth"
 	"github.com/bitstorm-tech/cockaigne/internal/deal"
 	"github.com/bitstorm-tech/cockaigne/internal/dealer"
-	"github.com/bitstorm-tech/cockaigne/internal/games"
 	"github.com/bitstorm-tech/cockaigne/internal/header"
-	"github.com/bitstorm-tech/cockaigne/internal/highscores"
 	"github.com/bitstorm-tech/cockaigne/internal/home"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/bitstorm-tech/cockaigne/internal/user"
@@ -51,8 +49,6 @@ func main() {
 	header.Register(app)
 	home.Register(app)
 	account.Register(app)
-	games.Register(app)
-	highscores.Register(app)
 	user.Register(app)
 	dealer.Register(app)
 	deal.Register(app)
