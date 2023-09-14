@@ -4,10 +4,10 @@
 
 @layer base {
     button, .btn {
-        @apply border border-indigo-500 bg-indigo-500 text-white rounded-xl px-4 py-2 m-2 transition duration-500 ease-in-out select-none hover:bg-indigo-600 focus:outline-none
+        @apply border border-indigo-500 bg-indigo-500 text-white rounded-xl px-4 py-2 transition duration-500 ease-in-out select-none hover:bg-indigo-600 focus:outline-none
     }
 
-    input {
+    input, select {
         @apply mt-2 flex h-12 w-full items-center justify-center rounded-xl border bg-white/0 p-3 text-sm outline-none border-gray-200
     }
 
@@ -17,5 +17,19 @@
 
     .menu-item {
         @apply py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700
+    }
+
+    .fade-in.htmx-added {
+        opacity: 0;
+    }
+
+    .fade-in {
+        opacity: 1;
+        transition: opacity .3s ease-out;
+    }
+
+    .fade-out.htmx-swapping {
+        opacity: 0;
+        transition: opacity .3s ease-out;
     }
 }

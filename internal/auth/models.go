@@ -19,6 +19,7 @@ type CreateAccountRequest struct {
 	ZipCode        string
 	PhoneNumber    string
 	TaxId          string
+	Category       int32
 }
 
 func (c CreateAccountRequest) ToAccount(passwordHash string) account.Account {
@@ -34,16 +35,17 @@ func (c CreateAccountRequest) ToAccount(passwordHash string) account.Account {
 	}
 
 	return account.Account{
-		Username:    c.Username,
-		Password:    string(passwordHash),
-		Email:       c.Email,
-		IsDealer:    c.IsDealer,
-		Street:      c.Street,
-		HouseNumber: c.HouseNumber,
-		City:        c.City,
-		ZipCode:     int32(zipCode),
-		PhoneNumber: c.PhoneNumber,
-		TaxId:       c.TaxId,
+		Username:        c.Username,
+		Password:        string(passwordHash),
+		Email:           c.Email,
+		IsDealer:        c.IsDealer,
+		Street:          c.Street,
+		HouseNumber:     c.HouseNumber,
+		City:            c.City,
+		ZipCode:         int32(zipCode),
+		PhoneNumber:     c.PhoneNumber,
+		TaxId:           c.TaxId,
+		DefaultCategory: c.Category,
 	}
 }
 

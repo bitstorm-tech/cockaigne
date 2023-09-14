@@ -4,7 +4,12 @@
     <input type="password" placeholder="Passwort" name="password">
     <input type="password" placeholder="Passwort wiederholen" name="passwordRepeat">
 </div>
-<input type="text" placeholder="Branche" name="branch">
+<select name="category">
+    <option selected disabled hidden>Branche</option>
+    {{ range .categories }}
+    <option value="{{ .ID }}">{{ .Name }}</option>
+    {{ end }}
+</select>
 <div class="grid grid-cols-3 gap-2">
     <input class="col-span-2" type="text" placeholder="Straße" name="street">
     <input type="text" placeholder="Hausnummer" name="houseNumber">

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/bitstorm-tech/cockaigne/internal/account"
+	"github.com/bitstorm-tech/cockaigne/internal/deal"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -110,7 +111,13 @@ func signupFields(c *fiber.Ctx) error {
 	isDealer := c.Query("isDealer") == "on"
 
 	if isDealer {
-		return c.Render("partials/signup-dealer", nil)
+		categories := []deal.Category{}
+		err := persistence.DB.Find(&categories).Select("name").Where("active = true").Error
+		if err != nil {
+			return c.Render("partials/alert", fiber.Map{"message": err.Error()})
+		}
+
+		return c.Render("partials/signup-dealer", fiber.Map{"categories": categories})
 	}
 
 	return c.Render("partials/signup-user", nil)

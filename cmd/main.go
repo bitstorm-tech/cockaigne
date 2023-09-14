@@ -7,6 +7,7 @@ import (
 
 	"github.com/bitstorm-tech/cockaigne/internal/account"
 	"github.com/bitstorm-tech/cockaigne/internal/auth"
+	"github.com/bitstorm-tech/cockaigne/internal/deal"
 	"github.com/bitstorm-tech/cockaigne/internal/dealer"
 	"github.com/bitstorm-tech/cockaigne/internal/games"
 	"github.com/bitstorm-tech/cockaigne/internal/header"
@@ -32,7 +33,7 @@ func main() {
 	migrateDb := strings.ToLower(os.Getenv("MIGRATE_DATABASE")) == "true"
 
 	if migrateDb {
-		err := persistence.DB.AutoMigrate(&account.Account{}, &games.GameMetadata{})
+		err := persistence.DB.AutoMigrate(&account.Account{}, &deal.Deal{}, &deal.Category{})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -54,6 +55,7 @@ func main() {
 	highscores.Register(app)
 	user.Register(app)
 	dealer.Register(app)
+	deal.Register(app)
 
 	log.Fatal(app.Listen(hostAndPort))
 }

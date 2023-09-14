@@ -2,6 +2,7 @@ package dealer
 
 import (
 	"github.com/bitstorm-tech/cockaigne/internal/account"
+	"github.com/bitstorm-tech/cockaigne/internal/deal"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,6 +16,13 @@ func Register(app *fiber.App) {
 			return c.Status(fiber.StatusNotFound).SendString("Not Found")
 		}
 
-		return c.Render("pages/dealer", fiber.Map{"account": acc}, "layouts/main")
+		category := deal.Category{}
+		err = persistence.DB.Take(&category, acc.DefaultCategory).Error
+
+		if err != nil {
+			return c.Status(fiber.StatusNotFound).SendString("Not Found")
+		}
+
+		return c.Render("pages/dealer", fiber.Map{"account": acc, "category": category.Name}, "layouts/main")
 	})
 }
