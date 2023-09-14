@@ -1,0 +1,28 @@
+{{ define "dealer-profile-header" }}
+<div class="flex h-48 flex-col">
+    <div class="flex justify-around">
+        <div class="flex flex-col pt-2">
+            <span class="text-xs text-[#6a828c]"><b>Kategorie</b></span>
+            <span class="text-xs font-extralight italic text-[#6a828c]">{category}</span>
+            <span class="pb-2 pt-8">{{ .Username }}</span>
+            <span>{{ .Street }} {{ .HouseNumber }}</span>
+            <span>{{ .ZipCode }} {{ .City }}</span>
+        </div>
+        <div class="-mt-6 mr-8 flex flex-col items-center gap-2">
+            <ProfilePicture {imageUrl} />
+            <div class="absolute right-0 top-36">
+                <div class="flex items-center gap-4">
+                    <!--                    <div class="flex flex-col">-->
+                    <!--                        <a target="_blank" href={`tel:${phone}`}><button>-->
+                    <!--                                <PhoneIcon size={2} />-->
+                    <!--                            </button></a>-->
+                    <!--                        <button>-->
+                    <!--                            <NavigatorIcon size={2} />-->
+                    <!--                        </button>-->
+                    <!--                    </div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }}

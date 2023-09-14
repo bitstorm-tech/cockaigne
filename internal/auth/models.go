@@ -41,7 +41,7 @@ func (c CreateAccountRequest) ToAccount(passwordHash string) account.Account {
 		Street:      c.Street,
 		HouseNumber: c.HouseNumber,
 		City:        c.City,
-		ZipCode:     int16(zipCode),
+		ZipCode:     int32(zipCode),
 		PhoneNumber: c.PhoneNumber,
 		TaxId:       c.TaxId,
 	}

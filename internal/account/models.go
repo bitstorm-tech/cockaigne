@@ -15,7 +15,7 @@ type Account struct {
 	Street      string    `gorm:"default: null"`
 	HouseNumber string    `gorm:"default: null"`
 	City        string    `gorm:"default: null"`
-	ZipCode     int16     `gorm:"default: null"`
+	ZipCode     int32     `gorm:"default: null"`
 	PhoneNumber string    `gorm:"default: null"`
 	TaxId       string    `gorm:"default: null"`
 }
