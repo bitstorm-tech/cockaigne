@@ -1,4 +1,18 @@
-<h1>Create Deal</h1>
+<form class="flex flex-col gap-3" hx-post="/api/deals">
+    <input type="text" placeholder="Titel" name="title">
+    <textarea class="h-32" rows="10" placeholder="Beschreibung" name="description"></textarea>
+    <div hx-get="/category-select" hx-trigger="load" hx-swap="outerHTML"></div>
+    <div class="flex gap-4 select-none">
+        <div class="flex gap-2 items-center">
+            <input id="runtime" type="checkbox" class="checkbox" name="individuallyRuntime" />
+            <label for="runtime">Individuelle Laufzeit</label>
+        </div>
+        <div class="flex gap-2 items-center">
+            <input id="start-immediatly" type="checkbox" class="checkbox" name="startDealImmediately" />
+            <label for="start-immediatly">Sofort starten</label>
+        </div>
+    </div>
+</form>
 <!-- <div class="flex flex-col gap-4 p-4">
     <Input label="Titel" bind:value={deal.title} {disabled} />
     <Textarea label="Beschreibung" bind:value={deal.description} {disabled} />

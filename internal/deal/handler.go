@@ -23,4 +23,14 @@ func Register(app *fiber.App) {
 
 		return c.Render("pages/edit-deal", fiber.Map{"deal": deal}, "layouts/main")
 	})
+
+	app.Get("/category-select", func(c *fiber.Ctx) error {
+		categories := []Category{}
+		err := persistence.DB.Find(&categories).Where("active = true").Error
+		if err != nil {
+			return c.Render("partials/alert", fiber.Map{"message": err.Error()})
+		}
+
+		return c.Render("partials/category-select", fiber.Map{"categories": categories})
+	})
 }
