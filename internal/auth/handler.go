@@ -13,11 +13,11 @@ import (
 
 func Register(app *fiber.App) {
 	app.Get("/login", func(c *fiber.Ctx) error {
-		return c.Render("pages/login", nil, "layouts/anonym")
+		return c.Render("pages/login", nil, "layouts/main")
 	})
 
 	app.Get("/signup", func(c *fiber.Ctx) error {
-		return c.Render("pages/signup", nil, "layouts/anonym")
+		return c.Render("pages/signup", nil, "layouts/main")
 	})
 
 	app.Post("/api/signup", signup)
