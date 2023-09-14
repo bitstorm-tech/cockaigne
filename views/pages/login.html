@@ -1,2 +1,8 @@
-<h1>Login</h1>
-<a href="/">Zurück</a>
+<form hx-post="/api/login" hx-target="#alert" class="pt-56">
+    <input type="email" placeholder="E-Mail" name="email">
+    <input type="password" placeholder="Passwort" name="password">
+    <div class="flex justify-center pt-10">
+        <button>Einloggen</button>
+    </div>
+</form>
+<div id="alert"></div>
