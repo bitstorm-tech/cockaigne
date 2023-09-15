@@ -1,10 +1,12 @@
-<form class="flex flex-col gap-3" hx-post="/api/deals">
+<form class="flex flex-col gap-4" hx-post="/api/deals">
     <input type="text" placeholder="Titel" name="title">
     <textarea class="h-32" rows="10" placeholder="Beschreibung" name="description"></textarea>
-    <div hx-get="/category-select" hx-trigger="load" hx-swap="outerHTML"></div>
+    <div hx-get="/ui/category-select" hx-trigger="load" hx-swap="outerHTML"></div>
+    <button>Bild hinzufügen (0/3)</button>
     <div class="flex gap-4 select-none">
         <div class="flex gap-2 items-center">
-            <input id="runtime" type="checkbox" class="checkbox" name="individuallyRuntime" />
+            <input id="runtime" type="checkbox" class="checkbox" name="individuallyRuntime"
+                hx-get="/deal-start-timepicker" />
             <label for="runtime">Individuelle Laufzeit</label>
         </div>
         <div class="flex gap-2 items-center">
@@ -12,56 +14,13 @@
             <label for="start-immediatly">Sofort starten</label>
         </div>
     </div>
+    <div class="flex flex-col gap-2">
+        <label for="start-date" class="text-xs pl-2">Start</label>
+        <input id="start-date" type="datetime-local" name="startDate" />
+    </div>
+    <div class="flex flex-col gap-2">
+        <label for="duration">Laufzeit</label>
+        <input id="duration" type="date" name="endDate" />
+    </div>
 </form>
-<!-- <div class="flex flex-col gap-4 p-4">
-    <Input label="Titel" bind:value={deal.title} {disabled} />
-    <Textarea label="Beschreibung" bind:value={deal.description} {disabled} />
-    <CategorySelect bind:value={deal.category_id} {disabled} />
-    <Button on:click={()=> fileInput.click()} disabled={disabled || imagePreviews.length >= 3}>
-        Bild hinzufügen ({imagePreviews.length} / 3)
-    </Button>
-    <input bind:this={fileInput} on:change={pictureSelected} type="file" hidden />
-    <div class="grid grid-cols-3 gap-2">
-        {#each imagePreviews as imagePreview, index}
-        <Picture url={imagePreview} showDelete={!disabled} fixedHeight={false} on:delete={()=> deletePicture(index)} />
-            {/each}
-    </div>
-    <div class="flex gap-4">
-        <Checkbox label="Individuelle Laufzeit" bind:checked={individuallyTime} {disabled} />
-        <Checkbox label="Sofort starten" bind:checked={startDealImmediately} {disabled} />
-    </div>
-    {#if startDealImmediately}
-    <p class="py-7">Dein Deal startet sofort wenn du auf "Erstellen" klickst!</p>
-    {:else}
-    <Input type="datetime-local" min={nowDateTimeString} label="Start" bind:value={deal.start} disabled={disabled ||
-        startDealImmediately} />
-    {/if}
-    {#if individuallyTime}
-    <Input type="date" min={deal.start} label="Ende" bind:value={individualEndDate} {disabled} />
-    {:else}
-    <div class="py-2">
-        <ButtonGroup label="Laufzeit" options={runtimes} bind:value={durationInDays} {disabled} />
-    </div>
-    {/if}
-    <span class="text-red-600">{helpText}</span>
-    <div class="grid grid-cols-2 pt-16">
-        <div>
-            <p class="text-lg font-bold">Kosten: {costs} €</p>
-            <p class="pt-4 text-xs">{durationInDays} Tag{durationInDays > 1 ? "e" : ""} a 4,99 € pro Tag</p>
-        </div>
-        <div class="flex flex-col gap-3">
-            <Button warning on:click={()=> (openDealOVerviewModal = true)} disabled={disableSave || disabled} {loading}>
-                {deal.id && !deal.template ? "Speichern" : "Erstellen"}
-            </Button>
-            {#if deal.id && !disabled}
-            <Button error on:click={()=> (openDeleteModal = true)}>Löschen</Button>
-            {/if}
-            <Button small on:click={()=> goto("/")}>Abbrechen</Button>
-            {#if !deal.template}
-            <div class="flex justify-center">
-                <Checkbox label="Zusätzlich als Vorlage speichern" bind:checked={createTemplate} {disabled} />
-            </div>
-            {/if}
-        </div>
-    </div>
-</div> -->
+{{ . }}

@@ -1,10 +1,11 @@
 <form class="flex flex-col gap-4" hx-post="/api/signup" hx-target="#alert">
     <div class="gap-4 flex items-center select-none">
-        <input id="is-dealer" hx-get="/signup-fields" hx-target="#signup-fields" class="checkbox" type="checkbox"
+        <input id="is-dealer" hx-get="/ui/signup-fields" hx-target="#signup-fields" class="checkbox" type="checkbox"
             name="isDealer">
         <label for="is-dealer">Ich bin ein Dealer</label>
     </div>
-    <div id="signup-fields" class="flex flex-col gap-4" hx-trigger="load once" hx-get="/signup-fields" hx-target="this">
+    <div id="signup-fields" class="flex flex-col gap-4" hx-trigger="load once" hx-get="/ui/signup-fields"
+        hx-target="this">
     </div>
     <div class="flex gap-2 mt-4 justify-center">
         <button>Registrieren</button>

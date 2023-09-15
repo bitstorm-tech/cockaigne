@@ -27,7 +27,7 @@ func Register(app *fiber.App) {
 
 	app.Get("/logout", logout)
 
-	app.Get("/signup-fields", signupFields)
+	app.Get("/ui/signup-fields", signupFields)
 }
 
 func signup(c *fiber.Ctx) error {

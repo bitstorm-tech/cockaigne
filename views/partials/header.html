@@ -8,7 +8,7 @@
                 <a class="menu-item" href="/logout">Logout</a>
             </div>
             <div class="-mr-2 flex md:hidden">
-                <div class="text-yellow-200 cursor-pointer h-6 w-6" hx-get="/header?showMenu={{ not .showMenu }}"
+                <div class="text-yellow-200 cursor-pointer h-6 w-6" hx-get="/ui/header?showMenu={{ not .showMenu }}"
                     hx-target="#header">
                     <span class="sr-only">Open main menu</span>
                     {{ if .showMenu }}

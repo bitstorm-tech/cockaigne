@@ -24,7 +24,7 @@ func Register(app *fiber.App) {
 		return c.Render("pages/edit-deal", fiber.Map{"deal": deal}, "layouts/main")
 	})
 
-	app.Get("/category-select", func(c *fiber.Ctx) error {
+	app.Get("/ui/category-select", func(c *fiber.Ctx) error {
 		categories := []Category{}
 		err := persistence.DB.Find(&categories).Where("active = true").Error
 		if err != nil {
