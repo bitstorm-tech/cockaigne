@@ -33,4 +33,14 @@ func Register(app *fiber.App) {
 
 		return c.Render("partials/category-select", fiber.Map{"categories": categories})
 	})
+
+	app.Get("/ui/start-deal-timepicker", func(c *fiber.Ctx) error {
+		showDateTimeSelect := c.Query("startDealImmediately") != "on"
+		return c.Render("partials/start-deal-timepicker", fiber.Map{"showDateTimeSelect": showDateTimeSelect})
+	})
+
+	app.Get("/ui/duration-timepicker", func(c *fiber.Ctx) error {
+		showDateTimeSelect := c.Query("individuallyRuntime") == "on"
+		return c.Render("partials/duration-timepicker", fiber.Map{"showDateTimeSelect": showDateTimeSelect})
+	})
 }

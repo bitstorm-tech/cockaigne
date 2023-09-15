@@ -1,0 +1,22 @@
+{{ if .showDateTimeSelect }}
+<div id="duration" class="flex flex-col gap-2">
+    <label for="duration-input" class="text-xs pl-2">Ende</label>
+    <input id="duration-input" type="date" name="endDate"/>
+</div>
+{{ else }}
+<div class="flex items-center gap-3 py-6">
+    <span>Laufzeit:</span>
+    <div class="flex gap-2 items-center">
+        <input type="radio" id="one-day" class="radio" name="duration" value="24" checked>
+        <label for="one-day">1 Tag</label><br>
+    </div>
+    <div class="flex gap-2 items-center">
+        <input type="radio" id="two-days" class="radio" name="duration" value="48">
+        <label for="two-days">2 Tage</label><br>
+    </div>
+    <div class="flex gap-2 items-center">
+        <input type="radio" id="three-days" class="radio" name="duration" value="72">
+        <label for="three-days">3 Tage</label>
+    </div>
+</div>
+{{ end }}

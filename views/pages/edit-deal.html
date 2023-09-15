@@ -5,22 +5,19 @@
     <button>Bild hinzufügen (0/3)</button>
     <div class="flex gap-4 select-none">
         <div class="flex gap-2 items-center">
-            <input id="runtime" type="checkbox" class="checkbox" name="individuallyRuntime"
-                hx-get="/deal-start-timepicker" />
-            <label for="runtime">Individuelle Laufzeit</label>
+            <input id="start-immediately" type="checkbox" class="checkbox" name="startDealImmediately"
+                   hx-get="/ui/start-deal-timepicker" hx-target="#start-deal"/>
+            <label for="start-immediately">Sofort starten</label>
         </div>
         <div class="flex gap-2 items-center">
-            <input id="start-immediatly" type="checkbox" class="checkbox" name="startDealImmediately" />
-            <label for="start-immediatly">Sofort starten</label>
+            <input id="runtime" type="checkbox" class="checkbox" name="individuallyRuntime"
+                   hx-get="/ui/duration-timepicker" hx-target="#duration"/>
+            <label for="runtime">Individuelle Laufzeit</label>
         </div>
     </div>
-    <div class="flex flex-col gap-2">
-        <label for="start-date" class="text-xs pl-2">Start</label>
-        <input id="start-date" type="datetime-local" name="startDate" />
-    </div>
-    <div class="flex flex-col gap-2">
-        <label for="duration">Laufzeit</label>
-        <input id="duration" type="date" name="endDate" />
+    <div class="flex flex-col gap-4 justify-center">
+        <div id="start-deal" hx-get="/ui/start-deal-timepicker?datetime={{ .deal.Start }}" hx-target="#start-deal"
+             hx-trigger="load"></div>
+        <div id="duration" hx-get="/ui/duration-timepicker" hx-target="#duration" hx-trigger="load"></div>
     </div>
 </form>
-{{ . }}

@@ -15,7 +15,7 @@
         @apply appearance-none
     }
 
-    .checkbox {
+    .checkbox, .radio {
         @apply h-5 w-5
     }
 

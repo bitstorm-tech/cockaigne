@@ -16,7 +16,7 @@ func Register(app *fiber.App) {
 		})
 	})
 
-	app.Delete("/delete", func(c *fiber.Ctx) error {
+	app.Delete("/ui/remove", func(c *fiber.Ctx) error {
 		return c.SendString("")
 	})
 }
