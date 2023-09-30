@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "air": "air",
+    "tailwind": "tailwindcss --watch -m -i ./tailwind.css -o ./static/app.css",
+    "browser-sync": "browser-sync start --files 'views/**/*.html, ./**/*.css' --proxy 'localhost:3000' --port 3001",
+    "dev": "concurrently \"bun:air\" \"bun:tailwind\""
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.15",
+    "browser-sync": "^2.29.3",
+    "concurrently": "^8.2.1",
+    "postcss": "^8.4.29",
+    "prettier": "^3.0.3",
+    "prettier-plugin-tailwindcss": "^0.5.4",
+    "tailwindcss": "^3.3.3"
+  }
+}
