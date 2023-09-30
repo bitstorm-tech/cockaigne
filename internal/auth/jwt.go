@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/bitstorm-tech/cockaigne/internal/account"
+	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -34,4 +35,9 @@ func ParseJwtToken(tokenString string) (jwt.MapClaims, error) {
 	}
 
 	return token.Claims.(jwt.MapClaims), nil
+}
+
+func IsAuthenticated(c *fiber.Ctx) bool {
+	_, err := ParseJwtToken(c.Cookies("jwt"))
+	return err == nil
 }
