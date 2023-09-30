@@ -1,7 +1,7 @@
 <nav id="header" class="bg-gray-500" x-data="{showMenu: false}">
   <div class="px-4 sm:px-6 lg:px-8">
     <div class="flex h-12 items-center justify-between">
-      <a href="/" class="text-xl font-bold italic text-yellow-200">Cockaigne City</a>
+      <a href="/"><img class="h-8" src="/static/images/logo-text.svg" alt="Logo" /></a>
       <div class="hidden gap-1 md:flex">
         {{ if not .isAuthenticated }}
         <a class="menu-item" href="/login">Login</a>

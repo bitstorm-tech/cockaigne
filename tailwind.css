@@ -3,37 +3,41 @@
 @tailwind utilities;
 
 @layer base {
-    button, .btn {
-        @apply border border-indigo-500 bg-indigo-500 text-white rounded-xl px-4 py-2 transition duration-500 ease-in-out select-none hover:bg-indigo-600 focus:outline-none
-    }
+  button,
+  .btn {
+    @apply select-none rounded bg-slate-700 px-4 py-2 text-white transition duration-300 ease-in-out hover:bg-black focus:outline-none;
+  }
 
-    input, select, textarea {
-        @apply flex h-12 w-full items-center justify-center rounded-xl border bg-white/0 p-3 text-sm outline-none border-gray-400
-    }
+  input,
+  select,
+  textarea {
+    @apply flex h-10 w-full items-center justify-center rounded border border-gray-400 bg-white/0 p-3 text-sm outline-none;
+  }
 
-    select {
-        @apply appearance-none
-    }
+  select {
+    @apply appearance-none;
+  }
 
-    .checkbox, .radio {
-        @apply h-5 w-5
-    }
+  .checkbox,
+  .radio {
+    @apply h-5 w-5;
+  }
 
-    .menu-item {
-        @apply py-1 px-2 rounded-md text-white hover:text-yellow-200 hover:bg-gray-700
-    }
+  .menu-item {
+    @apply rounded-md px-2 py-1 text-white hover:bg-gray-700 hover:text-yellow-200;
+  }
 
-    .fade-in.htmx-added {
-        opacity: 0;
-    }
+  .fade-in.htmx-added {
+    opacity: 0;
+  }
 
-    .fade-in {
-        opacity: 1;
-        transition: opacity .3s ease-out;
-    }
+  .fade-in {
+    opacity: 1;
+    transition: opacity 0.3s ease-out;
+  }
 
-    .fade-out.htmx-swapping {
-        opacity: 0;
-        transition: opacity .3s ease-out;
-    }
+  .fade-out.htmx-swapping {
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+  }
 }
