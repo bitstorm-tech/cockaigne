@@ -1,23 +1,106 @@
-<form class="flex flex-col gap-4" hx-post="/api/deals">
-    <input type="text" placeholder="Titel" name="title">
-    <textarea class="h-32" rows="10" placeholder="Beschreibung" name="description"></textarea>
-    <div hx-get="/ui/category-select" hx-trigger="load" hx-swap="outerHTML"></div>
-    <button>Bild hinzufügen (0/3)</button>
-    <div class="flex gap-4 select-none">
-        <div class="flex gap-2 items-center">
-            <input id="start-immediately" type="checkbox" class="checkbox" name="startDealImmediately"
-                   hx-get="/ui/start-deal-timepicker" hx-target="#start-deal"/>
-            <label for="start-immediately">Sofort starten</label>
-        </div>
-        <div class="flex gap-2 items-center">
-            <input id="runtime" type="checkbox" class="checkbox" name="individuallyRuntime"
-                   hx-get="/ui/duration-timepicker" hx-target="#duration"/>
-            <label for="runtime">Individuelle Laufzeit</label>
-        </div>
+<form class="flex flex-col gap-4" hx-post="/api/deals" x-data="{startInstantly: false, ownEndDate: false}">
+  <!------------>
+  <!-- Title  -->
+  <!------------>
+  <div class="form-input">
+    <label for="title">Titel</label>
+    <input id="title" type="text" name="title" />
+  </div>
+
+  <!------------------>
+  <!-- Description  -->
+  <!------------------>
+  <div class="form-input">
+    <label for="description">Beschreibung</label>
+    <textarea id="description" class="h-32" rows="10" name="description"></textarea>
+  </div>
+
+  <!------------------------->
+  <!-- Category selection  -->
+  <!------------------------->
+  <div hx-get="/ui/category-select" hx-trigger="load" hx-swap="outerHTML"></div>
+
+  <!------------------->
+  <!-- Add pictures  -->
+  <!------------------->
+  <button>Bild hinzufügen (0/3)</button>
+
+  <!--------------------------------------------------------------------------->
+  <!-- Switch between start date or start instatnly and end date or runtime  -->
+  <!--------------------------------------------------------------------------->
+  <div class="flex gap-6">
+    <div class="form-input-checkbox">
+      <input id="start-immediately" type="checkbox" class="checkbox" name="startInstantly" x-model="startInstantly" />
+      <label for="start-immediately">Sofort starten</label>
     </div>
-    <div class="flex flex-col gap-4 justify-center">
-        <div id="start-deal" hx-get="/ui/start-deal-timepicker?datetime={{ .deal.Start }}" hx-target="#start-deal"
-             hx-trigger="load"></div>
-        <div id="duration" hx-get="/ui/duration-timepicker" hx-target="#duration" hx-trigger="load"></div>
+    <div class="form-input-checkbox">
+      <input id="runtime" type="checkbox" class="checkbox" name="ownEndDate" x-model="ownEndDate" />
+      <label for="runtime">Individuelle Laufzeit</label>
     </div>
+  </div>
+
+  <!------------------------------------>
+  <!-- Start date or start instatnly  -->
+  <!------------------------------------>
+  <div class="flex flex-col justify-center gap-4">
+    <div class="form-input" x-show="!startInstantly">
+      <label for="start-date-input">Start</label>
+      <input
+        id="start-date-input"
+        type="datetime-local"
+        name="startDate"
+        value="{{ .deal.Start.Format `2006-01-02T15:04` }}"
+      />
+    </div>
+    <div class="py-5 text-sm" x-show="startInstantly">
+      <span>Dein Deal startet sofort, wenn du auf "Erstellen" klickst!</span>
+    </div>
+  </div>
+
+  <!----------------------------------------->
+  <!-- End date or runtime 1, 2 or 3 days  -->
+  <!----------------------------------------->
+  <div class="flex select-none gap-4">
+    <div class="flex items-center gap-2">
+      <div class="form-input" x-show="ownEndDate">
+        <label for="duration-input">Ende</label>
+        <input id="duration-input" type="date" name="endDate" />
+      </div>
+      <div class="flex flex-col gap-2" x-show="!ownEndDate">
+        <span class="text-sm">Laufzeit:</span>
+        <div class="flex items-center">
+          <div class="flex items-center gap-2">
+            <input type="radio" id="one-day" class="radio" name="duration" value="24" checked />
+            <label for="one-day">1 Tag</label><br />
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="radio" id="two-days" class="radio" name="duration" value="48" />
+            <label for="two-days">2 Tage</label><br />
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="radio" id="three-days" class="radio" name="duration" value="72" />
+            <label for="three-days">3 Tage</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!----------------------------------->
+  <!-- Save, cancel buttons and sum  -->
+  <!----------------------------------->
+  <div class="flex justify-between pt-16">
+    <div class="flex flex-col">
+      <div>Kosten: 4,99 €</div>
+      <div class="text-xs">1 Tag a 4,99 € pro Tag</div>
+    </div>
+    <div class="flex flex-col gap-2">
+      <button>Erstellen</button>
+      <a href="/" class="btn">Abrechen</a>
+      <div class="form-input-checkbox">
+        <input id="template" type="checkbox" class="checkbox" name="template" />
+        <label for="template">Zusätzlich als Vorlage speichern</label>
+      </div>
+    </div>
+  </div>
 </form>

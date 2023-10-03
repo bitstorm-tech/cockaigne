@@ -25,7 +25,7 @@ func NewDeal() Deal {
 		Description:    "",
 		CategoryId:     0,
 		DurationInDays: 0,
-		Start:          time.Now(),
+		Start:          time.Now().Add(1 * time.Hour),
 		IsTemplate:     false,
 	}
 }

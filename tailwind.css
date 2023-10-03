@@ -5,13 +5,13 @@
 @layer base {
   button,
   .btn {
-    @apply select-none rounded bg-slate-700 px-4 py-2 text-white transition duration-300 ease-in-out hover:bg-black focus:outline-none;
+    @apply select-none rounded bg-slate-700 px-4 py-2 text-center text-white transition duration-300 ease-in-out hover:bg-black focus:outline-none;
   }
 
   input,
   select,
   textarea {
-    @apply flex h-10 w-full items-center justify-center rounded border border-gray-400 bg-white/0 p-3 text-sm outline-none;
+    @apply flex h-10 w-full items-center justify-center rounded border border-gray-400 bg-white/0 px-2 text-sm outline-none;
   }
 
   select {
@@ -25,6 +25,14 @@
 
   .menu-item {
     @apply rounded-md px-2 py-1 text-white hover:bg-gray-700 hover:text-yellow-200;
+  }
+
+  .form-input label {
+    @apply select-none pl-1 text-sm;
+  }
+
+  .form-input-checkbox {
+    @apply flex select-none items-center gap-2;
   }
 
   .fade-in.htmx-added {
