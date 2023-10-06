@@ -19,7 +19,7 @@ func ConnectToDb() {
 	pgPassword := os.Getenv("PGPASSWORD")
 
 	connectionString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s", pgHost, pgPort, pgUser, pgDatabase)
-	log.Debugf("Connecting to database: ", connectionString)
+	log.Debugf("Connecting to database: %+v", connectionString)
 
 	connectionString += " password=" + pgPassword
 	var err error

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"strings"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/bitstorm-tech/cockaigne/internal/user"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/template/html/v2"
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/lib/pq"
