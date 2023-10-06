@@ -2,9 +2,9 @@ package persistence
 
 import (
 	"fmt"
-	"log"
 	"os"
 
+	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -19,7 +19,7 @@ func ConnectToDb() {
 	pgPassword := os.Getenv("PGPASSWORD")
 
 	connectionString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s", pgHost, pgPort, pgUser, pgDatabase)
-	log.Print("Connecting to database: ", connectionString)
+	log.Debugf("Connecting to database: ", connectionString)
 
 	connectionString += " password=" + pgPassword
 	var err error
@@ -29,5 +29,5 @@ func ConnectToDb() {
 		log.Fatal("Can't open database connection", err)
 	}
 
-	log.Println("Database connection opened successfully")
+	log.Debug("Database connection opened successfully")
 }

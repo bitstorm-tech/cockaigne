@@ -24,7 +24,7 @@ func main() {
 	port := os.Getenv("PORT")
 	hostAndPort := host + ":" + port
 
-	log.Printf("Starting Cockaigne server (on %s) ...", hostAndPort)
+	log.Debugf("Starting Cockaigne server (on %s) ...", hostAndPort)
 
 	persistence.ConnectToDb()
 

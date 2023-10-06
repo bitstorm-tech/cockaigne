@@ -1,6 +1,6 @@
 <select name="category">
-    <option selected disabled hidden>Branche wählen ...</option>
-    {{ range .categories }}
-    <option value="{{ .ID }}">{{ .Name }}</option>
-    {{ end }}
+  <option selected disabled hidden>{{ .name }} wählen ...</option>
+  {{ range .categories }}
+  <option value="{{ .ID }}">{{ .Name }}</option>
+  {{ end }}
 </select>

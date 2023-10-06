@@ -1,17 +1,17 @@
-<input type="text" placeholder="Email" name="email">
-<input type="text" placeholder="Firmenname" name="username">
+<input type="text" placeholder="Email" name="email" />
+<input type="text" placeholder="Firmenname" name="username" />
 <div class="flex gap-2">
-    <input type="password" placeholder="Passwort" name="password">
-    <input type="password" placeholder="Passwort wiederholen" name="passwordRepeat">
+  <input type="password" placeholder="Passwort" name="password" />
+  <input type="password" placeholder="Passwort wiederholen" name="passwordRepeat" />
 </div>
-<div id="category-select" hx-get="/ui/category-select" hx-trigger="load" hx-target="this"></div>
+<div id="category-select" hx-get="/ui/category-select?name=Branche" hx-trigger="load" hx-target="this"></div>
 <div class="grid grid-cols-3 gap-2">
-    <input class="col-span-2" type="text" placeholder="Straße" name="street">
-    <input type="text" placeholder="Hausnummer" name="houseNumber">
+  <input class="col-span-2" type="text" placeholder="Straße" name="street" />
+  <input type="text" placeholder="Hausnummer" name="houseNumber" />
 </div>
 <div class="grid grid-cols-3 gap-2">
-    <input class="col-span-2" type="text" placeholder="Ort" name="city">
-    <input type="number" placeholder="PLZ" name="zipCode">
+  <input class="col-span-2" type="text" placeholder="Ort" name="city" />
+  <input type="number" placeholder="PLZ" name="zipCode" />
 </div>
-<input type="text" placeholder="Telefon" name="phoneNumber">
-<input type="text" placeholder="Umsatzsteuer ID" name="taxId">
+<input type="text" placeholder="Telefon" name="phoneNumber" />
+<input type="text" placeholder="Umsatzsteuer ID" name="taxId" />

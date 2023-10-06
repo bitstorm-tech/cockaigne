@@ -1,4 +1,9 @@
-<form class="flex flex-col gap-4" hx-post="/api/deals" x-data="{startInstantly: false, ownEndDate: false}">
+<form
+  class="flex flex-col gap-4"
+  hx-post="/api/deals"
+  hx-target="#alert"
+  x-data="{startInstantly: false, ownEndDate: false, runtime: 1}"
+>
   <!------------>
   <!-- Title  -->
   <!------------>
@@ -18,7 +23,7 @@
   <!------------------------->
   <!-- Category selection  -->
   <!------------------------->
-  <div hx-get="/ui/category-select" hx-trigger="load" hx-swap="outerHTML"></div>
+  <div hx-get="/ui/category-select?name=Kategorie" hx-trigger="load once" hx-target="this"></div>
 
   <!------------------->
   <!-- Add pictures  -->
@@ -42,65 +47,50 @@
   <!------------------------------------>
   <!-- Start date or start instatnly  -->
   <!------------------------------------>
-  <div class="flex flex-col justify-center gap-4">
-    <div class="form-input" x-show="!startInstantly">
-      <label for="start-date-input">Start</label>
-      <input
-        id="start-date-input"
-        type="datetime-local"
-        name="startDate"
-        value="{{ .deal.Start.Format `2006-01-02T15:04` }}"
-      />
-    </div>
-    <div class="py-5 text-sm" x-show="startInstantly">
-      <span>Dein Deal startet sofort, wenn du auf "Erstellen" klickst!</span>
-    </div>
+  <div class="form-input" x-show="!startInstantly">
+    <label for="start-date-input">Start</label>
+    <input
+      id="start-date-input"
+      type="datetime-local"
+      name="startDate"
+      value="{{ .deal.Start.Format `2006-01-02T15:04` }}"
+    />
+  </div>
+  <div class="py-5 text-sm" x-show="startInstantly">
+    <span>Dein Deal startet sofort, wenn du auf "Erstellen" klickst!</span>
   </div>
 
   <!----------------------------------------->
   <!-- End date or runtime 1, 2 or 3 days  -->
   <!----------------------------------------->
   <div class="flex select-none gap-4">
-    <div class="flex items-center gap-2">
-      <div class="form-input" x-show="ownEndDate">
-        <label for="duration-input">Ende</label>
-        <input id="duration-input" type="date" name="endDate" />
-      </div>
-      <div class="flex flex-col gap-2" x-show="!ownEndDate">
-        <span class="text-sm">Laufzeit:</span>
-        <div class="flex items-center">
-          <div class="flex items-center gap-2">
-            <input type="radio" id="one-day" class="radio" name="duration" value="24" checked />
-            <label for="one-day">1 Tag</label><br />
-          </div>
-          <div class="flex items-center gap-2">
-            <input type="radio" id="two-days" class="radio" name="duration" value="48" />
-            <label for="two-days">2 Tage</label><br />
-          </div>
-          <div class="flex items-center gap-2">
-            <input type="radio" id="three-days" class="radio" name="duration" value="72" />
-            <label for="three-days">3 Tage</label>
-          </div>
-        </div>
+    <div class="form-input w-full" x-show="ownEndDate">
+      <label for="duration-input">Ende</label>
+      <input id="duration-input" type="date" name="endDate" />
+    </div>
+    <div class="form-input w-full" x-show="!ownEndDate">
+      <span class="text-sm">Laufzeit</span>
+      <div class="flex items-center gap-2">
+        <span x-text="runtime"></span><span>Tag(e)</span>
+        <input name="duration" type="range" min="1" max="10" step="1" x-model="runtime" />
       </div>
     </div>
   </div>
 
-  <!----------------------------------->
-  <!-- Save, cancel buttons and sum  -->
-  <!----------------------------------->
-  <div class="flex justify-between pt-16">
-    <div class="flex flex-col">
-      <div>Kosten: 4,99 €</div>
-      <div class="text-xs">1 Tag a 4,99 € pro Tag</div>
-    </div>
-    <div class="flex flex-col gap-2">
-      <button>Erstellen</button>
-      <a href="/" class="btn">Abrechen</a>
-      <div class="form-input-checkbox">
-        <input id="template" type="checkbox" class="checkbox" name="template" />
-        <label for="template">Zusätzlich als Vorlage speichern</label>
-      </div>
-    </div>
+  <!------------------------------------>
+  <!-- Save additionally as template  -->
+  <!------------------------------------>
+  <div class="form-input-checkbox pt-10">
+    <input id="template" type="checkbox" class="checkbox" name="template" />
+    <label for="template">Zusätzlich als Vorlage speichern</label>
+  </div>
+
+  <!--------------------->
+  <!-- Save and cancel -->
+  <!--------------------->
+  <div class="grid grid-cols-2 gap-2">
+    <button>Erstellen</button>
+    <a href="/" class="btn">Abrechen</a>
   </div>
 </form>
+<div id="alert"></div>

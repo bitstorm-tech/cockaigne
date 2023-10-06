@@ -5,6 +5,7 @@ import (
 
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 )
 
 func Register(app *fiber.App) {
@@ -30,7 +31,25 @@ func Register(app *fiber.App) {
 		if err != nil {
 			return c.Render("partials/alert", fiber.Map{"message": err.Error()})
 		}
+		name := c.Query("name", "Kategorie")
 
-		return c.Render("partials/category-select", fiber.Map{"categories": categories})
+		return c.Render("partials/category-select", fiber.Map{"categories": categories, "name": name})
+	})
+
+	app.Post("/api/deals", func(c *fiber.Ctx) error {
+		deal, errorMessage := NewDealFromRequest(c)
+		if len(errorMessage) > 0 {
+			return c.Render("partials/alert", fiber.Map{"message": errorMessage})
+		}
+
+		log.Debugf("Create deal: %+v", deal)
+
+		// err := persistence.DB.Save(&deal).Error
+		// if err != nil {
+		// 	return c.Render("partials/alert", fiber.Map{"message": err.Error()})
+		// }
+
+		// return c.Redirect("/")
+		return nil
 	})
 }
