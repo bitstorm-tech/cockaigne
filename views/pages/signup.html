@@ -1,15 +1,33 @@
-<form class="flex flex-col gap-4" hx-post="/api/signup" hx-target="#alert">
-    <div class="gap-4 flex items-center select-none">
-        <input id="is-dealer" hx-get="/ui/signup-fields" hx-target="#signup-fields" class="checkbox" type="checkbox"
-            name="isDealer">
-        <label for="is-dealer">Ich bin ein Dealer</label>
+<form class="flex flex-col gap-4" hx-post="/api/signup" hx-target="#alert" x-data="{isDealer: false}">
+  <div class="flex select-none items-center gap-4">
+    <input id="is-dealer" class="checkbox" type="checkbox" name="isDealer" x-model="isDealer" />
+    <label for="is-dealer">Ich bin ein Dealer</label>
+  </div>
+
+  <input type="text" placeholder="Email" name="email" />
+  <input type="text" placeholder="Benutzername" name="username" />
+  <div class="flex gap-2">
+    <input type="password" placeholder="Passwort" name="password" />
+    <input type="password" placeholder="Passwort wiederholen" name="passwordRepeat" />
+  </div>
+
+  <div class="flex flex-col gap-4" x-show="isDealer">
+    <div id="category-select" hx-get="/ui/category-select?name=Branche" hx-trigger="load once" hx-target="this"></div>
+    <div class="grid grid-cols-3 gap-2">
+      <input class="col-span-2" type="text" placeholder="Straße" name="street" />
+      <input type="text" placeholder="Hausnummer" name="houseNumber" />
     </div>
-    <div id="signup-fields" class="flex flex-col gap-4" hx-trigger="load once" hx-get="/ui/signup-fields"
-        hx-target="this">
+    <div class="grid grid-cols-3 gap-2">
+      <input class="col-span-2" type="text" placeholder="Ort" name="city" />
+      <input type="number" placeholder="PLZ" name="zipCode" />
     </div>
-    <div class="flex gap-2 mt-4 justify-center">
-        <button>Registrieren</button>
-        <a class="btn" href="/">Abbrechen</a>
-    </div>
+    <input type="text" placeholder="Telefon" name="phoneNumber" />
+    <input type="text" placeholder="Umsatzsteuer ID" name="taxId" />
+  </div>
+
+  <div class="mt-4 flex justify-center gap-2">
+    <button>Registrieren</button>
+    <a class="btn btn-outline" href="/">Abbrechen</a>
+  </div>
 </form>
 <div id="alert"></div>

@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/bitstorm-tech/cockaigne/internal/account"
-	"github.com/bitstorm-tech/cockaigne/internal/deal"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -26,8 +25,6 @@ func Register(app *fiber.App) {
 	app.Post("/api/login", login)
 
 	app.Get("/logout", logout)
-
-	app.Get("/ui/signup-fields", signupFields)
 }
 
 func signup(c *fiber.Ctx) error {
@@ -124,20 +121,4 @@ func logout(c *fiber.Ctx) error {
 	})
 
 	return c.Redirect("/login")
-}
-
-func signupFields(c *fiber.Ctx) error {
-	isDealer := c.Query("isDealer") == "on"
-
-	if isDealer {
-		categories := []deal.Category{}
-		err := persistence.DB.Find(&categories).Select("name").Where("active = true").Error
-		if err != nil {
-			return c.Render("partials/alert", fiber.Map{"message": err.Error()})
-		}
-
-		return c.Render("partials/signup-dealer", fiber.Map{"categories": categories})
-	}
-
-	return c.Render("partials/signup-user", nil)
 }

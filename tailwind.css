@@ -8,6 +8,10 @@
     @apply select-none rounded bg-slate-700 px-4 py-2 text-center text-white transition duration-300 ease-in-out hover:bg-black focus:outline-none;
   }
 
+  .btn-outline {
+    @apply border border-slate-700 bg-transparent text-slate-700 hover:bg-gray-200;
+  }
+
   input,
   select,
   textarea {
