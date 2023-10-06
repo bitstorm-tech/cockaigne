@@ -3,6 +3,7 @@ package deal
 import (
 	"strings"
 
+	"github.com/bitstorm-tech/cockaigne/internal/auth"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -37,19 +38,27 @@ func Register(app *fiber.App) {
 	})
 
 	app.Post("/api/deals", func(c *fiber.Ctx) error {
+		userId, err := auth.ParseUserId(c)
+		if err != nil {
+			return c.Redirect("/login")
+		}
+
 		deal, errorMessage := NewDealFromRequest(c)
 		if len(errorMessage) > 0 {
 			return c.Render("partials/alert", fiber.Map{"message": errorMessage})
 		}
 
+		deal.DealerId = userId
 		log.Debugf("Create deal: %+v", deal)
+		log.Debugf("Deal start: %+v", deal.Start)
 
-		// err := persistence.DB.Save(&deal).Error
-		// if err != nil {
-		// 	return c.Render("partials/alert", fiber.Map{"message": err.Error()})
-		// }
+		err = persistence.DB.Save(&deal).Error
+		if err != nil {
+			return c.Render("partials/alert", fiber.Map{"message": err.Error()})
+		}
 
-		// return c.Redirect("/")
+		c.Set("HX-Redirect", "/")
+
 		return nil
 	})
 }

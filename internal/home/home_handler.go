@@ -8,8 +8,7 @@ import (
 
 func Register(app *fiber.App) {
 	app.Get("/", func(c *fiber.Ctx) error {
-		jwt := c.Cookies("jwt")
-		claims, err := auth.ParseJwtToken(jwt)
+		claims, err := auth.ParseJwtToken(c)
 
 		if err != nil {
 			log.Errorf("Can't parse JWT token: %+v", err)

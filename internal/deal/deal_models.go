@@ -11,24 +11,24 @@ import (
 
 type Deal struct {
 	gorm.Model
-	ID             uuid.UUID `gorm:"not null; default: gen_random_uuid(); type: uuid"`
-	DealerId       uuid.UUID `gorm:"not null; default: null; type: uuid"`
-	Title          string    `gorm:"not null; default: null"`
-	Description    string    `gorm:"not null; default: null"`
-	CategoryId     int       `gorm:"not null; default: null"`
-	DurationInDays int       `gorm:"not null; default: null"`
-	Start          time.Time `gorm:"not null; default: null; type: timestamp with time zone"`
-	IsTemplate     bool      `gorm:"not null; default: false"`
+	ID              uuid.UUID `gorm:"not null; default: gen_random_uuid(); type: uuid"`
+	DealerId        uuid.UUID `gorm:"not null; default: null; type: uuid"`
+	Title           string    `gorm:"not null; default: null"`
+	Description     string    `gorm:"not null; default: null"`
+	CategoryId      int       `gorm:"not null; default: null"`
+	DurationInHours int       `gorm:"not null; default: null"`
+	Start           time.Time `gorm:"not null; default: null; type: timestamp with time zone"`
+	IsTemplate      bool      `gorm:"not null; default: false"`
 }
 
 func NewDeal() Deal {
 	return Deal{
-		Title:          "",
-		Description:    "",
-		CategoryId:     0,
-		DurationInDays: 0,
-		Start:          time.Now().Add(1 * time.Hour),
-		IsTemplate:     false,
+		Title:           "",
+		Description:     "",
+		CategoryId:      0,
+		DurationInHours: 0,
+		Start:           time.Now().Add(1 * time.Hour),
+		IsTemplate:      false,
 	}
 }
 
@@ -66,6 +66,7 @@ func NewDealFromRequest(c *fiber.Ctx) (Deal, string) {
 		if err != nil {
 			return Deal{}, "Bitte entweder eine Laufzeit oder ein Enddatum angeben"
 		}
+		duration *= 24
 	}
 
 	if duration <= 0 {
@@ -73,10 +74,11 @@ func NewDealFromRequest(c *fiber.Ctx) (Deal, string) {
 	}
 
 	return Deal{
-		Title:          title,
-		Description:    description,
-		CategoryId:     categoryId,
-		DurationInDays: duration,
+		Title:           title,
+		Description:     description,
+		CategoryId:      categoryId,
+		Start:           startDate,
+		DurationInHours: duration,
 	}, ""
 }
 
