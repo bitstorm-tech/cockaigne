@@ -12,7 +12,8 @@
   </head>
 
   <body>
-    <div hx-get="/ui/header" hx-swap="outerHTML" hx-trigger="load"></div>
+    <div hx-get="/ui/partials/header" hx-swap="outerHTML" hx-trigger="load"></div>
     <main class="p-4 md:px-52">{{ embed }}</main>
+    <div hx-get="/ui/partials/footer" hx-swap="outerHTML" hx-trigger="load"></div>
   </body>
 </html>

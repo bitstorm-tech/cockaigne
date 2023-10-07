@@ -1,4 +1,4 @@
-package header
+package ui
 
 import (
 	"github.com/bitstorm-tech/cockaigne/internal/auth"
@@ -6,11 +6,25 @@ import (
 )
 
 func Register(app *fiber.App) {
-	app.Get("/ui/header", func(c *fiber.Ctx) error {
+	app.Get("/ui/partials/header", func(c *fiber.Ctx) error {
 		isAuthenticated := auth.IsAuthenticated(c)
 
 		return c.Render("partials/header", fiber.Map{
 			"isAuthenticated": isAuthenticated,
+		})
+	})
+
+	app.Get("/ui/partials/footer", func(c *fiber.Ctx) error {
+		isAuthenticated := auth.IsAuthenticated(c)
+
+		if !isAuthenticated {
+			return c.Render("", nil)
+		}
+
+		isDealer := auth.IsDealer(c)
+
+		return c.Render("partials/footer", fiber.Map{
+			"isDealer": isDealer,
 		})
 	})
 

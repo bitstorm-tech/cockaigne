@@ -57,3 +57,12 @@ func IsAuthenticated(c *fiber.Ctx) bool {
 	_, err := ParseJwtToken(c)
 	return err == nil
 }
+
+func IsDealer(c *fiber.Ctx) bool {
+	token, err := ParseJwtToken(c)
+	if err != nil {
+		return false
+	}
+
+	return token["isDealer"].(bool)
+}

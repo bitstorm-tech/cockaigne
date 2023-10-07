@@ -8,9 +8,9 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/auth"
 	"github.com/bitstorm-tech/cockaigne/internal/deal"
 	"github.com/bitstorm-tech/cockaigne/internal/dealer"
-	"github.com/bitstorm-tech/cockaigne/internal/header"
 	"github.com/bitstorm-tech/cockaigne/internal/home"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
+	"github.com/bitstorm-tech/cockaigne/internal/ui"
 	"github.com/bitstorm-tech/cockaigne/internal/user"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -46,7 +46,7 @@ func main() {
 	app.Static("/static", "./static")
 
 	auth.Register(app)
-	header.Register(app)
+	ui.Register(app)
 	home.Register(app)
 	account.Register(app)
 	user.Register(app)
