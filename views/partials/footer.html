@@ -1,7 +1,11 @@
 <footer class="absolute bottom-0 left-0 right-0 h-10 bg-gray-500" x-data="{isDealer: {{ .isDealer }}}">
   <div class="flex h-full items-center justify-around">
-    <a href="/">Home</a>
-    <a href="#" x-show="isDealer">Deals Overview</a>
+    <a href="/">
+      <img class="h-8" src="/static/images/icons/home.svg" alt="Home" />
+    </a>
+    <a href="#" x-show="isDealer">
+      <img class="h-8" src="/static/images/icons/deals-overview.svg" alt="Deals overview" />
+    </a>
     <a href="#" x-show="!isDealer">Top Deals</a>
     <a href="#" x-show="!isDealer">Map</a>
   </div>
