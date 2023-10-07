@@ -1,1 +1,19 @@
 {{ template "dealer-profile-header" . }}
+
+<div class="pt-16" x-data="{selectedTab: 0}">
+  <div class="grid grid-cols-3 place-items-center">
+    <div hx-get="/deals" hx-target="#content" hx-trigger="click" x-on:click="selectedTab = 0">
+      <img class="h-6" src="/static/images/icons/deals.svg" alt="Deals" x-show="selectedTab === 0" />
+      <img class="h-6" src="/static/images/icons/deals-outline.svg" alt="Deals" x-show="selectedTab !== 0" />
+    </div>
+    <div hx-get="/images" hx-target="#content" hx-trigger="click" x-on:click="selectedTab = 1">
+      <img class="h-6" src="/static/images/icons/images.svg" alt="Images" x-show="selectedTab === 1" />
+      <img class="h-6" src="/static/images/icons/images-outline.svg" alt="Images" x-show="selectedTab !== 1" />
+    </div>
+    <div hx-get="/ratings" hx-target="#content" hx-trigger="click" x-on:click="selectedTab = 2">
+      <img class="h-6" src="/static/images/icons/rating.svg" alt="Ratings" x-show="selectedTab === 2" />
+      <img class="h-6" src="/static/images/icons/rating-outline.svg" alt="Ratings" x-show="selectedTab !== 2" />
+    </div>
+  </div>
+  <div id="content" class="pt-4" hx-get="/deals" hx-trigger="load once" hx-target="this"></div>
+</div>

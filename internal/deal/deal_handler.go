@@ -61,4 +61,19 @@ func Register(app *fiber.App) {
 
 		return nil
 	})
+
+	app.Get("/deals", func(c *fiber.Ctx) error {
+		userId, err := auth.ParseUserId(c)
+		if err != nil {
+			return c.Redirect("/login")
+		}
+
+		deals := []Deal{}
+		err = persistence.DB.Find(&deals, "dealer_id = ?", userId).Error
+		if err != nil {
+			return c.Render("partials/alert", fiber.Map{"message": err.Error()})
+		}
+
+		return c.Render("partials/deals-list", fiber.Map{"deals": deals})
+	})
 }

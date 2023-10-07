@@ -5,5 +5,13 @@
   "pluginSearchDirs": false,
   "bracketSameLine": true,
   "bracketSpacing": true,
-  "htmlWhitespaceSensitivity": "ignore"
+  "htmlWhitespaceSensitivity": "ignore",
+  "overrides": [
+    {
+      "files": "*.svg",
+      "options": {
+        "parser": "html"
+      }
+    }
+  ]
 }
