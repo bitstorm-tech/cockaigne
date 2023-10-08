@@ -9,6 +9,7 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/deal"
 	"github.com/bitstorm-tech/cockaigne/internal/dealer"
 	"github.com/bitstorm-tech/cockaigne/internal/home"
+	"github.com/bitstorm-tech/cockaigne/internal/maps"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/bitstorm-tech/cockaigne/internal/ui"
 	"github.com/bitstorm-tech/cockaigne/internal/user"
@@ -52,6 +53,7 @@ func main() {
 	user.Register(app)
 	dealer.Register(app)
 	deal.Register(app)
+	maps.Register(app)
 
 	log.Fatal(app.Listen(hostAndPort))
 }
