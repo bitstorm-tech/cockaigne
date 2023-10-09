@@ -18,5 +18,5 @@ type Account struct {
 	ZipCode         int32     `gorm:"default: null"`
 	PhoneNumber     string    `gorm:"default: null"`
 	TaxId           string    `gorm:"default: null"`
-	DefaultCategory int32     `gorm:"default: null"`
+	DefaultCategory int       `gorm:"default: null"`
 }

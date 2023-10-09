@@ -19,7 +19,7 @@ type CreateAccountRequest struct {
 	ZipCode        string
 	PhoneNumber    string
 	TaxId          string
-	Category       int32
+	Category       int
 }
 
 func (c CreateAccountRequest) ToAccount(passwordHash string) account.Account {

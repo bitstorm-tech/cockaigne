@@ -32,13 +32,19 @@ func signup(c *fiber.Ctx) error {
 	err := c.BodyParser(&request)
 
 	if err != nil {
-		log.Errorf("Error while signup %v", err)
+		log.Errorf("Error while signup: %v", err)
 		return c.JSON(fiber.Map{
 			"message": err.Error(),
 		})
 	}
 
-	log.Debugf("Signup attempt: %+v", request)
+	log.Debugf("Signup attempt: %+v", request.Email)
+
+	var count int64
+	persistence.DB.Model(&account.Account{}).Where("email ilike ?", request.Email).Or("username ilike ?", request.Username).Count(&count)
+	if count > 0 {
+		return c.Render("partials/alert", fiber.Map{"message": "Benutzername oder E-Mail bereits vergeben"})
+	}
 
 	if request.Password != request.PasswordRepeat {
 		return c.Render("partials/alert", fiber.Map{"message": "Passwort und Wiederholung stimmen nicht überein"})
@@ -49,7 +55,7 @@ func signup(c *fiber.Ctx) error {
 	}
 
 	if request.Email == "" || !strings.Contains(request.Email, "@") {
-		return c.Render("partials/alert", fiber.Map{"message": "Bitte eine gültige E-Mail-Adresse angeben"})
+		return c.Render("partials/alert", fiber.Map{"message": "Bitte eine gültige E-Mail angeben"})
 	}
 
 	log.Debugf("New account: %+v", request.Email)

@@ -18,7 +18,7 @@ func Register(app *fiber.App) {
 		isAuthenticated := auth.IsAuthenticated(c)
 
 		if !isAuthenticated {
-			return c.Render("", nil)
+			return c.SendString("")
 		}
 
 		isDealer := auth.IsDealer(c)
