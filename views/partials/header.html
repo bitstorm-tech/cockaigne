@@ -24,7 +24,7 @@
     </div>
   </div>
   <!-- Mobile menu -->
-  <div class="absolute right-1 top-10 select-none rounded-xl bg-gray-600 md:hidden" x-show="showMenu">
+  <div class="absolute right-1 top-10 z-50 select-none rounded-xl bg-gray-600 md:hidden" x-show="showMenu">
     <div class="space-y-1 px-2 pb-3 pt-2 sm:px-3">
       {{ if not .isAuthenticated }}
       <a class="menu-item block" href="/login">Login</a>
