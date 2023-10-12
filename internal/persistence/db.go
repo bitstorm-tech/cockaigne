@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 var DB *gorm.DB
@@ -23,7 +24,11 @@ func ConnectToDb() {
 
 	connectionString += " password=" + pgPassword
 	var err error
-	DB, err = gorm.Open(postgres.Open(connectionString), &gorm.Config{})
+	DB, err = gorm.Open(postgres.Open(connectionString), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			TablePrefix:   "cockaigne.", // schema name
+			SingularTable: false,
+		}})
 
 	if err != nil {
 		log.Fatal("Can't open database connection", err)

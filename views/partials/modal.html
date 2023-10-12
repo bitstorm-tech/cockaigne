@@ -6,5 +6,11 @@
       <span>Titel</span>
       <button class="rounded-full" hx-delete="/ui/remove" hx-target="#modal-template" hx-swap="outerHTML">X</button>
     </div>
+    <div class="from-input" x-data="{r: 0.5}">
+      <label for="radiu">Umkreis</label>
+      <span x-text="r"></span>
+      <span>km</span>
+      <input id="radis" type="range" min="0.5" max="25" step="0.5" x-model="r" />
+    </div>
   </div>
 </section>

@@ -19,4 +19,5 @@ type Account struct {
 	PhoneNumber     string    `gorm:"default: null"`
 	TaxId           string    `gorm:"default: null"`
 	DefaultCategory int       `gorm:"default: null"`
+	Location        string    `gorm:"default: null; type:geometry(Point,4326)"`
 }

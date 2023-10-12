@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/bitstorm-tech/cockaigne/internal/account"
+	"github.com/bitstorm-tech/cockaigne/internal/geo"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -66,6 +67,14 @@ func signup(c *fiber.Ctx) error {
 	}
 
 	acc := request.ToAccount(string(passwordHash))
+
+	postion, err := geo.GetPositionFromAddress(acc.City, int(acc.ZipCode), acc.Street, acc.HouseNumber)
+	if err != nil {
+		log.Errorf("Error while getting position from address: %v", err)
+		return c.Render("partials/alert", fiber.Map{"message": "Die Adresse konnte nicht gefunden werden"})
+	}
+
+	acc.Location = postion.ToWkt()
 
 	err = persistence.DB.Create(&acc).Error
 	if err != nil {
