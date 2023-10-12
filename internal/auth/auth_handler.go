@@ -68,13 +68,15 @@ func signup(c *fiber.Ctx) error {
 
 	acc := request.ToAccount(string(passwordHash))
 
-	postion, err := geo.GetPositionFromAddress(acc.City, int(acc.ZipCode), acc.Street, acc.HouseNumber)
-	if err != nil {
-		log.Errorf("Error while getting position from address: %v", err)
-		return c.Render("partials/alert", fiber.Map{"message": "Die Adresse konnte nicht gefunden werden"})
-	}
+	if acc.IsDealer {
+		postion, err := geo.GetPositionFromAddress(acc.City, int(acc.ZipCode), acc.Street, acc.HouseNumber)
+		if err != nil {
+			log.Errorf("Error while getting position from address: %v", err)
+			return c.Render("partials/alert", fiber.Map{"message": "Die Adresse konnte nicht gefunden werden"})
+		}
 
-	acc.Location = postion.ToWkt()
+		acc.Location = postion.ToWkt()
+	}
 
 	err = persistence.DB.Create(&acc).Error
 	if err != nil {
