@@ -87,3 +87,16 @@ type Category struct {
 	Name   string `gorm:"not null; default: null"`
 	Active bool   `gorm:"not null; default: true"`
 }
+
+type ActiveDeals struct {
+	ID                uuid.UUID `gorm:"type: uuid"`
+	DealerId          uuid.UUID `gorm:"type: uuid"`
+	Title             string
+	Description       string
+	CategoryId        int
+	DurationInMinutes int
+	Start             time.Time
+	Username          string
+	Location          string
+	Likes             int
+}

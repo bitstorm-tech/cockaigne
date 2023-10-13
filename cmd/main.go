@@ -9,6 +9,7 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/deal"
 	"github.com/bitstorm-tech/cockaigne/internal/dealer"
 	"github.com/bitstorm-tech/cockaigne/internal/home"
+	"github.com/bitstorm-tech/cockaigne/internal/like"
 	"github.com/bitstorm-tech/cockaigne/internal/maps"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/bitstorm-tech/cockaigne/internal/ui"
@@ -32,7 +33,7 @@ func main() {
 	migrateDb := strings.ToLower(os.Getenv("MIGRATE_DATABASE")) == "true"
 
 	if migrateDb {
-		err := persistence.DB.AutoMigrate(&account.Account{}, &deal.Deal{}, &deal.Category{})
+		err := persistence.DB.AutoMigrate(&account.Account{}, &deal.Deal{}, &deal.Category{}, &like.Like{})
 		if err != nil {
 			log.Fatal(err)
 		}
