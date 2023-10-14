@@ -2,14 +2,12 @@ package main
 
 import (
 	"os"
-	"strings"
 
 	"github.com/bitstorm-tech/cockaigne/internal/account"
 	"github.com/bitstorm-tech/cockaigne/internal/auth"
 	"github.com/bitstorm-tech/cockaigne/internal/deal"
 	"github.com/bitstorm-tech/cockaigne/internal/dealer"
 	"github.com/bitstorm-tech/cockaigne/internal/home"
-	"github.com/bitstorm-tech/cockaigne/internal/like"
 	"github.com/bitstorm-tech/cockaigne/internal/maps"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/bitstorm-tech/cockaigne/internal/ui"
