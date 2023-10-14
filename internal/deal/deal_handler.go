@@ -78,10 +78,12 @@ func Register(app *fiber.App) {
 	})
 
 	app.Get("/api/deals", func(c *fiber.Ctx) error {
-		extent := c.Query("extent")
-		log.Debugf("Get deals in extent: %s", extent)
+		// extent := c.Query("extent")
 		deals := []ActiveDeal{}
-		err := persistence.DB.Select("*, st_x(location) || ',' || st_y(location) as location").Find(&deals).Error
+		err := persistence.DB.
+			Select("*, st_x(location) || ',' || st_y(location) as location").
+			Find(&deals).
+			Error
 		if err != nil {
 			log.Errorf("can't get deals: %s", err.Error())
 			return nil

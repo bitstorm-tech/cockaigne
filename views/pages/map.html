@@ -21,8 +21,14 @@
     const res = await fetch("/api/deals?extent=" + extent);
     const deals = await res.json();
     for (const deal of deals) {
-      const coordinates = deal.Location.split(",");
-      L.marker(coordinates.reverse()).addTo(map);
+      const coordinates = deal.Location.split(",").reverse();
+      L.marker(coordinates).addTo(map);
+      L.circle(coordinates, {
+        color: "green",
+        fillColor: "#009900",
+        fillOpacity: 0.1,
+        radius: "{{ .searchRadius }}"
+      }).addTo(map);
     }
   }
 </script>
