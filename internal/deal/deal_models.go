@@ -88,7 +88,7 @@ type Category struct {
 	Active bool   `gorm:"not null; default: true"`
 }
 
-type ActiveDeals struct {
+type ActiveDeal struct {
 	ID                uuid.UUID `gorm:"type: uuid"`
 	DealerId          uuid.UUID `gorm:"type: uuid"`
 	Title             string

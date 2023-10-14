@@ -7,8 +7,22 @@
 <div id="modal"></div>
 
 <script>
-  var map = L.map("map").setView([48.137154, 11.576124], 13);
+  const map = L.map("map").setView([48.137154, 11.576124], 13);
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19
   }).addTo(map);
+
+  map.on("moveend", function () {
+    const extend = map.getBounds().toBBoxString();
+    updateDealsOnMap(extend);
+  });
+
+  async function updateDealsOnMap(extent) {
+    const res = await fetch("/api/deals?extent=" + extent);
+    const deals = await res.json();
+    for (const deal of deals) {
+      const coordinates = deal.Location.split(",");
+      L.marker(coordinates.reverse()).addTo(map);
+    }
+  }
 </script>
