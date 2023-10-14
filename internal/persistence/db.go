@@ -10,29 +10,30 @@ import (
 	"gorm.io/gorm/schema"
 )
 
+var pgPort = os.Getenv("PGPORT")
+var pgHost = os.Getenv("PGHOST")
+var pgDatabase = os.Getenv("PGDATABASE")
+var pgUser = os.Getenv("PGUSER")
+var pgPassword = os.Getenv("PGPASSWORD")
+var ConnectionString = fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s", pgHost, pgPort, pgUser, pgDatabase, pgPassword)
 var DB *gorm.DB
 
 func ConnectToDb() {
-	pgHost := os.Getenv("PGHOST")
-	pgPort := os.Getenv("PGPORT")
-	pgDatabase := os.Getenv("PGDATABASE")
-	pgUser := os.Getenv("PGUSER")
-	pgPassword := os.Getenv("PGPASSWORD")
+	log.Debugf("Connecting to database: %s:*********@%s:%s/%s", pgUser, pgHost, pgPort, pgDatabase)
 
-	connectionString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s", pgHost, pgPort, pgUser, pgDatabase)
-	log.Debugf("Connecting to database: %+v", connectionString)
-
-	connectionString += " password=" + pgPassword
+	ConnectionString += " password=" + pgPassword
 	var err error
-	DB, err = gorm.Open(postgres.Open(connectionString), &gorm.Config{
+	DB, err = gorm.Open(postgres.Open(ConnectionString), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   "cockaigne.", // schema name
+			TablePrefix:   "cockaigne.",
 			SingularTable: false,
 		}})
 
 	if err != nil {
 		log.Fatal("Can't open database connection", err)
 	}
+
+	DB.Exec("set search_path = public,cockaigne")
 
 	log.Debug("Database connection opened successfully")
 }

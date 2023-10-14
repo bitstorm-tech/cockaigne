@@ -30,15 +30,6 @@ func main() {
 
 	persistence.ConnectToDb()
 
-	migrateDb := strings.ToLower(os.Getenv("MIGRATE_DATABASE")) == "true"
-
-	if migrateDb {
-		err := persistence.DB.AutoMigrate(&account.Account{}, &deal.Deal{}, &deal.Category{}, &like.Like{})
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
 	engine := html.New("./views", ".html")
 
 	app := fiber.New(fiber.Config{

@@ -1,5 +1,6 @@
 .idea
-.env
+.env*
+!.env.template
 tmp
 node_modules
  

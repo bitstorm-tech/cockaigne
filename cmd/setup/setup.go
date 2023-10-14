@@ -1,14 +1,21 @@
 package main
 
 import (
+	"os"
+
+	"github.com/bitstorm-tech/cockaigne/internal/account"
 	"github.com/bitstorm-tech/cockaigne/internal/deal"
+	"github.com/bitstorm-tech/cockaigne/internal/like"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
+	"github.com/gofiber/fiber/v2/log"
 	_ "github.com/joho/godotenv/autoload"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 const createLikeCountsViewQuery = `
 create or replace view
-  like_counts as
+  cockaigne.like_counts as
 select
   deal_id,
   count(deal_id) as like_count
@@ -22,7 +29,7 @@ order by
 
 const createActiveDealsViewQuery = `
 create or replace view
-  active_deals as
+  cockaigne.active_deals as
 select
   d.id,
   d.dealer_id,
@@ -47,10 +54,33 @@ order by
 `
 
 func main() {
+	createSchemaAndInstallPostGis()
 	persistence.ConnectToDb()
+	persistence.DB.Exec("drop view if exists cockaigne.like_counts cascade;")
+	persistence.DB.Exec("drop view if exists cockaigne.active_deals cascade;")
+	err := persistence.DB.AutoMigrate(&account.Account{}, &deal.Deal{}, &deal.Category{}, &like.Like{})
+	if err != nil {
+		panic("can't migrate database: " + err.Error())
+	}
 	persistence.DB.Create(&categories)
 	persistence.DB.Exec(createLikeCountsViewQuery)
 	persistence.DB.Exec(createActiveDealsViewQuery)
+}
+
+func createSchemaAndInstallPostGis() {
+	db, err := gorm.Open(postgres.Open(persistence.ConnectionString))
+	if err != nil {
+		panic("can't create cockaigen schema: " + err.Error())
+	}
+
+	user := os.Getenv("PGUSER")
+	log.Info("Create postgis extension ...")
+	db.Exec("create extension if not exists postgis;")
+	log.Info("Create schema cockaigne ...")
+	db.Exec("create schema if not exists cockaigne authorization " + user + ";")
+
+	_db, _ := db.DB()
+	_db.Close()
 }
 
 var categories = []deal.Category{

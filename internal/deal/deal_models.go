@@ -95,8 +95,8 @@ type ActiveDeal struct {
 	Description       string
 	CategoryId        int
 	DurationInMinutes int
-	Start             time.Time
+	Start             time.Time `gorm:"type: timestamp with time zone"`
 	Username          string
-	Location          string
+	Location          string `gorm:"type: geometry(Point,4326)"`
 	Likes             int
 }
