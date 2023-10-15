@@ -1,0 +1,9 @@
+<section id="modal" class="absolute bottom-0 left-0 right-0 top-0 z-10 bg-transparent px-10 py-32 backdrop-blur">
+  <div class="rounded bg-slate-300 p-4">
+    <div class="flex justify-between pb-8">
+      <h1 class="text-2xl"><b>{{ .titel }}</b></h1>
+      <!-- <button class="btn-outline rounded-full" hx-delete="/ui/remove" hx-target="#modal">X</button> -->
+    </div>
+    {{ embed }}
+  </div>
+</section>

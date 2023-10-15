@@ -1,9 +1,8 @@
-package auth
+package jwt
 
 import (
 	"os"
 
-	"github.com/bitstorm-tech/cockaigne/internal/account"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/golang-jwt/jwt/v4"
@@ -12,10 +11,10 @@ import (
 
 var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
-func CreateJwtToken(acc account.Account) string {
+func CreateJwtToken(id uuid.UUID, isDealer bool) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
-		"sub":      acc.ID,
-		"isDealer": acc.IsDealer,
+		"sub":      id,
+		"isDealer": isDealer,
 	})
 
 	signedString, err := token.SignedString(jwtSecret)

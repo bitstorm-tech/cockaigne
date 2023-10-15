@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/bitstorm-tech/cockaigne/internal/account"
+	"github.com/bitstorm-tech/cockaigne/internal/auth/jwt"
 	"github.com/bitstorm-tech/cockaigne/internal/geo"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2"
@@ -120,7 +121,7 @@ func login(c *fiber.Ctx) error {
 		c.Set("HX-Location", "/user")
 	}
 
-	jwt := CreateJwtToken(acc)
+	jwt := jwt.CreateJwtToken(acc.ID, acc.IsDealer)
 	c.Cookie(&fiber.Cookie{
 		Name:     "jwt",
 		Value:    jwt,

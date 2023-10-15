@@ -84,8 +84,18 @@ func NewDealFromRequest(c *fiber.Ctx) (Deal, string) {
 
 type Category struct {
 	gorm.Model
-	Name   string `gorm:"not null; default: null"`
+	Name   string `gorm:"not null; default: null; unique"`
 	Active bool   `gorm:"not null; default: true"`
+}
+
+func (c Category) IsFavorite(favCategoryIds []int) bool {
+	for _, favCategoryId := range favCategoryIds {
+		if favCategoryId == int(c.ID) {
+			return true
+		}
+	}
+
+	return false
 }
 
 type ActiveDeal struct {

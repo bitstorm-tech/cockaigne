@@ -58,11 +58,11 @@ func main() {
 	persistence.ConnectToDb()
 	persistence.DB.Exec("drop view if exists cockaigne.like_counts cascade;")
 	persistence.DB.Exec("drop view if exists cockaigne.active_deals cascade;")
-	err := persistence.DB.AutoMigrate(&account.Account{}, &deal.Deal{}, &deal.Category{}, &like.Like{})
+	err := persistence.DB.AutoMigrate(&account.Account{}, &deal.Deal{}, &deal.Category{}, &like.Like{}, &account.FavoriteCategory{})
 	if err != nil {
 		panic("can't migrate database: " + err.Error())
 	}
-	persistence.DB.Create(&categories)
+	persistence.DB.Updates(&categories)
 	persistence.DB.Exec(createLikeCountsViewQuery)
 	persistence.DB.Exec(createActiveDealsViewQuery)
 }

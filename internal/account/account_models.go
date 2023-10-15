@@ -1,6 +1,8 @@
 package account
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -21,4 +23,15 @@ type Account struct {
 	DefaultCategory      int       `gorm:"default: null"`
 	Location             string    `gorm:"default: null; type: geometry(Point,4326)"`
 	SearchRadiusInMeters int       `gorm:"default: 250"`
+}
+
+type FavoriteCategory struct {
+	AccountId  uuid.UUID `gorm:"not null; type: uuid; uniqueIndex: idx_favorite_categories"`
+	CategoryId int       `gorm:"not null; uniqueIndex: idx_favorite_categories"`
+	CreatedAt  time.Time `gorm:"not null; type: timestamp with time zone; default: now()"`
+}
+
+type UpdateFilterRequest struct {
+	SearchRadiusInMeters int
+	FavoriteCategoryIds  []int
 }

@@ -3,7 +3,7 @@ package deal
 import (
 	"strings"
 
-	"github.com/bitstorm-tech/cockaigne/internal/auth"
+	"github.com/bitstorm-tech/cockaigne/internal/auth/jwt"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -38,7 +38,7 @@ func Register(app *fiber.App) {
 	})
 
 	app.Post("/api/deals", func(c *fiber.Ctx) error {
-		userId, err := auth.ParseUserId(c)
+		userId, err := jwt.ParseUserId(c)
 		if err != nil {
 			return c.Redirect("/login")
 		}
@@ -63,7 +63,7 @@ func Register(app *fiber.App) {
 	})
 
 	app.Get("/deals", func(c *fiber.Ctx) error {
-		userId, err := auth.ParseUserId(c)
+		userId, err := jwt.ParseUserId(c)
 		if err != nil {
 			return c.Redirect("/login")
 		}

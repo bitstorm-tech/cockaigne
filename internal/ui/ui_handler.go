@@ -1,13 +1,13 @@
 package ui
 
 import (
-	"github.com/bitstorm-tech/cockaigne/internal/auth"
+	"github.com/bitstorm-tech/cockaigne/internal/auth/jwt"
 	"github.com/gofiber/fiber/v2"
 )
 
 func Register(app *fiber.App) {
 	app.Get("/ui/partials/header", func(c *fiber.Ctx) error {
-		isAuthenticated := auth.IsAuthenticated(c)
+		isAuthenticated := jwt.IsAuthenticated(c)
 
 		return c.Render("partials/header", fiber.Map{
 			"isAuthenticated": isAuthenticated,
@@ -15,13 +15,13 @@ func Register(app *fiber.App) {
 	})
 
 	app.Get("/ui/partials/footer", func(c *fiber.Ctx) error {
-		isAuthenticated := auth.IsAuthenticated(c)
+		isAuthenticated := jwt.IsAuthenticated(c)
 
 		if !isAuthenticated {
 			return c.SendString("")
 		}
 
-		isDealer := auth.IsDealer(c)
+		isDealer := jwt.IsDealer(c)
 
 		return c.Render("partials/footer", fiber.Map{
 			"isDealer": isDealer,
@@ -35,6 +35,6 @@ func Register(app *fiber.App) {
 	})
 
 	app.Delete("/ui/remove", func(c *fiber.Ctx) error {
-		return c.SendString("")
+		return nil
 	})
 }
