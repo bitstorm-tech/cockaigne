@@ -5,9 +5,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2/log"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/schema"
+	"github.com/jmoiron/sqlx"
 )
 
 var pgPort = os.Getenv("PGPORT")
@@ -15,25 +13,26 @@ var pgHost = os.Getenv("PGHOST")
 var pgDatabase = os.Getenv("PGDATABASE")
 var pgUser = os.Getenv("PGUSER")
 var pgPassword = os.Getenv("PGPASSWORD")
-var ConnectionString = fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s", pgHost, pgPort, pgUser, pgDatabase, pgPassword)
-var DB *gorm.DB
+var DB *sqlx.DB
 
 func ConnectToDb() {
 	log.Debugf("Connecting to database: %s:*********@%s:%s/%s", pgUser, pgHost, pgPort, pgDatabase)
+	connectionString := fmt.Sprintf(
+		"host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+		pgHost,
+		pgPort,
+		pgUser,
+		pgDatabase,
+		pgPassword,
+	)
 
-	ConnectionString += " password=" + pgPassword
+	connectionString += " password=" + pgPassword
+
 	var err error
-	DB, err = gorm.Open(postgres.Open(ConnectionString), &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   "cockaigne.",
-			SingularTable: false,
-		}})
-
+	DB, err = sqlx.Connect("postgres", connectionString)
 	if err != nil {
-		log.Fatal("Can't open database connection", err)
+		log.Fatalf("Can't open database connection: %+v", err)
 	}
 
-	DB.Exec("set search_path = public,cockaigne")
-
-	log.Debug("Database connection opened successfully")
+	log.Info("Database connection opened successfully")
 }

@@ -1,19 +1,17 @@
 package account
 
 import (
+	"fmt"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
 )
 
 func GetSearchRadius(userId uuid.UUID) int {
-	account := &Account{}
-	err := persistence.DB.Find(account, userId).Error
+	var searchRadius = 250
+	err := persistence.DB.Get(&searchRadius, "select search_radius_in_meters from accounts where id = $1", userId)
 
-	searchRadius := 250
-	if err == nil {
-		searchRadius = account.SearchRadiusInMeters
-	} else {
+	if err != nil {
 		log.Errorf("can't get search radius: %v", err)
 	}
 
@@ -21,9 +19,12 @@ func GetSearchRadius(userId uuid.UUID) int {
 }
 
 func GetFavoriteCategoryIds(userId uuid.UUID) []int {
-	favoriteCategoryIds := []int{}
-	err := persistence.DB.Model(&FavoriteCategory{}).Select("category_id").Where("account_id = ?", userId).Find(&favoriteCategoryIds).Error
-
+	var favoriteCategoryIds []int
+	err := persistence.DB.Select(
+		&favoriteCategoryIds,
+		"select category_id from selected_categories where user_id = $1",
+		userId,
+	)
 	if err != nil {
 		log.Errorf("can't get favorite categories: %v", err)
 		return []int{}
@@ -32,10 +33,9 @@ func GetFavoriteCategoryIds(userId uuid.UUID) []int {
 	return favoriteCategoryIds
 }
 
-func GetAccount(userId uuid.UUID) (Account, error) {
+func GetAccount(userId string) (Account, error) {
 	account := Account{}
-	err := persistence.DB.Find(&account, userId).Error
-
+	err := persistence.DB.Get(&account, "select * from accounts where id = $1", userId)
 	if err != nil {
 		log.Errorf("can't get account: %v", err)
 		return Account{}, err
@@ -44,6 +44,82 @@ func GetAccount(userId uuid.UUID) (Account, error) {
 	return account, nil
 }
 
-func UpdateAccount(account Account) error {
-	return persistence.DB.Save(&account).Error
+func GetAccountByEmail(email string) (Account, error) {
+	account := Account{}
+	err := persistence.DB.Get(&account, "select * from accounts where email = $1", email)
+	if err != nil {
+		log.Errorf("can't get account: %v", err)
+		return Account{}, err
+	}
+
+	return account, nil
+}
+
+func Exists(email string, username string) (bool, error) {
+	var count int
+	err := persistence.DB.Get(
+		&count,
+		"select count(*) from accounts where email ilike $1 or username ilike $2",
+		email,
+		username,
+	)
+
+	if err != nil {
+		return true, fmt.Errorf("can't get account count: %v", err)
+	}
+
+	return count > 0, nil
+}
+
+func SaveDealer(acc Account) error {
+	_, err := persistence.DB.Exec(
+		"insert into accounts (email, password, street, username, default_category, house_number, city, zip, phone, tax_id, location, is_dealer) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, true)",
+		acc.Email,
+		acc.Password,
+		acc.Street.String,
+		acc.Username,
+		acc.DefaultCategory.Int32,
+		acc.HouseNumber.String,
+		acc.City.String,
+		acc.ZipCode.Int32,
+		acc.Phone.String,
+		acc.TaxId.String,
+		acc.Location.String,
+	)
+
+	return err
+}
+
+func SaveUser(acc Account) error {
+	_, err := persistence.DB.Exec(
+		"insert into accounts (email, password, username, age, gender, is_dealer) values ($1, $2, $3, $4, $5, false)",
+		acc.Email,
+		acc.Password,
+		acc.Username,
+		acc.Age.Int32,
+		acc.Gender.String,
+	)
+
+	return err
+}
+
+func UpdateSearchRadius(accountId uuid.UUID, radius int) error {
+	_, err := persistence.DB.Exec("update accounts set search_radius_in_meters = $1 where id = $2", radius, accountId)
+	return err
+}
+
+func UpdateSelectedCategories(userId uuid.UUID, categoryIds []int) error {
+	_, err := persistence.DB.Exec("delete from selected_categories where user_id = $1", userId)
+	if err != nil {
+		return fmt.Errorf("can't delete selected categories: %w", err)
+	}
+
+	for _, categoryId := range categoryIds {
+		_, err = persistence.DB.Exec("insert into selected_categories (user_id, category_id) values ($1, $2)", userId, categoryId)
+		if err != nil {
+			return fmt.Errorf("can't insert selected categories: %w", err)
+		}
+	}
+
+	return nil
 }

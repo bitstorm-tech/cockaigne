@@ -22,7 +22,7 @@ func Register(app *fiber.App) {
 	app.Get("/ui/map/filter-modal", func(c *fiber.Ctx) error {
 		userId, _ := jwt.ParseUserId(c)
 
-		acc, err := account.GetAccount(userId)
+		acc, err := account.GetAccount(userId.String())
 
 		if err != nil {
 			log.Errorf("can't get account: %v", err)

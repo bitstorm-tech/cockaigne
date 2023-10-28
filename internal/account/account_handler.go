@@ -2,7 +2,6 @@ package account
 
 import (
 	"github.com/bitstorm-tech/cockaigne/internal/auth/jwt"
-	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/bitstorm-tech/cockaigne/internal/ui"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -24,13 +23,16 @@ func updateFilter(c *fiber.Ctx) error {
 	err := c.BodyParser(&updateFilterRequest)
 	if err != nil {
 		log.Errorf("can't parse filter update request: %v", err)
+	}
+
+	if err := UpdateSearchRadius(userId, updateFilterRequest.SearchRadiusInMeters); err != nil {
+		log.Errorf("can't update accounts search_radius_in_meters: %v", err)
 		return ui.ShowAlert(c, "Fehler beim Verarbeiten der Filteränderung")
 	}
 
-	persistence.DB.Model(&Account{}).Where("id = ?", userId).Update("search_radius_in_meters", updateFilterRequest.SearchRadiusInMeters)
-	persistence.DB.Where("account_id = ?", userId).Delete(&FavoriteCategory{})
-	for _, categoryId := range updateFilterRequest.FavoriteCategoryIds {
-		persistence.DB.Create(&FavoriteCategory{AccountId: userId, CategoryId: categoryId})
+	if err := UpdateSelectedCategories(userId, updateFilterRequest.FavoriteCategoryIds); err != nil {
+		log.Errorf("can't update selected categories: %s", err)
+		return ui.ShowAlert(c, "Fehler beim Verarbeiten der Filteränderung")
 	}
 
 	return nil

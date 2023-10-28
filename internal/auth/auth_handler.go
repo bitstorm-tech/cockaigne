@@ -1,13 +1,14 @@
 package auth
 
 import (
+	"database/sql"
 	"fmt"
+	"github.com/bitstorm-tech/cockaigne/internal/account"
+	"github.com/bitstorm-tech/cockaigne/internal/ui"
 	"strings"
 
-	"github.com/bitstorm-tech/cockaigne/internal/account"
 	"github.com/bitstorm-tech/cockaigne/internal/auth/jwt"
 	"github.com/bitstorm-tech/cockaigne/internal/geo"
-	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"golang.org/x/crypto/bcrypt"
@@ -42,46 +43,58 @@ func signup(c *fiber.Ctx) error {
 
 	log.Debugf("Signup attempt: %+v", request.Email)
 
-	var count int64
-	persistence.DB.Model(&account.Account{}).Where("email ilike ?", request.Email).Or("username ilike ?", request.Username).Count(&count)
-	if count > 0 {
-		return c.Render("partials/alert", fiber.Map{"message": "Benutzername oder E-Mail bereits vergeben"})
+	accExists, err := account.Exists(request.Email, request.Username)
+
+	if err != nil {
+		log.Errorf("can't signup -> don't know if account already exists: %v", err)
+		return ui.ShowAlert(c, "Leider gibt es aktuell ein technisches Problem. Bitte später noch einmal versuchen!")
+	}
+
+	if accExists {
+		return ui.ShowAlert(c, "Benutzername oder E-Mail bereits vergeben")
 	}
 
 	if request.Password != request.PasswordRepeat {
-		return c.Render("partials/alert", fiber.Map{"message": "Passwort und Wiederholung stimmen nicht überein"})
+		return ui.ShowAlert(c, "Passwort und Wiederholung stimmen nicht überein")
 	}
 
 	if request.Username == "" {
-		return c.Render("partials/alert", fiber.Map{"message": "Bitte einen Benutzernamen angeben"})
+		return ui.ShowAlert(c, "Bitte einen Benutzernamen angeben")
 	}
 
 	if request.Email == "" || !strings.Contains(request.Email, "@") {
-		return c.Render("partials/alert", fiber.Map{"message": "Bitte eine gültige E-Mail angeben"})
+		return ui.ShowAlert(c, "Bitte eine gültige E-Mail angeben")
 	}
 
 	log.Debugf("New account: %+v", request.Email)
 
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return c.Render("partials/alert", fiber.Map{"message": err.Error()})
+		return ui.ShowAlert(c, err.Error())
 	}
 
 	acc := request.ToAccount(string(passwordHash))
 
 	if acc.IsDealer {
-		postion, err := geo.GetPositionFromAddress(acc.City, int(acc.ZipCode), acc.Street, acc.HouseNumber)
+		postion, err := geo.GetPositionFromAddress(acc.City.String, int(acc.ZipCode.Int32), acc.Street.String, acc.HouseNumber.String)
 		if err != nil {
 			log.Errorf("Error while getting position from address: %v", err)
-			return c.Render("partials/alert", fiber.Map{"message": "Die Adresse konnte nicht gefunden werden"})
+			return ui.ShowAlert(c, "Die Adresse konnte nicht gefunden werden")
 		}
 
-		acc.Location = postion.ToWkt()
+		acc.Location = sql.NullString{
+			String: postion.ToWkt(),
+		}
 	}
 
-	err = persistence.DB.Create(&acc).Error
+	if acc.IsDealer {
+		err = account.SaveDealer(acc)
+	} else {
+		err = account.SaveUser(acc)
+	}
+
 	if err != nil {
-		return c.Render("partials/alert", fiber.Map{"message": err.Error()})
+		return ui.ShowAlert(c, err.Error())
 	}
 
 	c.Set("HX-Location", "/login")
@@ -102,17 +115,16 @@ func login(c *fiber.Ctx) error {
 
 	log.Debugf("Login attempt: %+v", request.Email)
 
-	acc := account.Account{}
-	err = persistence.DB.Where("email ilike ?", request.Email).First(&acc).Error
-
+	acc, err := account.GetAccountByEmail(request.Email)
 	if err != nil {
-		return c.Render("partials/alert", fiber.Map{"message": "Benutzername oder Passwort falsch"})
+		log.Errorf("can't get account by email (%s): %v", request.Email, err)
+		return ui.ShowAlert(c, "Benutzername oder Passwort falsch")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(acc.Password), []byte(request.Password))
 
 	if err != nil {
-		return c.Render("partials/alert", fiber.Map{"message": "Benutzername oder Passwort falsch"})
+		return ui.ShowAlert(c, "Benutzername oder Passwort falsch")
 	}
 
 	if acc.IsDealer {
@@ -121,10 +133,10 @@ func login(c *fiber.Ctx) error {
 		c.Set("HX-Location", "/user")
 	}
 
-	jwt := jwt.CreateJwtToken(acc.ID, acc.IsDealer)
+	jwtString := jwt.CreateJwtToken(acc.ID, acc.IsDealer)
 	c.Cookie(&fiber.Cookie{
 		Name:     "jwt",
-		Value:    jwt,
+		Value:    jwtString,
 		HTTPOnly: true,
 	})
 

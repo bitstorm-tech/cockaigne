@@ -6,19 +6,18 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type Deal struct {
-	gorm.Model
-	ID              uuid.UUID `gorm:"not null; default: gen_random_uuid(); type: uuid"`
-	DealerId        uuid.UUID `gorm:"not null; default: null; type: uuid"`
-	Title           string    `gorm:"not null; default: null"`
-	Description     string    `gorm:"not null; default: null"`
-	CategoryId      int       `gorm:"not null; default: null"`
-	DurationInHours int       `gorm:"not null; default: null"`
-	Start           time.Time `gorm:"not null; default: null; type: timestamp with time zone"`
-	IsTemplate      bool      `gorm:"not null; default: false"`
+	ID              uuid.UUID
+	DealerId        uuid.UUID
+	Title           string
+	Description     string
+	CategoryId      int
+	DurationInHours int
+	Start           time.Time
+	IsTemplate      bool
+	Created         time.Time
 }
 
 func NewDeal() Deal {
@@ -83,14 +82,14 @@ func NewDealFromRequest(c *fiber.Ctx) (Deal, string) {
 }
 
 type Category struct {
-	gorm.Model
-	Name   string `gorm:"not null; default: null; unique"`
-	Active bool   `gorm:"not null; default: true"`
+	ID       int
+	Name     string
+	IsActive bool `db:"is_active"`
 }
 
 func (c Category) IsFavorite(favCategoryIds []int) bool {
 	for _, favCategoryId := range favCategoryIds {
-		if favCategoryId == int(c.ID) {
+		if favCategoryId == c.ID {
 			return true
 		}
 	}

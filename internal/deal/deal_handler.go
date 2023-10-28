@@ -1,10 +1,10 @@
 package deal
 
 import (
+	"github.com/bitstorm-tech/cockaigne/internal/ui"
 	"strings"
 
 	"github.com/bitstorm-tech/cockaigne/internal/auth/jwt"
-	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 )
@@ -17,7 +17,8 @@ func Register(app *fiber.App) {
 		if strings.EqualFold(dealId, "new") {
 			deal = NewDeal()
 		} else {
-			err := persistence.DB.First(&deal, "id = ?", dealId).Error
+			var err error
+			deal, err = GetDeal(dealId)
 			if err != nil {
 				return c.Status(fiber.StatusNotFound).SendString("Not Found")
 			}
@@ -27,11 +28,7 @@ func Register(app *fiber.App) {
 	})
 
 	app.Get("/ui/category-select", func(c *fiber.Ctx) error {
-		categories := []Category{}
-		err := persistence.DB.Find(&categories).Where("active = true").Error
-		if err != nil {
-			return c.Render("partials/alert", fiber.Map{"message": err.Error()})
-		}
+		categories := GetCategories()
 		name := c.Query("name", "Kategorie")
 
 		return c.Render("partials/category-select", fiber.Map{"categories": categories, "name": name})
@@ -45,16 +42,14 @@ func Register(app *fiber.App) {
 
 		deal, errorMessage := NewDealFromRequest(c)
 		if len(errorMessage) > 0 {
-			return c.Render("partials/alert", fiber.Map{"message": errorMessage})
+			return ui.ShowAlert(c, errorMessage)
 		}
 
 		deal.DealerId = userId
 		log.Debugf("Create deal: %+v", deal)
-		log.Debugf("Deal start: %+v", deal.Start)
 
-		err = persistence.DB.Save(&deal).Error
-		if err != nil {
-			return c.Render("partials/alert", fiber.Map{"message": err.Error()})
+		if err := SaveDeal(deal); err != nil {
+			return ui.ShowAlert(c, err.Error())
 		}
 
 		c.Set("HX-Redirect", "/")
@@ -68,10 +63,9 @@ func Register(app *fiber.App) {
 			return c.Redirect("/login")
 		}
 
-		deals := []Deal{}
-		err = persistence.DB.Find(&deals, "dealer_id = ?", userId).Error
+		deals, err := GetDealsOfDealer(userId.String())
 		if err != nil {
-			return c.Render("partials/alert", fiber.Map{"message": err.Error()})
+			return ui.ShowAlert(c, err.Error())
 		}
 
 		return c.Render("partials/deals-list", fiber.Map{"deals": deals})
@@ -79,13 +73,9 @@ func Register(app *fiber.App) {
 
 	app.Get("/api/deals", func(c *fiber.Ctx) error {
 		// extent := c.Query("extent")
-		deals := []ActiveDeal{}
-		err := persistence.DB.
-			Select("*, st_x(location) || ',' || st_y(location) as location").
-			Find(&deals).
-			Error
+		deals, err := GetActiveDeals()
 		if err != nil {
-			log.Errorf("can't get deals: %s", err.Error())
+			log.Errorf("can't get deals: %v", err)
 			return nil
 		}
 

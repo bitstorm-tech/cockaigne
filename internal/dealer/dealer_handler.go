@@ -3,23 +3,24 @@ package dealer
 import (
 	"github.com/bitstorm-tech/cockaigne/internal/account"
 	"github.com/bitstorm-tech/cockaigne/internal/deal"
-	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 )
 
 func Register(app *fiber.App) {
 	app.Get("/dealer/:dealerId", func(c *fiber.Ctx) error {
-		acc := account.Account{}
-		err := persistence.DB.First(&acc, "id = ?", c.Params("dealerId")).Error
+		dealerId := c.Params("dealerId")
+		acc, err := account.GetAccount(dealerId)
 
 		if err != nil {
+			log.Errorf("can't find dealer (%s): %v", dealerId, err)
 			return c.Status(fiber.StatusNotFound).SendString("Not Found")
 		}
 
-		category := deal.Category{}
-		err = persistence.DB.Take(&category, acc.DefaultCategory).Error
+		category, err := deal.GetCategory(int(acc.DefaultCategory.Int32))
 
 		if err != nil {
+			log.Errorf("can't find category (id=%s): %v", acc.DefaultCategory.Int32, err)
 			return c.Status(fiber.StatusNotFound).SendString("Not Found")
 		}
 

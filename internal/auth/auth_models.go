@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"database/sql"
 	"strconv"
 
 	"github.com/bitstorm-tech/cockaigne/internal/account"
@@ -17,9 +18,9 @@ type CreateAccountRequest struct {
 	HouseNumber    string
 	City           string
 	ZipCode        string
-	PhoneNumber    string
+	Phone          string
 	TaxId          string
-	Category       int
+	Category       int32
 }
 
 func (c CreateAccountRequest) ToAccount(passwordHash string) account.Account {
@@ -36,16 +37,16 @@ func (c CreateAccountRequest) ToAccount(passwordHash string) account.Account {
 
 	return account.Account{
 		Username:        c.Username,
-		Password:        string(passwordHash),
+		Password:        passwordHash,
 		Email:           c.Email,
 		IsDealer:        c.IsDealer,
-		Street:          c.Street,
-		HouseNumber:     c.HouseNumber,
-		City:            c.City,
-		ZipCode:         int32(zipCode),
-		PhoneNumber:     c.PhoneNumber,
-		TaxId:           c.TaxId,
-		DefaultCategory: c.Category,
+		Street:          sql.NullString{String: c.Street},
+		HouseNumber:     sql.NullString{String: c.HouseNumber},
+		City:            sql.NullString{String: c.City},
+		ZipCode:         sql.NullInt32{Int32: int32(zipCode)},
+		Phone:           sql.NullString{String: c.Phone},
+		TaxId:           sql.NullString{String: c.TaxId},
+		DefaultCategory: sql.NullInt32{Int32: c.Category},
 	}
 }
 
