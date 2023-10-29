@@ -110,3 +110,13 @@ func GetDealsFromView(state State, dealerId *string) ([]DealView, error) {
 
 	return deals, nil
 }
+
+func GetTemplates(dealerId string) ([]Deal, error) {
+	var templates []Deal
+	err := persistence.DB.Select(&templates, "select * from deals where template = true and dealer_id = $1", dealerId)
+	if err != nil {
+		return []Deal{}, fmt.Errorf("can't get templates: %v", err)
+	}
+
+	return templates, nil
+}
