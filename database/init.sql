@@ -244,6 +244,48 @@ from deals d
          join accounts a on d.dealer_id = a.id
          left join like_counts_view c on c.deal_id = d.id
 where d.template = false
+  and now() < d."start"
+order by start_time;
+
+
+
+create or replace view past_deals_view as
+select d.id,
+       d.dealer_id,
+       d.title,
+       d.description,
+       d.category_id,
+       d.duration_in_hours,
+       d.start,
+       d.start::time            as start_time,
+       a.username,
+       a.location,
+       coalesce(c.likecount, 0) as likes
+from deals d
+         join accounts a on d.dealer_id = a.id
+         left join like_counts_view c on c.deal_id = d.id
+where d.template = false
+  and now() > d."start" + (d.duration_in_hours || ' hours')::interval
+order by start_time;
+
+
+
+create or replace view future_deals_view as
+select d.id,
+       d.dealer_id,
+       d.title,
+       d.description,
+       d.category_id,
+       d.duration_in_hours,
+       d.start,
+       d.start::time            as start_time,
+       a.username,
+       a.location,
+       coalesce(c.likecount, 0) as likes
+from deals d
+         join accounts a on d.dealer_id = a.id
+         left join like_counts_view c on c.deal_id = d.id
+where d.template = false
   and d."start" > now()
 order by start_time;
 

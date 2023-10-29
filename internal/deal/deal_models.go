@@ -10,13 +10,13 @@ import (
 
 type Deal struct {
 	ID              uuid.UUID
-	DealerId        uuid.UUID
+	DealerId        uuid.UUID `db:"dealer_id"`
 	Title           string
 	Description     string
-	CategoryId      int
-	DurationInHours int
+	CategoryId      int `db:"category_id"`
+	DurationInHours int `db:"duration_in_hours"`
 	Start           time.Time
-	IsTemplate      bool
+	IsTemplate      bool `db:"template"`
 	Created         time.Time
 }
 
@@ -97,15 +97,16 @@ func (c Category) IsFavorite(favCategoryIds []int) bool {
 	return false
 }
 
-type ActiveDeal struct {
-	ID                uuid.UUID `gorm:"type: uuid"`
-	DealerId          uuid.UUID `gorm:"type: uuid"`
-	Title             string
-	Description       string
-	CategoryId        int
-	DurationInMinutes int
-	Start             time.Time `gorm:"type: timestamp with time zone"`
-	Username          string
-	Location          string `gorm:"type: geometry(Point,4326)"`
-	Likes             int
+type DealView struct {
+	ID              uuid.UUID
+	DealerId        uuid.UUID `db:"dealer_id"`
+	Title           string
+	Description     string
+	CategoryId      int `db:"category_id"`
+	DurationInHours int `db:"duration_in_hours"`
+	Start           time.Time
+	StartTime       time.Time `db:"start_time"`
+	Username        string
+	Location        string
+	Likes           int
 }

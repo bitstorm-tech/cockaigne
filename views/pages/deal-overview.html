@@ -1,0 +1,14 @@
+<div class="flex flex-col gap-8">
+  <div class="grid grid-cols-2 gap-3 p-3">
+    <a href="/deal/new" class="btn">Deal erstellen</a>
+    <button>Vorlagen</button>
+  </div>
+  <div x-data="{selectedTab: 0}">
+    <div class="grid grid-cols-3 place-items-center">
+      <div hx-get="/deals/active" hx-target="#content" hx-trigger="click" @click="selectedTab = 0">Aktiv</div>
+      <div hx-get="/deals/future" hx-target="#content" hx-trigger="click" @click="selectedTab = 1">Geplant</div>
+      <div hx-get="/deals/past" hx-target="#content" hx-trigger="click" @click="selectedTab = 2">Abgelaufen</div>
+    </div>
+  </div>
+</div>
+<div id="content" class="pt-4" hx-get="/deals/active" hx-trigger="load once" hx-target="this"></div>

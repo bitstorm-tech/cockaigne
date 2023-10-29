@@ -5,8 +5,8 @@
       <span class="text-xs text-[#6a828c]"><b>Kategorie</b></span>
       <span class="text-xs font-extralight italic text-[#6a828c]">{{ .category }}</span>
       <span class="pb-2 pt-8 text-2xl">{{ .account.Username }}</span>
-      <span>{{ .account.Street }} {{ .account.HouseNumber }}</span>
-      <span>{{ .account.ZipCode }} {{ .account.City }}</span>
+      <span>{{ .account.Street.String }} {{ .account.HouseNumber.String }}</span>
+      <span>{{ .account.ZipCode.Int32 }} {{ .account.City.String }}</span>
     </div>
     <div class="-mt-6 mr-8 flex flex-col items-center gap-2">
       <ProfilePicture {imageUrl} />

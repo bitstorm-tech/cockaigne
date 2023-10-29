@@ -57,14 +57,18 @@ func Register(app *fiber.App) {
 		return nil
 	})
 
-	app.Get("/deals", func(c *fiber.Ctx) error {
+	app.Get("/deals/:state", func(c *fiber.Ctx) error {
 		userId, err := jwt.ParseUserId(c)
 		if err != nil {
 			return c.Redirect("/login")
 		}
 
-		deals, err := GetDealsOfDealer(userId.String())
+		state := ToState(c.Params("state", "active"))
+		userIdString := userId.String()
+
+		deals, err := GetDealsFromView(state, &userIdString)
 		if err != nil {
+			log.Error(err)
 			return ui.ShowAlert(c, err.Error())
 		}
 
@@ -73,7 +77,7 @@ func Register(app *fiber.App) {
 
 	app.Get("/api/deals", func(c *fiber.Ctx) error {
 		// extent := c.Query("extent")
-		deals, err := GetActiveDeals()
+		deals, err := GetDealsFromView(Active, nil)
 		if err != nil {
 			log.Errorf("can't get deals: %v", err)
 			return nil

@@ -4,7 +4,31 @@ import (
 	"fmt"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2/log"
+	"strings"
 )
+
+type State string
+
+const (
+	Active State = "active"
+	Past   State = "past"
+	Future State = "future"
+)
+
+func ToState(state string) State {
+	switch strings.ToLower(state) {
+	case "active":
+		return Active
+	case "past":
+		return Past
+	case "future":
+		return Future
+	}
+
+	log.Warnf("invalid deal state (%s) -> use active as default", state)
+
+	return Active
+}
 
 func GetCategories() []Category {
 	var categories []Category
@@ -18,7 +42,7 @@ func GetCategories() []Category {
 
 func GetCategory(id int) (Category, error) {
 	var category Category
-	err := persistence.DB.Get(category, "select * from categories where id = $1", id)
+	err := persistence.DB.Get(&category, "select * from categories where id = $1", id)
 	if err != nil {
 		return Category{}, fmt.Errorf("can't get category (id=%d): %v", id, err)
 	}
@@ -50,22 +74,22 @@ func GetDeal(id string) (Deal, error) {
 	return deal, nil
 }
 
-func GetActiveDeals() ([]ActiveDeal, error) {
-	var deals []ActiveDeal
-	err := persistence.DB.Select(&deals, "select *, st_x(location) || ',' || st_y(location) as location from active_deals_view")
-
-	if err != nil {
-		return []ActiveDeal{}, fmt.Errorf("can't get active deals: %v", err)
+func GetDealsFromView(state State, dealerId *string) ([]DealView, error) {
+	if state != Future && state != Active && state != Past {
+		return []DealView{}, fmt.Errorf("unknown deal state: %s", state)
 	}
 
-	return deals, nil
-}
+	statement := fmt.Sprintf("select *, st_x(location) || ',' || st_y(location) as location from %s_deals_view", state)
 
-func GetDealsOfDealer(dealerId string) ([]Deal, error) {
-	var deals []Deal
-	err := persistence.DB.Select(&deals, "select * from deals where dealer_id = $1", dealerId)
+	if dealerId != nil {
+		statement += fmt.Sprintf(" where dealer_id = '%s'", *dealerId)
+	}
+
+	var deals []DealView
+	err := persistence.DB.Select(&deals, statement)
+
 	if err != nil {
-		return []Deal{}, fmt.Errorf("can't get deals of dealer (id=%s): %v", dealerId, err)
+		return []DealView{}, fmt.Errorf("can't get active deals: %v", err)
 	}
 
 	return deals, nil

@@ -20,10 +20,14 @@ func Register(app *fiber.App) {
 		category, err := deal.GetCategory(int(acc.DefaultCategory.Int32))
 
 		if err != nil {
-			log.Errorf("can't find category (id=%s): %v", acc.DefaultCategory.Int32, err)
+			log.Error(err)
 			return c.Status(fiber.StatusNotFound).SendString("Not Found")
 		}
 
 		return c.Render("pages/dealer", fiber.Map{"account": acc, "category": category.Name}, "layouts/main")
+	})
+
+	app.Get("/deal-overview", func(c *fiber.Ctx) error {
+		return c.Render("pages/deal-overview", nil, "layouts/main")
 	})
 }
