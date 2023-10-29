@@ -13,7 +13,7 @@
     }
 
     .btn-outline {
-        @apply border border-slate-700 bg-transparent text-slate-700 hover:bg-gray-200;
+        @apply border border-slate-700 bg-transparent text-white hover:bg-gray-200;
     }
 
     input,

@@ -1,6 +1,6 @@
 <div
   id="alert"
   class="fade-in fade-out absolute bottom-12 left-6 right-6 z-50 flex items-center justify-between gap-2 rounded-xl bg-red-400 p-2">
-  <span class="pl-4">{{ .message }}</span>
+  <span class="pl-4 text-black">{{ .message }}</span>
   <button hx-target="closest #alert" hx-delete="/ui/remove" hx-swap="outerHTML swap:0.3s">OK</button>
 </div>

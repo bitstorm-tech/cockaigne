@@ -10,7 +10,7 @@
         <a class="menu-item" href="/logout">Logout</a>
         {{ end }}
       </div>
-      <div class="-mr-2 flex select-none md:hidden" @click="showMenu = !showMenu">
+      <div class="flex select-none md:hidden" @click="showMenu = !showMenu">
         <div class="h-6 w-6 cursor-pointer text-gray-300">
           <span class="sr-only">Open main menu</span>
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="showMenu === true">
@@ -24,7 +24,11 @@
     </div>
   </div>
   <!-- Mobile menu -->
-  <div class="absolute right-1 top-10 z-50 select-none rounded-xl bg-gray-600 md:hidden" x-show="showMenu">
+  <div
+    class="absolute right-1 top-10 z-50 select-none rounded-xl bg-gray-600 md:hidden"
+    x-transition.duration.300ms
+    x-show="showMenu"
+    @click.outside="showMenu = false">
     <div class="space-y-1 px-2 pb-3 pt-2 sm:px-3">
       {{ if not .isAuthenticated }}
       <a class="menu-item block" href="/login">Login</a>
