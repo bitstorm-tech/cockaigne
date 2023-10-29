@@ -3,57 +3,61 @@
 @tailwind utilities;
 
 @layer base {
-  button,
-  .btn {
-    @apply select-none rounded bg-slate-700 px-4 py-2 text-center text-white transition duration-300 ease-in-out hover:bg-black focus:outline-none;
-  }
+    body {
+        @apply text-[#a6adba] bg-dark
+    }
 
-  .btn-outline {
-    @apply border border-slate-700 bg-transparent text-slate-700 hover:bg-gray-200;
-  }
+    button,
+    .btn {
+        @apply select-none rounded-lg bg-slate-700 px-4 py-2 text-center text-white transition duration-300 ease-in-out hover:bg-black focus:outline-none;
+    }
 
-  input,
-  select,
-  textarea {
-    @apply flex h-10 w-full items-center justify-center rounded border border-gray-400 bg-white/0 px-2 text-sm outline-none;
-  }
+    .btn-outline {
+        @apply border border-slate-700 bg-transparent text-slate-700 hover:bg-gray-200;
+    }
 
-  textarea {
-    @apply py-2;
-  }
+    input,
+    select,
+    textarea {
+        @apply flex h-10 w-full items-center justify-center rounded-lg border border-slate-700 bg-white/0 px-2 text-sm outline-none;
+    }
 
-  select {
-    @apply appearance-none;
-  }
+    textarea {
+        @apply py-2;
+    }
 
-  .checkbox,
-  .radio {
-    @apply h-5 w-5;
-  }
+    select {
+        @apply appearance-none;
+    }
 
-  .menu-item {
-    @apply rounded-md px-2 py-1 text-white hover:bg-gray-700 hover:text-yellow-200;
-  }
+    .checkbox,
+    .radio {
+        @apply h-5 w-5;
+    }
 
-  .form-input label {
-    @apply select-none pl-1 text-sm;
-  }
+    .menu-item {
+        @apply rounded-md px-2 py-1 text-white hover:bg-gray-700 hover:text-yellow-200;
+    }
 
-  .form-input-checkbox {
-    @apply flex select-none items-center gap-2;
-  }
+    .form-input label {
+        @apply select-none pl-1 text-sm;
+    }
 
-  .fade-in.htmx-added {
-    opacity: 0;
-  }
+    .form-input-checkbox {
+        @apply flex select-none items-center gap-2;
+    }
 
-  .fade-in {
-    opacity: 1;
-    transition: opacity 0.3s ease-out;
-  }
+    .fade-in.htmx-added {
+        opacity: 0;
+    }
 
-  .fade-out.htmx-swapping {
-    opacity: 0;
-    transition: opacity 0.3s ease-out;
-  }
+    .fade-in {
+        opacity: 1;
+        transition: opacity 0.3s ease-out;
+    }
+
+    .fade-out.htmx-swapping {
+        opacity: 0;
+        transition: opacity 0.3s ease-out;
+    }
 }
