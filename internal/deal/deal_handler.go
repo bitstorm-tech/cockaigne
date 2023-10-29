@@ -1,6 +1,7 @@
 package deal
 
 import (
+	"github.com/bitstorm-tech/cockaigne/internal/account"
 	"github.com/bitstorm-tech/cockaigne/internal/ui"
 	"strings"
 
@@ -11,11 +12,17 @@ import (
 
 func Register(app *fiber.App) {
 	app.Get("/deal/:dealId", func(c *fiber.Ctx) error {
+		userId, err := jwt.ParseUserId(c)
+		if err != nil {
+			return c.Redirect("/login")
+		}
+
 		dealId := c.Params("dealId")
 
 		var deal Deal
 		if strings.EqualFold(dealId, "new") {
 			deal = NewDeal()
+			deal.CategoryId = account.GetDefaultCategoryId(userId)
 		} else {
 			var err error
 			deal, err = GetDeal(dealId)
@@ -30,8 +37,9 @@ func Register(app *fiber.App) {
 	app.Get("/ui/category-select", func(c *fiber.Ctx) error {
 		categories := GetCategories()
 		name := c.Query("name", "Kategorie")
+		selected := c.Query("selected", "-1")
 
-		return c.Render("partials/category-select", fiber.Map{"categories": categories, "name": name})
+		return c.Render("partials/category-select", fiber.Map{"categories": categories, "name": name, "selected": selected})
 	})
 
 	app.Post("/api/deals", func(c *fiber.Ctx) error {

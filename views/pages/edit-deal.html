@@ -22,7 +22,10 @@
   <!------------------------->
   <!-- Category selection  -->
   <!------------------------->
-  <div hx-get="/ui/category-select?name=Kategorie" hx-trigger="load once" hx-target="this"></div>
+  <div
+    hx-get="/ui/category-select?name=Kategorie&selected={{ .deal.CategoryId }}"
+    hx-trigger="load once"
+    hx-target="this"></div>
 
   <!------------------->
   <!-- Add pictures  -->

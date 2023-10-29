@@ -33,6 +33,16 @@ func GetFavoriteCategoryIds(userId uuid.UUID) []int {
 	return favoriteCategoryIds
 }
 
+func GetDefaultCategoryId(userId uuid.UUID) int {
+	var defaultCategoryId = -1
+	err := persistence.DB.Get(&defaultCategoryId, "select default_category from accounts where id = $1", userId.String())
+	if err != nil {
+		log.Errorf("can't get default category of dealer: %s", userId.String())
+	}
+
+	return defaultCategoryId
+}
+
 func GetAccount(userId string) (Account, error) {
 	account := Account{}
 	err := persistence.DB.Get(&account, "select * from accounts where id = $1", userId)
