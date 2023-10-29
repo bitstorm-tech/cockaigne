@@ -72,12 +72,15 @@ func NewDealFromRequest(c *fiber.Ctx) (Deal, string) {
 		return Deal{}, "Das Startdatum muss vor dem Enddatum liegen"
 	}
 
+	isTemplate := c.FormValue("template") == "on"
+
 	return Deal{
 		Title:           title,
 		Description:     description,
 		CategoryId:      categoryId,
 		Start:           startDate,
 		DurationInHours: duration,
+		IsTemplate:      isTemplate,
 	}, ""
 }
 

@@ -52,7 +52,7 @@ func GetCategory(id int) (Category, error) {
 
 func SaveDeal(deal Deal) error {
 	_, err := persistence.DB.Exec(
-		"insert into deals (dealer_id, title, description, category_id, duration_in_hours, start) values ($1, $2, $3, $4, $5, $6)",
+		"insert into deals (dealer_id, title, description, category_id, duration_in_hours, start, template) values ($1, $2, $3, $4, $5, $6, false)",
 		deal.DealerId,
 		deal.Title,
 		deal.Description,
@@ -60,6 +60,22 @@ func SaveDeal(deal Deal) error {
 		deal.DurationInHours,
 		deal.Start,
 	)
+
+	if err != nil {
+		return err
+	}
+
+	if deal.IsTemplate {
+		_, err = persistence.DB.Exec(
+			"insert into deals (dealer_id, title, description, category_id, duration_in_hours, start, template) values ($1, $2, $3, $4, $5, $6, true)",
+			deal.DealerId,
+			deal.Title,
+			deal.Description,
+			deal.CategoryId,
+			deal.DurationInHours,
+			deal.Start,
+		)
+	}
 
 	return err
 }
