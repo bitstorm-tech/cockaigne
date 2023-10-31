@@ -1,8 +1,4 @@
-<form
-  class="flex flex-col gap-4 p-4"
-  hx-post="/api/deals"
-  hx-target="#alert"
-  x-data="{startInstantly: false, ownEndDate: false, runtime: 1}">
+<form class="flex flex-col gap-4 p-4" hx-post="/api/deals" hx-target="#alert" x-data="data">
   <!------------>
   <!-- Title  -->
   <!------------>
@@ -30,7 +26,46 @@
   <!------------------->
   <!-- Add pictures  -->
   <!------------------->
-  <button>Bild hinzufügen (0/3)</button>
+  <span>
+    Bilder hinzufügen
+    <span class="text-xs">(optional)</span>
+    :
+  </span>
+  <div class="grid grid-cols-3 gap-2">
+    <div>
+      <button x-show="!imagePreviewUrls[0]" @click.prevent="$refs.fileInput0.click()" class="btn-outline h-24 w-full">
+        +
+      </button>
+      <img
+        x-show="imagePreviewUrls[0]"
+        :src="imagePreviewUrls[0]"
+        @click="remove($refs.fileInput0, 0)"
+        class="h-24 w-full object-cover" />
+      <input x-ref="fileInput0" type="file" hidden @change="add($event, 0)" name="image1" />
+    </div>
+    <div>
+      <button x-show="!imagePreviewUrls[1]" @click.prevent="$refs.fileInput1.click()" class="btn-outline h-24 w-full">
+        +
+      </button>
+      <img
+        x-show="imagePreviewUrls[1]"
+        :src="imagePreviewUrls[1]"
+        @click="remove($refs.fileInput1, 1)"
+        class="h-24 w-full object-cover" />
+      <input x-ref="fileInput1" type="file" hidden @change="add($event, 1)" name="image2" />
+    </div>
+    <div>
+      <button x-show="!imagePreviewUrls[2]" @click.prevent="$refs.fileInput2.click()" class="btn-outline h-24 w-full">
+        +
+      </button>
+      <img
+        x-show="imagePreviewUrls[2]"
+        :src="imagePreviewUrls[2]"
+        @click="remove($refs.fileInput2, 2)"
+        class="h-24 w-full object-cover" />
+      <input x-ref="fileInput2" type="file" hidden @change="add($event, 2)" name="image3" />
+    </div>
+  </div>
 
   <!--------------------------------------------------------------------------->
   <!-- Switch between start date or start instatnly and end date or runtime  -->
@@ -96,3 +131,26 @@
   </div>
 </form>
 <div id="alert"></div>
+
+<script>
+  const data = {
+    startInstantly: false,
+    ownEndDate: false,
+    runtime: 1,
+    imagePreviewUrls: [null, null, null],
+    add: function (event, index) {
+      const file = event.target.files[0];
+
+      if (!file) {
+        return;
+      }
+
+      const URL = window.URL || window.webkitURL;
+      this.imagePreviewUrls[index] = URL.createObjectURL(file);
+    },
+    remove: function (input, index) {
+      this.imagePreviewUrls[index] = null;
+      input.value = null;
+    }
+  };
+</script>
