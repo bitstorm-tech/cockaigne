@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/bitstorm-tech/cockaigne/internal/account"
-	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/bitstorm-tech/cockaigne/internal/ui"
 
 	"github.com/bitstorm-tech/cockaigne/internal/auth/jwt"
@@ -71,7 +70,7 @@ func Register(app *fiber.App) {
 		}
 
 		for index, file := range form.File["images"] {
-			err = persistence.UploadDealImage(*file, dealId.String(), fmt.Sprintf("%d-", index))
+			err = UploadDealImage(*file, dealId.String(), fmt.Sprintf("%d-", index))
 			if err != nil {
 				log.Errorf("can't upload deal image: %v", err)
 				return ui.ShowAlert(c, "Leider ist beim Erstellen etwas schief gegangen, bitte versuche es später nochmal.")
@@ -110,5 +109,22 @@ func Register(app *fiber.App) {
 		}
 
 		return c.JSON(deals)
+	})
+
+	app.Get("/deals/details/:id", func(c *fiber.Ctx) error {
+		dealId := c.Params("id")
+		details, err := GetDealDetails(dealId)
+		if err != nil {
+			log.Errorf("can't get deal details: %v", err)
+			return c.SendString("Konnte Deal Details nicht laden. Bitte versuche es später nochmal.")
+		}
+
+		imageUrls, err := GetDealImageUrls(dealId)
+		if err != nil {
+			log.Errorf("can't get deal image urls: %v", err)
+			return c.SendString("Konnte Deal Details nicht laden. Bitte versuche es später nochmal.")
+		}
+
+		return c.Render("partials/deal-details", fiber.Map{"details": details, "isUser": true, "imageUrls": imageUrls})
 	})
 }

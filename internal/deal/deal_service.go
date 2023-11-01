@@ -1,13 +1,22 @@
 package deal
 
 import (
+	"context"
 	"fmt"
+	"mime/multipart"
 	"strings"
+	"time"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
 )
+
+var folder = "deals"
+var bucket = persistence.Bucket
+var baseUrl = persistence.BaseUrl
 
 type State string
 
@@ -118,6 +127,36 @@ func GetDealsFromView(state State, dealerId *string) ([]DealView, error) {
 	return deals, nil
 }
 
+type DealHeader struct {
+	ID       uuid.UUID
+	Title    string
+	Username string
+}
+
+func GetDealHeaders() ([]DealHeader, error) {
+	var headers []DealHeader
+	err := persistence.DB.Select(&headers, "select id, title, username from active_deals_view")
+	if err != nil {
+		return []DealHeader{}, err
+	}
+
+	return headers, nil
+}
+
+type DealDetails struct {
+	Description string
+}
+
+func GetDealDetails(dealId string) (DealDetails, error) {
+	var details DealDetails
+	err := persistence.DB.Get(&details, "select description from deals where id = $1", dealId)
+	if err != nil {
+		return DealDetails{}, err
+	}
+
+	return details, nil
+}
+
 func GetTemplates(dealerId string) ([]Deal, error) {
 	var templates []Deal
 	err := persistence.DB.Select(&templates, "select * from deals where template = true and dealer_id = $1", dealerId)
@@ -126,4 +165,47 @@ func GetTemplates(dealerId string) ([]Deal, error) {
 	}
 
 	return templates, nil
+}
+
+func UploadDealImage(image multipart.FileHeader, dealId string, prefix string) error {
+	tokens := strings.Split(image.Filename, ".")
+	fileExtension := tokens[len(tokens)-1]
+	contentType := image.Header.Get("Content-Type")
+	if len(contentType) == 0 {
+		contentType = strings.ToLower("image/" + fileExtension)
+	}
+	key := fmt.Sprintf("%s/%s/%s%d.%s", folder, dealId, prefix, time.Now().UnixMilli(), fileExtension)
+	file, err := image.Open()
+	if err != nil {
+		return err
+	}
+
+	_, err = persistence.S3.PutObject(context.TODO(), &s3.PutObjectInput{
+		Bucket:      &bucket,
+		Key:         &key,
+		Body:        file,
+		ContentType: &contentType,
+		ACL:         types.ObjectCannedACLPublicRead,
+	})
+
+	return err
+}
+
+func GetDealImageUrls(dealId string) ([]string, error) {
+	prefix := fmt.Sprintf("%s/%s", folder, dealId)
+	output, err := persistence.S3.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
+		Bucket: &bucket,
+		Prefix: &prefix,
+	})
+
+	if err != nil {
+		return []string{}, err
+	}
+
+	var imageUrls []string
+	for _, content := range output.Contents {
+		imageUrls = append(imageUrls, fmt.Sprintf("%s/%s", baseUrl, *content.Key))
+	}
+
+	return imageUrls, nil
 }
