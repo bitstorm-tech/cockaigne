@@ -31,7 +31,7 @@ func NewDeal() Deal {
 	}
 }
 
-func NewDealFromRequest(c *fiber.Ctx) (Deal, string) {
+func DealFromRequest(c *fiber.Ctx) (Deal, string) {
 	title := c.FormValue("title")
 	if len(title) == 0 {
 		return Deal{}, "Bitte einen Titel angeben"

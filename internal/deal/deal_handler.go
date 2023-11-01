@@ -1,9 +1,11 @@
 package deal
 
 import (
-	"github.com/bitstorm-tech/cockaigne/internal/account"
-	"github.com/bitstorm-tech/cockaigne/internal/ui"
 	"strings"
+
+	"github.com/bitstorm-tech/cockaigne/internal/account"
+	"github.com/bitstorm-tech/cockaigne/internal/persistence"
+	"github.com/bitstorm-tech/cockaigne/internal/ui"
 
 	"github.com/bitstorm-tech/cockaigne/internal/auth/jwt"
 	"github.com/gofiber/fiber/v2"
@@ -24,10 +26,9 @@ func Register(app *fiber.App) {
 			deal = NewDeal()
 			deal.CategoryId = account.GetDefaultCategoryId(userId)
 		} else {
-			var err error
 			deal, err = GetDeal(dealId)
 			if err != nil {
-				return c.Status(fiber.StatusNotFound).SendString("Not Found")
+				return ui.ShowAlert(c, "Der Deal konnte leider nicht gefunden werden. Bitte versuche es später nochmal.")
 			}
 		}
 
@@ -48,7 +49,7 @@ func Register(app *fiber.App) {
 			return c.Redirect("/login")
 		}
 
-		deal, errorMessage := NewDealFromRequest(c)
+		deal, errorMessage := DealFromRequest(c)
 		if len(errorMessage) > 0 {
 			return ui.ShowAlert(c, errorMessage)
 		}
@@ -57,7 +58,19 @@ func Register(app *fiber.App) {
 		log.Debugf("Create deal: %+v", deal)
 
 		if err := SaveDeal(deal); err != nil {
-			return ui.ShowAlert(c, err.Error())
+			log.Errorf("can't save deal: %v", err)
+			return ui.ShowAlert(c, "Leider ist beim Erstellen etwas schief gegangen, bitte versuche es später nochmal.")
+		}
+
+		file1, err := c.FormFile("image1")
+		if err != nil {
+			return ui.ShowAlert(c, "Leider ist beim Erstellen etwas schief gegangen, bitte versuche es später nochmal.")
+		}
+
+		err = persistence.UploadDealImage(*file1)
+		if err != nil {
+			log.Errorf("can't upload deal image: %v", err)
+			return ui.ShowAlert(c, "Leider ist beim Erstellen etwas schief gegangen, bitte versuche es später nochmal.")
 		}
 
 		c.Set("HX-Redirect", "/")

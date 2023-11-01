@@ -27,6 +27,7 @@ func main() {
 	log.Debugf("Starting Cockaigne server (on %s) ...", hostAndPort)
 
 	persistence.ConnectToDb()
+	persistence.InitS3()
 
 	engine := html.New("./views", ".html")
 

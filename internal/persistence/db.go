@@ -8,11 +8,11 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-var pgPort = os.Getenv("PGPORT")
-var pgHost = os.Getenv("PGHOST")
-var pgDatabase = os.Getenv("PGDATABASE")
-var pgUser = os.Getenv("PGUSER")
-var pgPassword = os.Getenv("PGPASSWORD")
+var pgPort = os.Getenv("PG_PORT")
+var pgHost = os.Getenv("PG_HOST")
+var pgDatabase = os.Getenv("PG_DATABASE")
+var pgUser = os.Getenv("PG_USER")
+var pgPassword = os.Getenv("PG_PASSWORD")
 var DB *sqlx.DB
 
 func ConnectToDb() {
