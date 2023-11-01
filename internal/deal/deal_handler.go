@@ -1,6 +1,7 @@
 package deal
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/bitstorm-tech/cockaigne/internal/account"
@@ -57,20 +58,24 @@ func Register(app *fiber.App) {
 		deal.DealerId = userId
 		log.Debugf("Create deal: %+v", deal)
 
-		if err := SaveDeal(deal); err != nil {
+		dealId, err := SaveDeal(deal)
+		if err != nil {
 			log.Errorf("can't save deal: %v", err)
 			return ui.ShowAlert(c, "Leider ist beim Erstellen etwas schief gegangen, bitte versuche es später nochmal.")
 		}
 
-		file1, err := c.FormFile("image1")
+		form, err := c.MultipartForm()
 		if err != nil {
+			log.Errorf("can't get multipart form: %v", err)
 			return ui.ShowAlert(c, "Leider ist beim Erstellen etwas schief gegangen, bitte versuche es später nochmal.")
 		}
 
-		err = persistence.UploadDealImage(*file1)
-		if err != nil {
-			log.Errorf("can't upload deal image: %v", err)
-			return ui.ShowAlert(c, "Leider ist beim Erstellen etwas schief gegangen, bitte versuche es später nochmal.")
+		for index, file := range form.File["images"] {
+			err = persistence.UploadDealImage(*file, dealId.String(), fmt.Sprintf("%d-", index))
+			if err != nil {
+				log.Errorf("can't upload deal image: %v", err)
+				return ui.ShowAlert(c, "Leider ist beim Erstellen etwas schief gegangen, bitte versuche es später nochmal.")
+			}
 		}
 
 		c.Set("HX-Redirect", "/")

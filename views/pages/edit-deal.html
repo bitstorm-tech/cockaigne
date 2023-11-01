@@ -46,7 +46,7 @@
         :src="imagePreviewUrls[0]"
         @click="remove($refs.fileInput0, 0)"
         class="h-24 w-full object-cover" />
-      <input x-ref="fileInput0" type="file" hidden @change="add($event, 0)" name="image1" />
+      <input x-ref="fileInput0" type="file" hidden @change="add($event, 0)" name="images" />
     </div>
     <div>
       <button x-show="!imagePreviewUrls[1]" @click.prevent="$refs.fileInput1.click()" class="btn-outline h-24 w-full">
@@ -57,7 +57,7 @@
         :src="imagePreviewUrls[1]"
         @click="remove($refs.fileInput1, 1)"
         class="h-24 w-full object-cover" />
-      <input x-ref="fileInput1" type="file" hidden @change="add($event, 1)" name="image2" />
+      <input x-ref="fileInput1" type="file" hidden @change="add($event, 1)" name="images" />
     </div>
     <div>
       <button x-show="!imagePreviewUrls[2]" @click.prevent="$refs.fileInput2.click()" class="btn-outline h-24 w-full">
@@ -68,7 +68,7 @@
         :src="imagePreviewUrls[2]"
         @click="remove($refs.fileInput2, 2)"
         class="h-24 w-full object-cover" />
-      <input x-ref="fileInput2" type="file" hidden @change="add($event, 2)" name="image3" />
+      <input x-ref="fileInput2" type="file" hidden @change="add($event, 2)" name="images" />
     </div>
   </div>
 

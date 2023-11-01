@@ -17,6 +17,7 @@ import (
 )
 
 var bucket = os.Getenv("DO_SPACES_BUCKET")
+var dealsFolder = "deals"
 var s3Client *s3.Client
 
 func InitS3() {
@@ -48,14 +49,14 @@ func InitS3() {
 	log.Infof("S3 init done: region=%s, endpoint=%s, bucket=%s, baseUrl=%s", region, endpoint, bucket, baseUrl)
 }
 
-func UploadDealImage(image multipart.FileHeader) error {
+func UploadDealImage(image multipart.FileHeader, dealId string, prefix string) error {
 	tokens := strings.Split(image.Filename, ".")
 	fileExtension := tokens[len(tokens)-1]
 	contentType := image.Header.Get("Content-Type")
 	if len(contentType) == 0 {
 		contentType = strings.ToLower("image/" + fileExtension)
 	}
-	key := fmt.Sprintf("%d.%s", time.Now().Unix(), fileExtension)
+	key := fmt.Sprintf("%s/%s/%s%d.%s", dealsFolder, dealId, prefix, time.Now().UnixMilli(), fileExtension)
 	file, err := image.Open()
 	if err != nil {
 		return err

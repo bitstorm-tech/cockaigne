@@ -2,9 +2,11 @@ package deal
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2/log"
-	"strings"
+	"github.com/google/uuid"
 )
 
 type State string
@@ -50,9 +52,10 @@ func GetCategory(id int) (Category, error) {
 	return category, nil
 }
 
-func SaveDeal(deal Deal) error {
-	_, err := persistence.DB.Exec(
-		"insert into deals (dealer_id, title, description, category_id, duration_in_hours, start, template) values ($1, $2, $3, $4, $5, $6, false)",
+func SaveDeal(deal Deal) (uuid.UUID, error) {
+	var dealId uuid.UUID
+	err := persistence.DB.Get(&dealId,
+		"insert into deals (dealer_id, title, description, category_id, duration_in_hours, start, template) values ($1, $2, $3, $4, $5, $6, false) returning id",
 		deal.DealerId,
 		deal.Title,
 		deal.Description,
@@ -62,12 +65,12 @@ func SaveDeal(deal Deal) error {
 	)
 
 	if err != nil {
-		return err
+		return uuid.UUID{}, err
 	}
 
 	if deal.IsTemplate {
 		_, err = persistence.DB.Exec(
-			"insert into deals (dealer_id, title, description, category_id, duration_in_hours, start, template) values ($1, $2, $3, $4, $5, $6, true)",
+			"insert into deals (dealer_id, title, description, category_id, duration_in_hours, start, template) values ($1, $2, $3, $4, $5, $6, true) returning id",
 			deal.DealerId,
 			deal.Title,
 			deal.Description,
@@ -77,7 +80,11 @@ func SaveDeal(deal Deal) error {
 		)
 	}
 
-	return err
+	if err != nil {
+		return uuid.UUID{}, err
+	}
+
+	return dealId, nil
 }
 
 func GetDeal(id string) (Deal, error) {
