@@ -8,22 +8,25 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-var pgPort = os.Getenv("PG_PORT")
-var pgHost = os.Getenv("PG_HOST")
-var pgDatabase = os.Getenv("PG_DATABASE")
-var pgUser = os.Getenv("PG_USER")
-var pgPassword = os.Getenv("PG_PASSWORD")
 var DB *sqlx.DB
 
 func ConnectToDb() {
+	var pgPort = os.Getenv("PG_PORT")
+	var pgHost = os.Getenv("PG_HOST")
+	var pgDatabase = os.Getenv("PG_DATABASE")
+	var pgUser = os.Getenv("PG_USER")
+	var pgPassword = os.Getenv("PG_PASSWORD")
+	var pgSslMode = os.Getenv("PG_SSL_MODE")
+
 	log.Debugf("Connecting to database: %s:*********@%s:%s/%s", pgUser, pgHost, pgPort, pgDatabase)
 	connectionString := fmt.Sprintf(
-		"host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+		"host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
 		pgHost,
 		pgPort,
 		pgUser,
 		pgDatabase,
 		pgPassword,
+		pgSslMode,
 	)
 
 	connectionString += " password=" + pgPassword
