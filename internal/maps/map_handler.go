@@ -38,4 +38,8 @@ func Register(app *fiber.App) {
 			"favCategoryIds": favCategoryIds,
 		}, "layouts/modal")
 	})
+
+	app.Get("/ui/map/location-modal", func(c *fiber.Ctx) error {
+		return c.Render("partials/map/location-modal", fiber.Map{"titel": "Standort festlegen"}, "layouts/modal")
+	})
 }

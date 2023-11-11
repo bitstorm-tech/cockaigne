@@ -1,5 +1,8 @@
-<div id="map" class="absolute bottom-0 left-0 right-0 top-12 -z-50"></div>
-<div class="absolute right-4 top-16 flex">
+<div id="map" class="absolute bottom-10 left-0 right-0 top-12 -z-50"></div>
+<div class="absolute right-4 top-16 flex gap-2">
+  <button class="h-14 w-14 rounded-full p-0 text-center" hx-get="/ui/map/location-modal" hx-target="#modal">
+    <img src="/static/images/icons/map-pin.svg" alt="Location" class="inline-block h-8" />
+  </button>
   <button class="h-14 w-14 rounded-full p-0 text-center" hx-get="/ui/map/filter-modal" hx-target="#modal">
     <img src="/static/images/icons/filter.svg" alt="Filter" class="inline-block h-8" />
   </button>
@@ -8,13 +11,13 @@
 <div id="alert"></div>
 
 <script>
-  const map = L.map("map").setView([48.137154, 11.576124], 13);
+  document.map = L.map("map").setView([48.137154, 11.576124], 13);
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19
-  }).addTo(map);
+    maxZoom: 20
+  }).addTo(document.map);
 
-  map.on("moveend", function () {
-    const extend = map.getBounds().toBBoxString();
+  document.map.on("moveend", function () {
+    const extend = document.map.getBounds().toBBoxString();
     updateDealsOnMap(extend);
   });
 
@@ -23,13 +26,33 @@
     const deals = await res.json();
     for (const deal of deals) {
       const coordinates = deal.Location.split(",").reverse();
-      L.marker(coordinates).addTo(map);
-      L.circle(coordinates, {
-        color: "green",
-        fillColor: "#009900",
-        fillOpacity: 0.1,
-        radius: "{{ .searchRadius }}"
-      }).addTo(map);
+      document.map;
+      L.marker(coordinates).addTo(document.map);
+      // L.circle(coordinates, {
+      //   color: "green",
+      //   fillColor: "#009900",
+      //   fillOpacity: 0.1,
+      //   radius: "{{ .searchRadius }}"
+      // }).addTo(document.map);
     }
   }
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("locationModalData", () => ({
+      address: "",
+      useLocationService: false,
+      positionFound: false,
+      getCurrentPosition: function ($event) {
+        if ($event.target.checked) {
+          this.positionFound = false;
+          this.address = "Suche aktuelle Position ...";
+          window.navigator.geolocation.getCurrentPosition((position) => {
+            this.address = `${position.coords.longitude}/${position.coords.latitude}`;
+            this.positionFound = true;
+            document.map.setView([position.coords.latitude, position.coords.longitude], 18);
+          });
+        }
+      }
+    }));
+  });
 </script>
