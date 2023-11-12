@@ -24,7 +24,7 @@ type Account struct {
 	DefaultCategory      sql.NullInt32  `db:"default_category"`
 	Location             sql.NullString
 	SearchRadiusInMeters int  `db:"search_radius_in_meters"`
-	UseCurrentLocation   bool `db:"use_current_location"`
+	UseLocationService   bool `db:"use_location_service"`
 }
 
 type FavoriteCategory struct {

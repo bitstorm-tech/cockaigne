@@ -2,6 +2,7 @@ package account
 
 import (
 	"fmt"
+
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
@@ -131,5 +132,13 @@ func UpdateSelectedCategories(userId uuid.UUID, categoryIds []int) error {
 		}
 	}
 
+	return nil
+}
+
+func UpdateUseLocationService(userId string, useLocationService bool) error {
+	_, err := persistence.DB.Exec("update accounts set use_location_service = $1 where id = $2", useLocationService, userId)
+	if err != nil {
+		return fmt.Errorf("can't save use_location_service for user (%s): %v", userId, err)
+	}
 	return nil
 }

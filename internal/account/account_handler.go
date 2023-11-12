@@ -13,6 +13,7 @@ func Register(app *fiber.App) {
 	})
 
 	app.Post("/api/accounts/filter", updateFilter)
+	app.Post("/api/accounts/use-location-service", updateUseLocationService)
 }
 
 func updateFilter(c *fiber.Ctx) error {
@@ -33,6 +34,22 @@ func updateFilter(c *fiber.Ctx) error {
 	if err := UpdateSelectedCategories(userId, updateFilterRequest.FavoriteCategoryIds); err != nil {
 		log.Errorf("can't update selected categories: %s", err)
 		return ui.ShowAlert(c, "Fehler beim Verarbeiten der Filteränderung")
+	}
+
+	return nil
+}
+
+func updateUseLocationService(c *fiber.Ctx) error {
+	userId, err := jwt.ParseUserId(c)
+	if err != nil {
+		return c.Redirect("/login")
+	}
+
+	useLocationService := c.FormValue("use-location-service")
+	err = UpdateUseLocationService(userId.String(), useLocationService == "on")
+	if err != nil {
+		log.Errorf("can't save use location service: %v", err)
+		return ui.ShowAlert(c, "Kann Einstellung leider nicht speichern. Bitte später nochmal versuchen.")
 	}
 
 	return nil

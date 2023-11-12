@@ -11,11 +11,14 @@ import (
 func Register(app *fiber.App) {
 	app.Get("/map", func(c *fiber.Ctx) error {
 		userId, _ := jwt.ParseUserId(c)
-
-		searchRadius := account.GetSearchRadius(userId)
+		acc, err := account.GetAccount(userId.String())
+		if err != nil {
+			log.Errorf("can't get account: %v", err)
+		}
 
 		return c.Render("pages/map", fiber.Map{
-			"searchRadius": searchRadius,
+			"searchRadius":       acc.SearchRadiusInMeters,
+			"useLocationService": acc.UseLocationService,
 		}, "layouts/main")
 	})
 
