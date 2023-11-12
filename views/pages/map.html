@@ -7,6 +7,9 @@
     <button class="h-14 w-14 rounded-full p-0 text-center" hx-get="/ui/map/filter-modal" hx-target="#modal">
       <img src="/static/images/icons/filter.svg" alt="Filter" class="inline-block h-8" />
     </button>
+    <button class="h-14 w-14 rounded-full p-0 text-center" @click="jumpToCurrentLocation">
+      <img src="/static/images/icons/current-location.svg" alt="Filter" class="inline-block h-8" />
+    </button>
   </div>
   <div id="modal"></div>
   <div id="alert"></div>
@@ -57,7 +60,8 @@
           this.determineLocation = true;
           this.address = "Suche aktuelle Position ...";
           window.navigator.geolocation.getCurrentPosition(async (position) => {
-            map.setView([position.coords.latitude, position.coords.longitude], 18);
+            this.location = [position.coords.latitude, position.coords.longitude];
+            map.setView(this.location, 18);
             this.address = await getAddress(position.coords.latitude, position.coords.longitude);
             this.determineLocation = false;
           });
@@ -67,8 +71,12 @@
         if (this.useLocationService) return;
         this.determineLocation = true;
         const { latitude, longitude } = await getPosition(this.address);
-        map.setView([latitude, longitude], 18);
+        this.location = [latitude, longitude];
+        map.setView(this.location, 18);
         this.determineLocation = false;
+      },
+      jumpToCurrentLocation: function () {
+        map.setView(this.location, 18);
       },
       init: async function () {
         if (this.useLocationService) {
