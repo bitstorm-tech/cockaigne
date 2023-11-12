@@ -29,8 +29,16 @@ func GetPositionFromAddress(city string, zip int, street string, houseNumber str
 	city = url.QueryEscape(city)
 	street = url.QueryEscape(street)
 	houseNumber = url.QueryEscape(houseNumber)
-
 	query := fmt.Sprintf("https://nominatim.openstreetmap.org/search?format=json&street=%s,%s&city=%s&postalcode=%s", houseNumber, street, city, strconv.Itoa(zip))
+
+	return pointFromQuery(query)
+}
+
+func GetPositionFromAddressFuzzy(address string) (Point, error) {
+	return pointFromQuery("https://nominatim.openstreetmap.org/search?format=json&q=" + url.QueryEscape(address))
+}
+
+func pointFromQuery(query string) (Point, error) {
 	log.Debugf("Querying nominatim: %s", query)
 	res, err := http.Get(query)
 	if err != nil {

@@ -10,12 +10,13 @@
   </div>
   <div id="modal"></div>
   <div id="alert"></div>
-  <div
-    x-show="determineLocation"
-    class="absolute bottom-12 left-4 right-4 flex items-center justify-center rounded-xl bg-green-500 p-4 text-white">
-    <img x-show="determineLocation" src="/static/images/spinner.svg" alt="spinner" class="h-8 w-8 animate-spin" />
-    <span>Ermittle aktuelle Position</span>
-  </div>
+  <template x-if="determineLocation">
+    <div
+      class="absolute bottom-12 left-4 right-4 flex items-center justify-center rounded-xl bg-green-500 p-4 text-white">
+      <img src="/static/images/spinner.svg" alt="spinner" class="h-8 w-8 animate-spin" />
+      <span>Ermittle aktuelle Position</span>
+    </div>
+  </template>
 </div>
 
 <script>
@@ -50,6 +51,7 @@
       address: "",
       useLocationService: "{{ .useLocationService }}" == "true",
       determineLocation: false,
+      location: "{{ .location }}".split(",").map((n) => Number(n)),
       getCurrentPosition: function ($event) {
         if ($event.target.checked) {
           this.determineLocation = true;
@@ -61,9 +63,19 @@
           });
         }
       },
-      init: function () {
+      searchAddress: async function () {
+        if (this.useLocationService) return;
+        this.determineLocation = true;
+        const { latitude, longitude } = await getPosition(this.address);
+        map.setView([latitude, longitude], 18);
+        this.determineLocation = false;
+      },
+      init: async function () {
         if (this.useLocationService) {
           this.getCurrentPosition({ target: { checked: true } });
+        } else {
+          map.setView(this.location.reverse(), 18);
+          this.address = await getAddress(this.location[0], this.location[1]);
         }
       }
     }));

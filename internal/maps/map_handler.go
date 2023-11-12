@@ -19,6 +19,7 @@ func Register(app *fiber.App) {
 		return c.Render("pages/map", fiber.Map{
 			"searchRadius":       acc.SearchRadiusInMeters,
 			"useLocationService": acc.UseLocationService,
+			"location":           acc.Location.String,
 		}, "layouts/main")
 	})
 

@@ -3,6 +3,7 @@ package account
 import (
 	"fmt"
 
+	"github.com/bitstorm-tech/cockaigne/internal/geo"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
@@ -46,7 +47,11 @@ func GetDefaultCategoryId(userId uuid.UUID) int {
 
 func GetAccount(userId string) (Account, error) {
 	account := Account{}
-	err := persistence.DB.Get(&account, "select * from accounts where id = $1", userId)
+	err := persistence.DB.Get(
+		&account,
+		"select *, st_x(location) || ',' || st_y(location) as location from accounts where id = $1",
+		userId,
+	)
 	if err != nil {
 		log.Errorf("can't get account: %v", err)
 		return Account{}, err
@@ -57,7 +62,11 @@ func GetAccount(userId string) (Account, error) {
 
 func GetAccountByEmail(email string) (Account, error) {
 	account := Account{}
-	err := persistence.DB.Get(&account, "select * from accounts where email = $1", email)
+	err := persistence.DB.Get(
+		&account,
+		"select *, st_x(location) || ',' || st_y(location) as location from accounts where email = $1",
+		email,
+	)
 	if err != nil {
 		log.Errorf("can't get account: %v", err)
 		return Account{}, err
@@ -137,8 +146,10 @@ func UpdateSelectedCategories(userId uuid.UUID, categoryIds []int) error {
 
 func UpdateUseLocationService(userId string, useLocationService bool) error {
 	_, err := persistence.DB.Exec("update accounts set use_location_service = $1 where id = $2", useLocationService, userId)
-	if err != nil {
-		return fmt.Errorf("can't save use_location_service for user (%s): %v", userId, err)
-	}
-	return nil
+	return err
+}
+
+func UpdateLocation(userId string, location geo.Point) error {
+	_, err := persistence.DB.Exec("update accounts set location = $1 where id = $2", location.ToWkt(), userId)
+	return err
 }

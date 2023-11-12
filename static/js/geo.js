@@ -1,8 +1,5 @@
-async function getPosition(street, houseNumber, city, postcode) {
-  const query =
-    typeof address == "string" ? address : `${address.street} ${address.house_number}, ${address.zip} ${address.city}`;
-
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}`;
+async function getPosition(address) {
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${address}`;
   const response = await fetch(url);
 
   if (response.ok) {

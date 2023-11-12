@@ -2,6 +2,7 @@ package account
 
 import (
 	"github.com/bitstorm-tech/cockaigne/internal/auth/jwt"
+	"github.com/bitstorm-tech/cockaigne/internal/geo"
 	"github.com/bitstorm-tech/cockaigne/internal/ui"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -45,11 +46,25 @@ func updateUseLocationService(c *fiber.Ctx) error {
 		return c.Redirect("/login")
 	}
 
-	useLocationService := c.FormValue("use-location-service")
-	err = UpdateUseLocationService(userId.String(), useLocationService == "on")
+	useLocationService := c.FormValue("use-location-service") == "on"
+	err = UpdateUseLocationService(userId.String(), useLocationService)
 	if err != nil {
 		log.Errorf("can't save use location service: %v", err)
 		return ui.ShowAlert(c, "Kann Einstellung leider nicht speichern. Bitte später nochmal versuchen.")
+	}
+
+	if !useLocationService {
+		address := c.FormValue("address")
+		point, err := geo.GetPositionFromAddressFuzzy(address)
+		if err != nil {
+			log.Errorf("can't find position from address (%s): %v", address, err)
+			return ui.ShowAlert(c, "Ungültige Adresse. Bitte geben Sie eine genauere Adresse an.")
+		}
+		err = UpdateLocation(userId.String(), point)
+		if err != nil {
+			log.Errorf("can't update location (%s): %v", address, err)
+			return ui.ShowAlert(c, "Kann Einstellung leider nicht speichern. Bitte später nochmal versuchen.")
+		}
 	}
 
 	return nil
