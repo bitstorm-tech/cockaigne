@@ -19,13 +19,13 @@
 </div>
 
 <script>
-  document.map = L.map("map").setView([48.137154, 11.576124], 13);
+  const map = L.map("map").setView([48.137154, 11.576124], 13);
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 20
-  }).addTo(document.map);
+  }).addTo(map);
 
-  document.map.on("moveend", function () {
-    const extend = document.map.getBounds().toBBoxString();
+  map.on("moveend", function () {
+    const extend = map.getBounds().toBBoxString();
     updateDealsOnMap(extend);
   });
 
@@ -34,29 +34,14 @@
     const deals = await res.json();
     for (const deal of deals) {
       const coordinates = deal.Location.split(",").reverse();
-      document.map;
-      L.marker(coordinates).addTo(document.map);
+      map;
+      L.marker(coordinates).addTo(map);
       // L.circle(coordinates, {
       //   color: "green",
       //   fillColor: "#009900",
       //   fillOpacity: 0.1,
       //   radius: "{{ .searchRadius }}"
-      // }).addTo(document.map);
-    }
-  }
-
-  async function getAddress(latitude, longitude) {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
-    const response = await fetch(url);
-
-    if (response.ok) {
-      const address = await response.json();
-      if (!address) {
-        return;
-      }
-
-      const { road, house_number, city, postcode, country } = address.address;
-      return `${road} ${house_number}, ${postcode} ${city}`;
+      // }).addTo(map);
     }
   }
 
@@ -70,14 +55,14 @@
           this.determineLocation = true;
           this.address = "Suche aktuelle Position ...";
           window.navigator.geolocation.getCurrentPosition(async (position) => {
-            document.map.setView([position.coords.latitude, position.coords.longitude], 18);
+            map.setView([position.coords.latitude, position.coords.longitude], 18);
             this.address = await getAddress(position.coords.latitude, position.coords.longitude);
             this.determineLocation = false;
           });
         }
       },
       init: function () {
-        if ("{{ .useLocationService }}" == "true") {
+        if (this.useLocationService) {
           this.getCurrentPosition({ target: { checked: true } });
         }
       }
