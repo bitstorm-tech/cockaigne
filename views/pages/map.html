@@ -1,4 +1,4 @@
-<div x-data="locationData" x-init="onInit">
+<div x-data="locationData">
   <div id="map" class="absolute bottom-10 left-0 right-0 top-12 -z-50"></div>
   <div class="absolute right-4 top-16 flex gap-2">
     <button class="h-14 w-14 rounded-full p-0 text-center" hx-get="/ui/map/location-modal" hx-target="#modal">
@@ -45,6 +45,21 @@
     }
   }
 
+  async function getAddress(latitude, longitude) {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+    const response = await fetch(url);
+
+    if (response.ok) {
+      const address = await response.json();
+      if (!address) {
+        return;
+      }
+
+      const { road, house_number, city, postcode, country } = address.address;
+      return `${road} ${house_number}, ${postcode} ${city}`;
+    }
+  }
+
   document.addEventListener("alpine:init", () => {
     Alpine.data("locationData", () => ({
       address: "",
@@ -54,14 +69,14 @@
         if ($event.target.checked) {
           this.determineLocation = true;
           this.address = "Suche aktuelle Position ...";
-          window.navigator.geolocation.getCurrentPosition((position) => {
-            this.address = `${position.coords.longitude}/${position.coords.latitude}`;
-            this.determineLocation = false;
+          window.navigator.geolocation.getCurrentPosition(async (position) => {
             document.map.setView([position.coords.latitude, position.coords.longitude], 18);
+            this.address = await getAddress(position.coords.latitude, position.coords.longitude);
+            this.determineLocation = false;
           });
         }
       },
-      onInit: function () {
+      init: function () {
         if ("{{ .useLocationService }}" == "true") {
           this.getCurrentPosition({ target: { checked: true } });
         }
