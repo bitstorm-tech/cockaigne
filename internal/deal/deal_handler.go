@@ -83,15 +83,21 @@ func Register(app *fiber.App) {
 	})
 
 	app.Get("/deals/:state", func(c *fiber.Ctx) error {
-		userId, err := jwt.ParseUserId(c)
+		user, err := jwt.ParseUser(c)
 		if err != nil {
+			log.Errorf("can't parse user: %v", err)
 			return c.Redirect("/login")
 		}
 
 		state := ToState(c.Params("state", "active"))
-		userIdString := userId.String()
+		userIdString := user.ID.String()
+		userId := &userIdString
 
-		deals, err := GetDealsFromView(state, &userIdString)
+		if !user.IsDealer {
+			userId = nil
+		}
+
+		deals, err := GetDealsFromView(state, userId)
 		if err != nil {
 			log.Error(err)
 			return ui.ShowAlert(c, err.Error())

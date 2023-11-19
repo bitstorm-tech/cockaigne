@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,6 +11,11 @@ import (
 )
 
 var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+
+type User struct {
+	ID       uuid.UUID
+	IsDealer bool
+}
 
 func CreateJwtToken(id uuid.UUID, isDealer bool) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
@@ -36,6 +42,23 @@ func ParseJwtToken(c *fiber.Ctx) (jwt.MapClaims, error) {
 	}
 
 	return token.Claims.(jwt.MapClaims), nil
+}
+
+func ParseUser(c *fiber.Ctx) (User, error) {
+	claims, err := ParseJwtToken(c)
+	if err != nil {
+		return User{}, fmt.Errorf("can't parse JWT: %v", err)
+	}
+
+	id, err := uuid.Parse(claims["sub"].(string))
+	if err != nil {
+		return User{}, fmt.Errorf("can't parse userId into UUID: %v", err)
+	}
+
+	return User{
+		ID:       id,
+		IsDealer: claims["isDealer"].(bool),
+	}, nil
 }
 
 func ParseUserId(c *fiber.Ctx) (uuid.UUID, error) {

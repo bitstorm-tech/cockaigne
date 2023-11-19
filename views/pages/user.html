@@ -1,28 +1,40 @@
-<div class="flex justify-between">
-    <div class="flex w-full justify-between">
-        <div class="m-4 flex flex-col gap-4 pt-2">
-            <div class="flex gap-2 fill-current text-[#69828c]" class:opacity-50={!$page.data.userId}>
-                <DealsBadge number={deals} />
-                <HotsBadge number={hotDeals} />
-                <FavoriteDealerBadge number={favoriteDealers} />
-            </div>
-            <span class="text-2xl">{name}</span>
-            <span class="flex flex-col gap-2 text-sm">
-                <span class="font-extrabold">Dein Standort</span>
-                <span class="flex gap-1">
-                    <LocationIcon size={1.5} />
-                    <div class="flex flex-col text-xs">
-                        {#each address as addressItem}
-                        <i>{addressItem}</i>
-                        {/each}
-                    </div>
-                </span>
-            </span>
-        </div>
-        <div class="-mt-6 mr-14 flex flex-col">
-            <div class="h-24 w-24">
-                <ProfilePicture {imageUrl} />
-            </div>
-        </div>
+{{ template "user-header" . }}
+<div class="pt-4" x-data="{selectedTab: 0}">
+  <div class="grid cursor-pointer grid-cols-3 place-items-center border-b">
+    <div
+      hx-get="/deals/active"
+      hx-target="#content"
+      hx-trigger="click"
+      class="flex w-full justify-around"
+      :class="selectedTab === 0 ? 'border-b-2' : ''"
+      @click="selectedTab = 0">
+      <img class="h-8 pb-2" src="/static/images/icons/deals.svg" alt="Deals" x-show="selectedTab === 0" />
+      <img class="h-8 pb-2" src="/static/images/icons/deals-outline.svg" alt="Deals" x-show="selectedTab !== 0" />
     </div>
+    <div
+      hx-get="/deals/favorites"
+      hx-target="#content"
+      hx-trigger="click"
+      class="flex w-full justify-around"
+      :class="selectedTab === 1 ? 'border-b-2' : ''"
+      @click="selectedTab = 1">
+      <img class="h-8 pb-2" src="/static/images/icons/heart.svg" alt="Images" x-show="selectedTab === 1" />
+      <img class="h-8 pb-2" src="/static/images/icons/heart-outline.svg" alt="Images" x-show="selectedTab !== 1" />
+    </div>
+    <div
+      hx-get="/dealer/favorites"
+      hx-target="#content"
+      hx-trigger="click"
+      class="flex w-full justify-around"
+      :class="selectedTab === 2 ? 'border-b-2' : ''"
+      @click="selectedTab = 2">
+      <img class="h-8 pb-2" src="/static/images/icons/bookmark-boxed.svg" alt="Ratings" x-show="selectedTab === 2" />
+      <img
+        class="h-8 pb-2"
+        src="/static/images/icons/bookmark-boxed-outline.svg"
+        alt="Ratings"
+        x-show="selectedTab !== 2" />
+    </div>
+  </div>
+  <div id="content" class="pt-1" hx-trigger="load once" hx-get="/deals/active">DEALS</div>
 </div>
