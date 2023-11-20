@@ -3,65 +3,68 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-dark text-[#a6adba];
-  }
+    body {
+        @apply bg-dark text-[#a6adba];
+    }
 
-  button,
-  .btn {
-    @apply select-none rounded-lg bg-gray-700 px-4 py-3 text-center text-white transition duration-300 ease-in-out hover:bg-gray-800 focus:outline-none;
-  }
+    button {
+        @apply btn btn-warning focus:outline-none;
+    }
 
-  .btn-outline {
-    @apply border border-gray-700 bg-transparent text-white hover:bg-gray-800;
-  }
+    input[type=text],
+    input[type=password],
+    input[type=number],
+    input[type=email],
+    input[type=datetime-local],
+    input[type=date] {
+        @apply input input-bordered focus:border-primary focus:outline-none;
+    }
 
-  input,
-  select,
-  textarea {
-    @apply flex h-10 w-full items-center justify-center rounded-lg border border-gray-700 bg-white/0 p-4 text-sm outline-none;
-  }
+    input[type=range] {
+        @apply range;
+    }
 
-  textarea {
-    @apply py-2;
-  }
+    textarea {
+        @apply textarea textarea-bordered focus:border-primary focus:outline-none;
+    }
 
-  select {
-    @apply appearance-none;
-  }
+    select {
+        @apply select select-bordered focus:border-primary focus:outline-none;
+    }
 
-  .checkbox,
-  .radio {
-    @apply h-5 w-5;
-  }
+    .menu-item {
+        @apply rounded-md px-2 py-1 text-white hover:bg-gray-700 hover:text-yellow-200;
+    }
 
-  .menu-item {
-    @apply rounded-md px-2 py-1 text-white hover:bg-gray-700 hover:text-yellow-200;
-  }
+    .form-control {
+        @apply flex flex-col;
+    }
 
-  .form-input label {
-    @apply select-none pl-1 text-sm;
-  }
+    .form-control-horizontal {
+        @apply flex items-center gap-1;
+    }
 
-  .form-input-checkbox {
-    @apply flex select-none items-center gap-2;
-  }
+    .form-control, .form-control-horizontal {
+        & label {
+            @apply label-text pl-1 select-none;
+        }
+    }
 
-  .fade-in.htmx-added {
-    opacity: 0;
-  }
+    .fade-in.htmx-added {
+        opacity: 0;
+    }
 
-  .fade-in {
-    opacity: 1;
-    transition: opacity 0.3s ease-out;
-  }
+    .fade-in {
+        opacity: 1;
+        transition: opacity 0.3s ease-out;
+    }
 
-  .fade-out.htmx-swapping {
-    opacity: 0;
-    transition: opacity 0.3s ease-out;
-  }
+    .fade-out.htmx-swapping {
+        opacity: 0;
+        transition: opacity 0.3s ease-out;
+    }
 
-  .htmx-indicator {
-    display: none;
-  }
+    .htmx-indicator {
+        display: none;
+    }
 }

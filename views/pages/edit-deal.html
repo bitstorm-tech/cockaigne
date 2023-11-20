@@ -7,7 +7,7 @@
   <!------------>
   <!-- Title  -->
   <!------------>
-  <div class="form-input">
+  <div class="form-control">
     <label for="title">Titel</label>
     <input id="title" type="text" name="title" />
   </div>
@@ -15,7 +15,7 @@
   <!------------------>
   <!-- Description  -->
   <!------------------>
-  <div class="form-input">
+  <div class="form-control">
     <label for="description">Beschreibung</label>
     <textarea id="description" class="h-32" rows="10" name="description"></textarea>
   </div>
@@ -23,22 +23,29 @@
   <!------------------------->
   <!-- Category selection  -->
   <!------------------------->
-  <div
-    hx-get="/ui/category-select?name=Kategorie&selected={{ .deal.CategoryId }}"
-    hx-trigger="load once"
-    hx-target="this"></div>
+  <div class="form-control">
+    <label for="category-select">Kategorie</label>
+    <div
+      id="category-select"
+      hx-get="/ui/category-select?name=Kategorie&selected={{ .deal.CategoryId }}"
+      hx-trigger="load once"
+      hx-target="this"></div>
+  </div>
 
   <!------------------->
   <!-- Add pictures  -->
   <!------------------->
-  <span>
+  <span class="label-text">
     Bilder hinzufügen
     <span class="text-xs">(optional)</span>
     :
   </span>
   <div class="grid grid-cols-3 gap-2">
     <div>
-      <button x-show="!imagePreviewUrls[0]" @click.prevent="$refs.fileInput0.click()" class="btn-outline h-24 w-full">
+      <button
+        x-show="!imagePreviewUrls[0]"
+        @click.prevent="$refs.fileInput0.click()"
+        class="btn-outline btn-primary h-24 w-full">
         +
       </button>
       <img
@@ -49,7 +56,10 @@
       <input x-ref="fileInput0" type="file" hidden @change="add($event, 0)" name="images" />
     </div>
     <div>
-      <button x-show="!imagePreviewUrls[1]" @click.prevent="$refs.fileInput1.click()" class="btn-outline h-24 w-full">
+      <button
+        x-show="!imagePreviewUrls[1]"
+        @click.prevent="$refs.fileInput1.click()"
+        class="btn-outline btn-primary h-24 w-full">
         +
       </button>
       <img
@@ -60,7 +70,10 @@
       <input x-ref="fileInput1" type="file" hidden @change="add($event, 1)" name="images" />
     </div>
     <div>
-      <button x-show="!imagePreviewUrls[2]" @click.prevent="$refs.fileInput2.click()" class="btn-outline h-24 w-full">
+      <button
+        x-show="!imagePreviewUrls[2]"
+        @click.prevent="$refs.fileInput2.click()"
+        class="btn-outline btn-primary h-24 w-full">
         +
       </button>
       <img
@@ -76,20 +89,20 @@
   <!-- Switch between start date or start instatnly and end date or runtime  -->
   <!--------------------------------------------------------------------------->
   <div class="flex gap-6">
-    <div class="form-input-checkbox">
+    <div class="form-control-horizontal">
       <input id="start-immediately" type="checkbox" class="checkbox" name="startInstantly" x-model="startInstantly" />
-      <label for="start-immediately">Sofort starten</label>
+      <label for="start-immediately" class="cursor-pointer">Sofort starten</label>
     </div>
-    <div class="form-input-checkbox">
+    <div class="form-control-horizontal">
       <input id="runtime" type="checkbox" class="checkbox" name="ownEndDate" x-model="ownEndDate" />
-      <label for="runtime">Individuelle Laufzeit</label>
+      <label for="runtime" class="cursor-pointer">Individuelle Laufzeit</label>
     </div>
   </div>
 
   <!------------------------------------>
   <!-- Start date or start instatnly  -->
   <!------------------------------------>
-  <div class="form-input" x-show="!startInstantly">
+  <div class="form-control" x-show="!startInstantly">
     <label for="start-date-input">Start</label>
     <input
       id="start-date-input"
@@ -97,7 +110,7 @@
       name="startDate"
       value="{{ .deal.Start.Format `2006-01-02T15:04` }}" />
   </div>
-  <div class="py-5 text-sm" x-show="startInstantly">
+  <div class="py-6 text-sm" x-show="startInstantly">
     <span>Dein Deal startet sofort, wenn du auf "Erstellen" klickst!</span>
   </div>
 
@@ -105,16 +118,16 @@
   <!-- End date or runtime 1, 2 or 3 days  -->
   <!----------------------------------------->
   <div class="flex select-none gap-4">
-    <div class="form-input w-full" x-show="ownEndDate">
+    <div class="form-control w-full" x-show="ownEndDate">
       <label for="duration-input">Ende</label>
       <input id="duration-input" type="date" name="endDate" />
     </div>
-    <div class="form-input w-full" x-show="!ownEndDate">
-      <span class="text-sm">Laufzeit</span>
+    <div class="form-control w-full py-3" x-show="!ownEndDate">
+      <label for="duration" class="text-sm">Laufzeit</label>
       <div class="flex items-center gap-2">
         <span x-text="runtime"></span>
         <span>Tag(e)</span>
-        <input name="duration" type="range" min="1" max="10" step="1" x-model="runtime" />
+        <input id="duration" name="duration" type="range" min="1" max="10" step="1" x-model="runtime" />
       </div>
     </div>
   </div>
@@ -122,7 +135,7 @@
   <!------------------------------------>
   <!-- Save additionally as template  -->
   <!------------------------------------>
-  <div class="form-input-checkbox pt-10">
+  <div class="form-control-horizontal pt-10">
     <input id="template" type="checkbox" class="checkbox" name="template" />
     <label for="template">Zusätzlich als Vorlage speichern</label>
   </div>
@@ -135,7 +148,7 @@
       <img src="/static/images/spinner.svg" class="htmx-indicator h-6 animate-spin" />
       Erstellen
     </button>
-    <a href="/" class="btn btn-outline">Abrechen</a>
+    <a href="/" class="btn btn-primary">Abrechen</a>
   </div>
 </form>
 <div id="alert"></div>

@@ -8,5 +8,18 @@ module.exports = {
       }
     }
   },
-  plugins: []
+  plugins: [require("daisyui")],
+  daisyui: {
+    themes: [
+      {
+        dark: {
+          ...require("daisyui/src/theming/themes")["dark"],
+          "base-300": "#1b2123",
+          "base-100": "#1b2123",
+          primary: "#2c363a",
+          warning: "#751b37"
+        }
+      }
+    ]
+  }
 };
