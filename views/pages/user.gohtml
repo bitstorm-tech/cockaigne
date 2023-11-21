@@ -1,6 +1,6 @@
 {{ template "user-header" . }}
 <div class="pt-4" x-data="{selectedTab: 0}">
-  <div class="tabs tabs-bordered">
+  <div class="tabs tabs-bordered" x-cloak>
     <div
       hx-get="/deals/active"
       hx-target="#content"

@@ -1,6 +1,7 @@
 <div class="flex flex-col gap-2" x-data="{openDetailsId: ''}">
   {{ range .deals }}
   <div class="flex flex-col">
+    {{ template "deal-list-item-header" . }}
     <span class="bg-slate-500 p-2" @click="openDetailsId = openDetailsId === '{{ .ID }}' ? '' : '{{ .ID }}'">
       {{ .Title }}
     </span>

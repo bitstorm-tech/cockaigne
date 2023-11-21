@@ -1,0 +1,41 @@
+<script>
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("locationService", () => ({
+      address: "",
+      useLocationService: "{{ .useLocationService }}" == "true",
+      determineLocation: false,
+      location: "{{ .location }}".split(",").map((n) => Number(n)),
+      getCurrentPosition: function ($event) {
+        if ($event.target.checked) {
+          this.determineLocation = true;
+          this.address = "Suche aktuelle Position ...";
+          window.navigator.geolocation.getCurrentPosition(async (position) => {
+            this.location = [position.coords.latitude, position.coords.longitude];
+            map.setView(this.location, 18);
+            this.address = await getAddress(position.coords.latitude, position.coords.longitude);
+            this.determineLocation = false;
+          });
+        }
+      },
+      searchAddress: async function () {
+        if (this.useLocationService) return;
+        this.determineLocation = true;
+        const { latitude, longitude } = await getPosition(this.address);
+        this.location = [latitude, longitude];
+        map.setView(this.location, 18);
+        this.determineLocation = false;
+      },
+      jumpToCurrentLocation: function () {
+        map.setView(this.location, 18);
+      },
+      init: async function () {
+        if (this.useLocationService) {
+          this.getCurrentPosition({ target: { checked: true } });
+        } else {
+          map.setView(this.location.reverse(), 18);
+          this.address = await getAddress(this.location[0], this.location[1]);
+        }
+      }
+    }));
+  });
+</script>
