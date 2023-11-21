@@ -5,6 +5,7 @@
     <span class="bg-slate-500 p-2" @click="openDetailsId = openDetailsId === '{{ .ID }}' ? '' : '{{ .ID }}'">
       {{ .Title }}
     </span>
+
     <span
       hx-get="/deals/details/{{ .ID }}"
       hx-target="#details-{{ .ID }}"

@@ -1,5 +1,4 @@
-{{ define "deal-list-item-header"
-}}
+{{ define "deal-list-item-header" }}
     <div class="flex flex-col">
   <span class="bg-slate-500 p-2" @click="openDetailsId = openDetailsId === '{{ .ID }}' ? '' : '{{ .ID }}'">
     {{ .Title }}
