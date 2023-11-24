@@ -103,7 +103,13 @@ func Register(app *fiber.App) {
 			return ui.ShowAlert(c, err.Error())
 		}
 
-		return c.Render("partials/deals-list", fiber.Map{"deals": deals})
+		onDealerPage := strings.Contains(c.OriginalURL(), "dealer")
+
+		return c.Render("partials/deal/deals-list", fiber.Map{
+			"deals":        deals,
+			"isDealer":     user.IsDealer,
+			"onDealerPage": onDealerPage,
+		})
 	})
 
 	app.Get("/api/deals", func(c *fiber.Ctx) error {
@@ -131,6 +137,6 @@ func Register(app *fiber.App) {
 			return c.SendString("Konnte Deal Details nicht laden. Bitte versuche es später nochmal.")
 		}
 
-		return c.Render("partials/deal-details", fiber.Map{"details": details, "isUser": true, "imageUrls": imageUrls})
+		return c.Render("partials/deal/deal-details-footer", fiber.Map{"details": details, "isUser": true, "imageUrls": imageUrls})
 	})
 }

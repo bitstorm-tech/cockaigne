@@ -3,68 +3,74 @@
 @tailwind utilities;
 
 @layer base {
-    body {
-        @apply bg-dark text-[#a6adba];
-    }
+  body {
+    @apply bg-dark text-[#a6adba];
+  }
 
-    button {
-        @apply btn btn-warning focus:outline-none;
-    }
+  button {
+    @apply btn btn-warning focus:outline-none;
+  }
 
-    input[type=text],
-    input[type=password],
-    input[type=number],
-    input[type=email],
-    input[type=datetime-local],
-    input[type=date] {
-        @apply input input-bordered focus:border-primary focus:outline-none;
-    }
+  button.clean {
+    all: unset;
+    cursor: pointer;
+  }
 
-    input[type=range] {
-        @apply range;
-    }
+  input[type="text"],
+  input[type="password"],
+  input[type="number"],
+  input[type="email"],
+  input[type="datetime-local"],
+  input[type="date"] {
+    @apply input input-bordered focus:border-primary focus:outline-none;
+  }
 
-    textarea {
-        @apply textarea textarea-bordered focus:border-primary focus:outline-none;
-    }
+  input[type="range"] {
+    @apply range;
+  }
 
-    select {
-        @apply select select-bordered focus:border-primary focus:outline-none;
-    }
+  textarea {
+    @apply textarea textarea-bordered focus:border-primary focus:outline-none;
+  }
 
-    .menu-item {
-        @apply rounded-md px-2 py-1 text-white hover:bg-gray-700 hover:text-yellow-200;
-    }
+  select {
+    @apply select select-bordered focus:border-primary focus:outline-none;
+  }
 
-    .form-control {
-        @apply flex flex-col;
-    }
+  .menu-item {
+    @apply rounded-md px-2 py-1 text-white hover:bg-gray-700 hover:text-yellow-200;
+  }
 
-    .form-control-horizontal {
-        @apply flex items-center gap-1;
-    }
+  .form-control {
+    @apply flex flex-col;
+  }
 
-    .form-control, .form-control-horizontal {
-        & label {
-            @apply label-text pl-1 select-none;
-        }
-    }
+  .form-control-horizontal {
+    @apply flex items-center gap-1;
+  }
 
-    .fade-in.htmx-added {
-        opacity: 0;
+  .form-control,
+  .form-control-horizontal {
+    & label {
+      @apply label-text select-none pl-1;
     }
+  }
 
-    .fade-in {
-        opacity: 1;
-        transition: opacity 0.3s ease-out;
-    }
+  .fade-in.htmx-added {
+    opacity: 0;
+  }
 
-    .fade-out.htmx-swapping {
-        opacity: 0;
-        transition: opacity 0.3s ease-out;
-    }
+  .fade-in {
+    opacity: 1;
+    transition: opacity 0.3s ease-out;
+  }
 
-    .htmx-indicator {
-        display: none;
-    }
+  .fade-out.htmx-swapping {
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+  }
+
+  .htmx-indicator {
+    display: none;
+  }
 }
