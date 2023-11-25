@@ -125,18 +125,24 @@ func Register(app *fiber.App) {
 
 	app.Get("/deals/details/:id", func(c *fiber.Ctx) error {
 		dealId := c.Params("id")
-		details, err := GetDealDetails(dealId)
-		if err != nil {
-			log.Errorf("can't get deal details: %v", err)
-			return c.SendString("Konnte Deal Details nicht laden. Bitte versuche es später nochmal.")
-		}
-
+		likes := GetDealLikes(dealId)
 		imageUrls, err := GetDealImageUrls(dealId)
 		if err != nil {
 			log.Errorf("can't get deal image urls: %v", err)
-			return c.SendString("Konnte Deal Details nicht laden. Bitte versuche es später nochmal.")
+			return c.SendString("Konnte Deal Footer nicht laden. Bitte versuche es später nochmal.")
 		}
 
-		return c.Render("partials/deal/deal-details-footer", fiber.Map{"details": details, "isUser": true, "imageUrls": imageUrls})
+		return c.Render("partials/deal/deal-details-footer", fiber.Map{"id": dealId, "likes": likes, "isUser": true, "imageUrls": imageUrls})
+	})
+
+	app.Get("/deals/like/:id", func(c *fiber.Ctx) error {
+		userId, err := jwt.ParseUserId(c)
+		if err != nil {
+			return c.Redirect("/login")
+		}
+		dealId := c.Params("id")
+		result := ToggleLikes(dealId, userId.String())
+
+		return c.SendString(fmt.Sprintf("%d", result))
 	})
 }

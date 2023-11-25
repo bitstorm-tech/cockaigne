@@ -2,6 +2,8 @@ package deal
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"mime/multipart"
 	"strings"
@@ -111,7 +113,7 @@ func GetDealsFromView(state State, dealerId *string) ([]DealView, error) {
 		return []DealView{}, fmt.Errorf("unknown deal state: %s", state)
 	}
 
-	statement := fmt.Sprintf("select *, st_x(location) || ',' || st_y(location) as location from %s_deals_view", state)
+	statement := fmt.Sprintf("select *, public.st_x(location) || ',' || public.st_y(location) as location from %s_deals_view", state)
 
 	if dealerId != nil {
 		statement += fmt.Sprintf(" where dealer_id = '%s'", *dealerId)
@@ -127,34 +129,55 @@ func GetDealsFromView(state State, dealerId *string) ([]DealView, error) {
 	return deals, nil
 }
 
-type DealHeader struct {
+type Header struct {
 	ID       uuid.UUID
 	Title    string
 	Username string
 }
 
-func GetDealHeaders() ([]DealHeader, error) {
-	var headers []DealHeader
-	err := persistence.DB.Select(&headers, "select id, title, username from active_deals_view")
-	if err != nil {
-		return []DealHeader{}, err
+func GetDealLikes(dealId string) int {
+	var likes = 0
+	err := persistence.DB.QueryRowx(
+		"select coalesce(likecount, 0) as likes from like_counts_view where deal_id = $1",
+		dealId,
+	).Scan(&likes)
+
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		log.Errorf("can't get like count: %v", err)
+		return 0
 	}
 
-	return headers, nil
+	return likes
 }
 
-type DealDetails struct {
-	Description string
-}
+func ToggleLikes(dealId string, userId string) int {
+	var count = 0
+	err := persistence.DB.Get(&count, "select count(*)  from likes where deal_id = $1 and user_id = $2", dealId, userId)
 
-func GetDealDetails(dealId string) (DealDetails, error) {
-	var details DealDetails
-	err := persistence.DB.Get(&details, "select description from deals where id = $1", dealId)
 	if err != nil {
-		return DealDetails{}, err
+		log.Errorf("can't check if like is already persisted: %v", err)
+		return 0
 	}
 
-	return details, nil
+	var query = "delete from likes where deal_id = $1 and user_id = $2"
+	if count == 0 {
+		query = "insert into likes (deal_id, user_id) values ($1, $2)"
+	}
+
+	_, err = persistence.DB.Exec(query, dealId, userId)
+	if err != nil {
+		log.Errorf("can't toggle like: %v", err)
+		return 0
+	}
+
+	var likeCount = 0
+	err = persistence.DB.Get(&likeCount, "select likecount from like_counts_view where deal_id = $1", dealId)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		log.Errorf("can't get like count for deal %s: %v", dealId, err)
+		return 0
+	}
+
+	return likeCount
 }
 
 func GetTemplates(dealerId string) ([]Deal, error) {

@@ -7,10 +7,10 @@
 <span class="py-4 text-xs">Endet am 1.1.2222</span>
 <div class="flex h-6 justify-between">
   <div class="flex items-center gap-3">
-    <button class="clean">
+    <button class="clean" hx-get="/deals/like/{{ .id }}" hx-target="#like-count-{{ .id }}" hx-swap="innerHTML">
       <img src="/static/images/icons/like-outline.svg" alt="Like or dislike" class="h-6" />
     </button>
-    <span class="text-lg">0</span>
+    <span id="like-count-{{ .id }}" class="text-lg">{{ .likes }}</span>
   </div>
   <button class="clean">
     <img src="/static/images/icons/report.svg" alt="Report deal" class="h-6" />
