@@ -42,7 +42,7 @@
   }
 
   .form-control {
-    @apply flex flex-col;
+    @apply flex flex-col gap-1;
   }
 
   .form-control-horizontal {
@@ -52,7 +52,7 @@
   .form-control,
   .form-control-horizontal {
     & label {
-      @apply label-text select-none pl-1;
+      @apply label-text select-none pl-1 text-xs;
     }
   }
 

@@ -2,7 +2,7 @@
 <div class="pt-4" x-data="{selectedTab: 0}">
   <div class="tabs tabs-bordered" x-cloak>
     <div
-      hx-get="/deals/active"
+      hx-get="/deal-list/active"
       hx-target="#content"
       hx-trigger="click"
       class="tab"
@@ -36,5 +36,5 @@
         x-show="selectedTab !== 2" />
     </div>
   </div>
-  <div id="content" class="pt-1" hx-trigger="load once" hx-get="/deals/active"></div>
+  <div id="content" class="pt-1" hx-trigger="load once" hx-get="/deal-list/active"></div>
 </div>

@@ -38,7 +38,7 @@ func ToState(state string) State {
 		return Future
 	}
 
-	log.Warnf("invalid deal state (%s) -> use active as default", state)
+	log.Warnf("invalid deal state (%s) -> use 'active' as default", state)
 
 	return Active
 }
@@ -131,8 +131,74 @@ func GetDealsFromView(state State, dealerId *string) ([]DealView, error) {
 
 type Header struct {
 	ID       uuid.UUID
+	DealerId uuid.UUID `db:"dealer_id"`
 	Title    string
 	Username string
+}
+
+func GetDealHeaders(state State, dealerId *string) ([]Header, error) {
+	if state != Future && state != Active && state != Past {
+		return []Header{}, fmt.Errorf("unknown deal state: %s", state)
+	}
+
+	statement := fmt.Sprintf("select id, title, username, dealer_id from %s_deals_view", state)
+
+	if dealerId != nil {
+		statement += fmt.Sprintf(" where dealer_id = '%s'", *dealerId)
+	}
+
+	var headers []Header
+	err := persistence.DB.Select(&headers, statement)
+
+	if err != nil {
+		return []Header{}, fmt.Errorf("can't get active deals: %v", err)
+	}
+
+	return headers, nil
+}
+
+type Details struct {
+	Title       string
+	Description string
+}
+
+func GetDealDetails(dealId string) (Details, error) {
+	var details Details
+	err := persistence.DB.Get(&details, "select title, description from deals where id = $1", dealId)
+	if err != nil {
+		return Details{}, fmt.Errorf("can't get deal details of deal %s: %v", dealId, err)
+	}
+
+	return details, nil
+}
+
+type Report struct {
+	Title  string
+	Reason string
+}
+
+func GetDealReport(dealId string, reporterId string) (Report, error) {
+	var reason = ""
+	err := persistence.DB.Get(
+		&reason,
+		"select reason from reported_deals where deal_id = $1 and reporter_id = $2",
+		dealId,
+		reporterId,
+	)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return Report{}, fmt.Errorf("can't get reason for deal report of deal %s: %v", dealId, err)
+	}
+
+	var title string
+	err = persistence.DB.Get(&title, "select title from deals where id = $1", dealId)
+	if err != nil {
+		return Report{}, fmt.Errorf("can't get title for deal report of deal %s: %v", dealId, err)
+	}
+
+	return Report{
+		Title:  title,
+		Reason: reason,
+	}, nil
 }
 
 func GetDealLikes(dealId string) int {
@@ -231,4 +297,15 @@ func GetDealImageUrls(dealId string) ([]string, error) {
 	}
 
 	return imageUrls, nil
+}
+
+func SaveDealReport(dealId string, reporterId string, reason string) error {
+	_, err := persistence.DB.Exec(
+		"insert into reported_deals (reporter_id, deal_id, reason) values ($1, $2, $3)",
+		reporterId,
+		dealId,
+		reason,
+	)
+
+	return err
 }

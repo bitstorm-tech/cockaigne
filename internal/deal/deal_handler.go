@@ -112,6 +112,36 @@ func Register(app *fiber.App) {
 		})
 	})
 
+	app.Get("/deal-list/:state", func(c *fiber.Ctx) error {
+		user, err := jwt.ParseUser(c)
+		if err != nil {
+			log.Errorf("can't parse user: %v", err)
+			return c.Redirect("/login")
+		}
+
+		state := ToState(c.Params("state", "active"))
+		userIdString := user.ID.String()
+		userId := &userIdString
+
+		if !user.IsDealer {
+			userId = nil
+		}
+
+		dealHeaders, err := GetDealHeaders(state, userId)
+		if err != nil {
+			log.Error(err)
+			return ui.ShowAlert(c, err.Error())
+		}
+
+		onDealerPage := strings.Contains(c.OriginalURL(), "dealer")
+
+		return c.Render("partials/deal/deals-list", fiber.Map{
+			"dealHeaders":  dealHeaders,
+			"isDealer":     user.IsDealer,
+			"onDealerPage": onDealerPage,
+		})
+	})
+
 	app.Get("/api/deals", func(c *fiber.Ctx) error {
 		// extent := c.Query("extent")
 		deals, err := GetDealsFromView(Active, nil)
@@ -123,16 +153,30 @@ func Register(app *fiber.App) {
 		return c.JSON(deals)
 	})
 
-	app.Get("/deals/details/:id", func(c *fiber.Ctx) error {
+	app.Get("/deal-details/:id", func(c *fiber.Ctx) error {
 		dealId := c.Params("id")
 		likes := GetDealLikes(dealId)
 		imageUrls, err := GetDealImageUrls(dealId)
 		if err != nil {
 			log.Errorf("can't get deal image urls: %v", err)
-			return c.SendString("Konnte Deal Footer nicht laden. Bitte versuche es später nochmal.")
+			return c.SendString("Konnte Deal Details nicht laden. Bitte versuche es später nochmal.")
 		}
 
-		return c.Render("partials/deal/deal-details-footer", fiber.Map{"id": dealId, "likes": likes, "isUser": true, "imageUrls": imageUrls})
+		details, err := GetDealDetails(dealId)
+		if err != nil {
+			log.Errorf("can't get deal details: %v", err)
+			return c.SendString("Konnte Deal Details nicht laden. Bitte versuche es später nochmal.")
+		}
+
+		return c.Render(
+			"partials/deal/deal-details-footer",
+			fiber.Map{"id": dealId,
+				"likes":       likes,
+				"isUser":      true,
+				"imageUrls":   imageUrls,
+				"title":       details.Title,
+				"description": details.Description,
+			})
 	})
 
 	app.Get("/deals/like/:id", func(c *fiber.Ctx) error {
@@ -144,5 +188,43 @@ func Register(app *fiber.App) {
 		result := ToggleLikes(dealId, userId.String())
 
 		return c.SendString(fmt.Sprintf("%d", result))
+	})
+
+	app.Get("/ui/deals/report-modal/:id", func(c *fiber.Ctx) error {
+		dealId := c.Params("id")
+		reporterId, err := jwt.ParseUserId(c)
+		if err != nil {
+			return ui.ShowAlert(c, "Nur angemeldete User können einen Deal melden")
+		}
+
+		report, err := GetDealReport(dealId, reporterId.String())
+		if err != nil {
+			log.Errorf("can't get deal report reason: %v", err)
+		}
+
+		return c.Render("partials/deal/report-modal", fiber.Map{"title": report.Title, "reason": report.Reason, "id": dealId})
+	})
+
+	app.Post("/deal-report/:id", func(c *fiber.Ctx) error {
+		userId, err := jwt.ParseUserId(c)
+		if err != nil {
+			log.Error("can't save deal report -> no user ID")
+			return ui.ShowAlert(c, "Nur angemeldete User können einen Deal melden")
+		}
+
+		reason := c.FormValue("reason")
+		if len(reason) == 0 {
+			log.Error("can't save deal report -> no reason")
+			return ui.ShowAlert(c, "Bitte gib an, was an dem Deal nicht passt")
+		}
+
+		dealId := c.Params("id")
+		err = SaveDealReport(dealId, userId.String(), reason)
+		if err != nil {
+			log.Errorf("can't save deal report: %v", err)
+			return ui.ShowAlert(c, "Deal konnte leider nicht gemeldet werden. Bitte versuche es später noch einmal.")
+		}
+
+		return c.SendString("")
 	})
 }
