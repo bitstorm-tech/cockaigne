@@ -1,0 +1,7 @@
+<button class="clean" @click.stop hx-target="this" hx-get="/deal-favorite/{{ .id }}?toggle=true">
+  {{ if .isFavorite }}
+  <img src="/static/images/icons/bookmark.svg" alt="Toggle favorite deal" class="h-5" />
+  {{ else }}
+  <img src="/static/images/icons/bookmark-outline.svg" alt="Toggle favorite deal" class="h-5" />
+  {{ end }}
+</button>

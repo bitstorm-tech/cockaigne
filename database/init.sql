@@ -81,12 +81,12 @@ create table
 );
 
 create table
-    hot_deals
+    favorite_deals
 (
     user_id uuid        not null references accounts (id) on delete restrict on update cascade,
     deal_id uuid        not null references deals (id) on delete restrict on update cascade,
     created timestamptz not null default now(),
-    constraint "hot_deals_pk" unique (user_id, deal_id)
+    constraint "favorite_deals_pk" unique (user_id, deal_id)
 );
 
 create table

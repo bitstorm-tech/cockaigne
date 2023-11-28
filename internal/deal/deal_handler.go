@@ -235,4 +235,20 @@ func Register(app *fiber.App) {
 
 		return c.SendString("")
 	})
+
+	app.Get("/deal-favorite/:id", func(c *fiber.Ctx) error {
+		userId, _ := jwt.ParseUserId(c)
+		dealId := c.Params("id")
+		doToggle := c.Query("toggle", "false") != "false"
+
+		isFavorite := false
+		if doToggle {
+			isFavorite = ToggleFavorite(dealId, userId.String())
+		} else {
+			isFavorite = IsDealFavorite(dealId, userId.String())
+
+		}
+
+		return c.Render("partials/deal/favorite", fiber.Map{"id": dealId, "isFavorite": isFavorite})
+	})
 }

@@ -178,7 +178,7 @@ type Report struct {
 }
 
 func GetDealReport(dealId string, reporterId string) (Report, error) {
-	var reason = ""
+	reason := ""
 	err := persistence.DB.Get(
 		&reason,
 		"select reason from reported_deals where deal_id = $1 and reporter_id = $2",
@@ -189,7 +189,7 @@ func GetDealReport(dealId string, reporterId string) (Report, error) {
 		return Report{}, fmt.Errorf("can't get reason for deal report of deal %s: %v", dealId, err)
 	}
 
-	var title string
+	title := ""
 	err = persistence.DB.Get(&title, "select title from deals where id = $1", dealId)
 	if err != nil {
 		return Report{}, fmt.Errorf("can't get title for deal report of deal %s: %v", dealId, err)
@@ -202,7 +202,7 @@ func GetDealReport(dealId string, reporterId string) (Report, error) {
 }
 
 func GetDealLikes(dealId string) int {
-	var likes = 0
+	likes := 0
 	err := persistence.DB.Get(
 		&likes,
 		"select coalesce(likecount, 0) as likes from like_counts_view where deal_id = $1",
@@ -218,7 +218,7 @@ func GetDealLikes(dealId string) int {
 }
 
 func ToggleLikes(dealId string, userId string) int {
-	var count = 0
+	count := 0
 	err := persistence.DB.Get(&count, "select count(*)  from likes where deal_id = $1 and user_id = $2", dealId, userId)
 
 	if err != nil {
@@ -226,7 +226,7 @@ func ToggleLikes(dealId string, userId string) int {
 		return 0
 	}
 
-	var query = "delete from likes where deal_id = $1 and user_id = $2"
+	query := "delete from likes where deal_id = $1 and user_id = $2"
 	if count == 0 {
 		query = "insert into likes (deal_id, user_id) values ($1, $2)"
 	}
@@ -237,7 +237,7 @@ func ToggleLikes(dealId string, userId string) int {
 		return 0
 	}
 
-	var likes = 0
+	likes := 0
 	err = persistence.DB.Get(&likes, "select likecount from like_counts_view where deal_id = $1", dealId)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		log.Errorf("can't get like count for deal %s: %v", dealId, err)
@@ -248,7 +248,7 @@ func ToggleLikes(dealId string, userId string) int {
 }
 
 func IsDealLiked(dealId string, userId string) bool {
-	var isLiked = false
+	isLiked := false
 	err := persistence.DB.Get(
 		&isLiked,
 		"select exists(select user_id from likes where deal_id = $1 and user_id = $2)",
@@ -261,6 +261,40 @@ func IsDealLiked(dealId string, userId string) bool {
 	}
 
 	return isLiked
+}
+
+func IsDealFavorite(dealId string, userId string) bool {
+	isFavorite := false
+	err := persistence.DB.Get(
+		&isFavorite,
+		"select exists(select user_id from favorite_deals where deal_id = $1 and user_id = $2)",
+		dealId,
+		userId,
+	)
+	if err != nil {
+		log.Errorf("can't check if deal %s is favorite: %v", dealId, err)
+		return false
+	}
+
+	return isFavorite
+}
+
+func ToggleFavorite(dealId string, userId string) bool {
+	isFavorite := IsDealFavorite(dealId, userId)
+
+	var err error
+	if isFavorite {
+		_, err = persistence.DB.Exec("delete from favorite_deals where deal_id = $1 and user_id = $2", dealId, userId)
+	} else {
+		_, err = persistence.DB.Exec("insert into favorite_deals (user_id, deal_id) values ($1, $2)", userId, dealId)
+	}
+
+	if err != nil {
+		log.Errorf("can't check if deal %s is favorite: %v", dealId, err)
+		return false
+	}
+
+	return !isFavorite
 }
 
 func GetTemplates(dealerId string) ([]Deal, error) {

@@ -18,9 +18,7 @@
         <img src="/static/images/icons/cog.svg" alt="Deal Einstellungen" class="h-5" />
       </button>
       {{ else }}
-      <button class="clean" @click.stop="">
-        <img src="/static/images/icons/bookmark-outline.svg" alt="Toggle favorite deal" class="h-5" />
-      </button>
+      <div hx-get="/deal-favorite/{{ .ID }}" hx-trigger="intersect once" hx-target="this"></div>
       {{ end }}
     </div>
 
