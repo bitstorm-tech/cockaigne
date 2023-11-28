@@ -193,7 +193,9 @@ func Register(app *fiber.App) {
 			likes = GetDealLikes(dealId)
 		}
 
-		return c.Render("partials/deal/likes", fiber.Map{"id": dealId, "likes": likes})
+		isLiked := IsDealLiked(dealId, userId.String())
+
+		return c.Render("partials/deal/likes", fiber.Map{"id": dealId, "likes": likes, "isLiked": isLiked})
 	})
 
 	app.Get("/ui/deals/report-modal/:id", func(c *fiber.Ctx) error {

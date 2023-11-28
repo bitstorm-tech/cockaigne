@@ -247,6 +247,22 @@ func ToggleLikes(dealId string, userId string) int {
 	return likes
 }
 
+func IsDealLiked(dealId string, userId string) bool {
+	var isLiked = false
+	err := persistence.DB.Get(
+		&isLiked,
+		"select exists(select user_id from likes where deal_id = $1 and user_id = $2)",
+		dealId,
+		userId,
+	)
+	if err != nil {
+		log.Errorf("can't check if user has liked the deal %s: %v", dealId, err)
+		return false
+	}
+
+	return isLiked
+}
+
 func GetTemplates(dealerId string) ([]Deal, error) {
 	var templates []Deal
 	err := persistence.DB.Select(&templates, "select * from deals where template = true and dealer_id = $1", dealerId)
