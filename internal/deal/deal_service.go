@@ -203,10 +203,11 @@ func GetDealReport(dealId string, reporterId string) (Report, error) {
 
 func GetDealLikes(dealId string) int {
 	var likes = 0
-	err := persistence.DB.QueryRowx(
+	err := persistence.DB.Get(
+		&likes,
 		"select coalesce(likecount, 0) as likes from like_counts_view where deal_id = $1",
 		dealId,
-	).Scan(&likes)
+	)
 
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		log.Errorf("can't get like count: %v", err)
@@ -236,14 +237,14 @@ func ToggleLikes(dealId string, userId string) int {
 		return 0
 	}
 
-	var likeCount = 0
-	err = persistence.DB.Get(&likeCount, "select likecount from like_counts_view where deal_id = $1", dealId)
+	var likes = 0
+	err = persistence.DB.Get(&likes, "select likecount from like_counts_view where deal_id = $1", dealId)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		log.Errorf("can't get like count for deal %s: %v", dealId, err)
 		return 0
 	}
 
-	return likeCount
+	return likes
 }
 
 func GetTemplates(dealerId string) ([]Deal, error) {

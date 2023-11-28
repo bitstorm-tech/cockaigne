@@ -179,15 +179,21 @@ func Register(app *fiber.App) {
 			})
 	})
 
-	app.Get("/deals/like/:id", func(c *fiber.Ctx) error {
+	app.Get("/deal-likes/:id", func(c *fiber.Ctx) error {
 		userId, err := jwt.ParseUserId(c)
 		if err != nil {
 			return c.Redirect("/login")
 		}
 		dealId := c.Params("id")
-		result := ToggleLikes(dealId, userId.String())
+		doToggle := c.Query("toggle", "false") != "false"
+		likes := 0
+		if doToggle {
+			likes = ToggleLikes(dealId, userId.String())
+		} else {
+			likes = GetDealLikes(dealId)
+		}
 
-		return c.SendString(fmt.Sprintf("%d", result))
+		return c.Render("partials/deal/likes", fiber.Map{"id": dealId, "likes": likes})
 	})
 
 	app.Get("/ui/deals/report-modal/:id", func(c *fiber.Ctx) error {
