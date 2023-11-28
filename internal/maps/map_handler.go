@@ -35,7 +35,7 @@ func Register(app *fiber.App) {
 		categories := deal.GetCategories()
 		favCategoryIds := account.GetFavoriteCategoryIds(userId)
 
-		return c.Render("partials/map/filter-modal", fiber.Map{
+		return c.Render("fragments/map/filter-modal", fiber.Map{
 			"titel":          "Filter",
 			"searchRadius":   acc.SearchRadiusInMeters,
 			"categories":     categories,
@@ -44,6 +44,6 @@ func Register(app *fiber.App) {
 	})
 
 	app.Get("/ui/map/location-modal", func(c *fiber.Ctx) error {
-		return c.Render("partials/map/location-modal", fiber.Map{"titel": "Standort festlegen"}, "layouts/modal")
+		return c.Render("fragments/map/location-modal", fiber.Map{"titel": "Standort festlegen"}, "layouts/modal")
 	})
 }

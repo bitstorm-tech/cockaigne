@@ -40,7 +40,7 @@ func Register(app *fiber.App) {
 		name := c.Query("name", "Kategorie")
 		selected := c.Query("selected", "-1")
 
-		return c.Render("partials/category-select", fiber.Map{"categories": categories, "name": name, "selected": selected})
+		return c.Render("fragments/category-select", fiber.Map{"categories": categories, "name": name, "selected": selected})
 	})
 
 	app.Post("/api/deals", func(c *fiber.Ctx) error {
@@ -105,7 +105,7 @@ func Register(app *fiber.App) {
 
 		onDealerPage := strings.Contains(c.OriginalURL(), "dealer")
 
-		return c.Render("partials/deal/deals-list", fiber.Map{
+		return c.Render("fragments/deal/deals-list", fiber.Map{
 			"deals":        deals,
 			"isDealer":     user.IsDealer,
 			"onDealerPage": onDealerPage,
@@ -135,7 +135,7 @@ func Register(app *fiber.App) {
 
 		onDealerPage := strings.Contains(c.OriginalURL(), "dealer")
 
-		return c.Render("partials/deal/deals-list", fiber.Map{
+		return c.Render("fragments/deal/deals-list", fiber.Map{
 			"dealHeaders":  dealHeaders,
 			"isDealer":     user.IsDealer,
 			"onDealerPage": onDealerPage,
@@ -169,7 +169,7 @@ func Register(app *fiber.App) {
 		}
 
 		return c.Render(
-			"partials/deal/deal-details-footer",
+			"fragments/deal/deal-details-footer",
 			fiber.Map{"id": dealId,
 				"likes":       likes,
 				"isUser":      true,
@@ -195,7 +195,7 @@ func Register(app *fiber.App) {
 
 		isLiked := IsDealLiked(dealId, userId.String())
 
-		return c.Render("partials/deal/likes", fiber.Map{"id": dealId, "likes": likes, "isLiked": isLiked})
+		return c.Render("fragments/deal/likes", fiber.Map{"id": dealId, "likes": likes, "isLiked": isLiked})
 	})
 
 	app.Get("/ui/deals/report-modal/:id", func(c *fiber.Ctx) error {
@@ -210,7 +210,7 @@ func Register(app *fiber.App) {
 			log.Errorf("can't get deal report reason: %v", err)
 		}
 
-		return c.Render("partials/deal/report-modal", fiber.Map{"title": report.Title, "reason": report.Reason, "id": dealId})
+		return c.Render("fragments/deal/report-modal", fiber.Map{"title": report.Title, "reason": report.Reason, "id": dealId})
 	})
 
 	app.Post("/deal-report/:id", func(c *fiber.Ctx) error {
@@ -249,6 +249,6 @@ func Register(app *fiber.App) {
 
 		}
 
-		return c.Render("partials/deal/favorite", fiber.Map{"id": dealId, "isFavorite": isFavorite})
+		return c.Render("fragments/deal/favorite", fiber.Map{"id": dealId, "isFavorite": isFavorite})
 	})
 }

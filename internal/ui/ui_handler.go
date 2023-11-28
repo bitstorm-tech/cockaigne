@@ -6,15 +6,15 @@ import (
 )
 
 func Register(app *fiber.App) {
-	app.Get("/ui/partials/header", func(c *fiber.Ctx) error {
+	app.Get("/ui/fragments/header", func(c *fiber.Ctx) error {
 		isAuthenticated := jwt.IsAuthenticated(c)
 
-		return c.Render("partials/header", fiber.Map{
+		return c.Render("fragments/header", fiber.Map{
 			"isAuthenticated": isAuthenticated,
 		})
 	})
 
-	app.Get("/ui/partials/footer", func(c *fiber.Ctx) error {
+	app.Get("/ui/fragments/footer", func(c *fiber.Ctx) error {
 		isAuthenticated := jwt.IsAuthenticated(c)
 
 		if !isAuthenticated {
@@ -23,13 +23,13 @@ func Register(app *fiber.App) {
 
 		isDealer := jwt.IsDealer(c)
 
-		return c.Render("partials/footer", fiber.Map{
+		return c.Render("fragments/footer", fiber.Map{
 			"isDealer": isDealer,
 		})
 	})
 
-	app.Get("/ui/partials/alert", func(c *fiber.Ctx) error {
-		return c.Render("partials/alert", fiber.Map{
+	app.Get("/ui/fragments/alert", func(c *fiber.Ctx) error {
+		return c.Render("fragments/alert", fiber.Map{
 			"message": "Läuft doch eigentlich ganz gut, oder?",
 		})
 	})
