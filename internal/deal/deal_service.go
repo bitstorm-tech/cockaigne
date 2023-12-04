@@ -157,6 +157,20 @@ func GetDealHeaders(state State, dealerId *string) ([]Header, error) {
 	return headers, nil
 }
 
+func GetFavoriteDealHeaders(userId string) ([]Header, error) {
+	var headers []Header
+	err := persistence.DB.Select(
+		&headers,
+		"select id, dealer_id, title, username from active_deals_view d join favorite_deals f on d.id = f.deal_id where f.user_id = $1",
+		userId,
+	)
+	if err != nil {
+		return []Header{}, err
+	}
+
+	return headers, nil
+}
+
 type Details struct {
 	Title       string
 	Description string
@@ -356,6 +370,16 @@ func SaveDealReport(dealId string, reporterId string, reason string) error {
 		reporterId,
 		dealId,
 		reason,
+	)
+
+	return err
+}
+
+func RemoveDealFavorite(dealId string, userId string) error {
+	_, err := persistence.DB.Exec(
+		"delete from favorite_deals where deal_id = $1 and user_id = $2",
+		dealId,
+		userId,
 	)
 
 	return err

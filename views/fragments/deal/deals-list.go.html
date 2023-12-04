@@ -1,6 +1,6 @@
 <div class="flex flex-col gap-2" x-data="{openDetailsId: ''}">
   {{ range .dealHeaders }}
-  <div>
+  <div id="deal-{{ .ID }}">
     {{ if or (not $.onDealerPage) (not $.isDealer) }}
     <div class="flex items-center justify-between bg-[#232b2e] px-2 py-0.5">
       <a href="/dealer/{{.DealerId}}" class="flex items-center text-sm text-[#b2b2b2]">{{ .Username }}</a>
@@ -18,7 +18,10 @@
         <img src="/static/images/icons/cog.svg" alt="Deal Einstellungen" class="h-5" />
       </button>
       {{ else }}
-      <div hx-get="/deal-favorite/{{ .ID }}" hx-trigger="intersect once" hx-target="this"></div>
+      <div
+        hx-get="/deal-favorite/{{ .ID }}?is_favorite_list={{ or $.isFavoriteList false }}"
+        hx-trigger="intersect once"
+        hx-target="this"></div>
       {{ end }}
     </div>
 

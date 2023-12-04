@@ -239,7 +239,8 @@ func Register(app *fiber.App) {
 	app.Get("/deal-favorite/:id", func(c *fiber.Ctx) error {
 		userId, _ := jwt.ParseUserId(c)
 		dealId := c.Params("id")
-		doToggle := c.Query("toggle", "false") != "false"
+		doToggle := c.Query("toggle") == "true"
+		isFavoriteList := c.Query("is_favorite_list") == "true"
 
 		isFavorite := false
 		if doToggle {
@@ -249,6 +250,39 @@ func Register(app *fiber.App) {
 
 		}
 
-		return c.Render("fragments/deal/favorite", fiber.Map{"id": dealId, "isFavorite": isFavorite})
+		return c.Render(
+			"fragments/deal/favorite",
+			fiber.Map{"id": dealId, "isFavorite": isFavorite, "isFavoriteList": isFavoriteList},
+		)
+	})
+
+	app.Get("/deal-favorites-list", func(c *fiber.Ctx) error {
+		userId, err := jwt.ParseUserId(c)
+		if err != nil {
+			return c.Redirect("/login")
+		}
+
+		headers, err := GetFavoriteDealHeaders(userId.String())
+		if err != nil {
+			log.Errorf("can't get favorite deal headers: %v", err)
+			return ui.ShowAlert(c, "Kann favorisierte Deals aktuell nicht laden. Bitte später nochmal versuchen.")
+		}
+
+		return c.Render("fragments/deal/deals-list", fiber.Map{"dealHeaders": headers, "isFavoriteList": true})
+	})
+
+	app.Delete("/deal-favorite-remove/:id", func(c *fiber.Ctx) error {
+		userId, err := jwt.ParseUserId(c)
+		if err != nil {
+			return c.Redirect("/login")
+		}
+
+		dealId := c.Params("id")
+		err = RemoveDealFavorite(dealId, userId.String())
+		if err != nil {
+			log.Errorf("can't remove deal favorite: %v", err)
+		}
+
+		return c.SendString("")
 	})
 }
