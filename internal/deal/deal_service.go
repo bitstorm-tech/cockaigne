@@ -1,7 +1,6 @@
 package deal
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -9,16 +8,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
 )
 
 var folder = "deals"
-var bucket = persistence.Bucket
-var baseUrl = persistence.BaseUrl
 
 type State string
 
@@ -321,47 +316,18 @@ func GetTemplates(dealerId string) ([]Deal, error) {
 	return templates, nil
 }
 
-func UploadDealImage(image multipart.FileHeader, dealId string, prefix string) error {
+func UploadDealImage(image *multipart.FileHeader, dealId string, prefix string) error {
 	tokens := strings.Split(image.Filename, ".")
 	fileExtension := tokens[len(tokens)-1]
-	contentType := image.Header.Get("Content-Type")
-	if len(contentType) == 0 {
-		contentType = strings.ToLower("image/" + fileExtension)
-	}
-	key := fmt.Sprintf("%s/%s/%s%d.%s", folder, dealId, prefix, time.Now().UnixMilli(), fileExtension)
-	file, err := image.Open()
-	if err != nil {
-		return err
-	}
+	path := fmt.Sprintf("%s/%s/%s%d.%s", folder, dealId, prefix, time.Now().UnixMilli(), fileExtension)
 
-	_, err = persistence.S3.PutObject(context.TODO(), &s3.PutObjectInput{
-		Bucket:      &bucket,
-		Key:         &key,
-		Body:        file,
-		ContentType: &contentType,
-		ACL:         types.ObjectCannedACLPublicRead,
-	})
-
-	return err
+	return persistence.UploadImage(path, image)
 }
 
 func GetDealImageUrls(dealId string) ([]string, error) {
-	prefix := fmt.Sprintf("%s/%s", folder, dealId)
-	output, err := persistence.S3.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
-		Bucket: &bucket,
-		Prefix: &prefix,
-	})
+	path := fmt.Sprintf("%s/%s", folder, dealId)
 
-	if err != nil {
-		return []string{}, err
-	}
-
-	var imageUrls []string
-	for _, content := range output.Contents {
-		imageUrls = append(imageUrls, fmt.Sprintf("%s/%s", baseUrl, *content.Key))
-	}
-
-	return imageUrls, nil
+	return persistence.GetImageUrls(path)
 }
 
 func SaveDealReport(dealId string, reporterId string, reason string) error {

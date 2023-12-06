@@ -70,7 +70,7 @@ func Register(app *fiber.App) {
 		}
 
 		for index, file := range form.File["images"] {
-			err = UploadDealImage(*file, dealId.String(), fmt.Sprintf("%d-", index))
+			err = UploadDealImage(file, dealId.String(), fmt.Sprintf("%d-", index))
 			if err != nil {
 				log.Errorf("can't upload deal image: %v", err)
 				return ui.ShowAlert(c, "Leider ist beim Erstellen etwas schief gegangen, bitte versuche es später nochmal.")

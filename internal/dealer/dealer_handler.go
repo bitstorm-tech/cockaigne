@@ -1,6 +1,7 @@
 package dealer
 
 import (
+	"fmt"
 	"github.com/bitstorm-tech/cockaigne/internal/account"
 	"github.com/bitstorm-tech/cockaigne/internal/auth/jwt"
 	"github.com/bitstorm-tech/cockaigne/internal/deal"
@@ -44,5 +45,36 @@ func Register(app *fiber.App) {
 		}
 
 		return c.Render("pages/templates", fiber.Map{"templates": templates}, "layouts/main")
+	})
+
+	app.Get("/dealer-images/:id", func(c *fiber.Ctx) error {
+		dealerId := c.Params("id")
+		imageUrls, err := GetDealerImageUrls(dealerId)
+		if err != nil {
+			log.Errorf("can't get dealer image urls: %v", err)
+		}
+
+		return c.Render("fragments/dealer/images", fiber.Map{"imageUrls": imageUrls})
+	})
+
+	app.Post("/dealer-images", func(c *fiber.Ctx) error {
+		dealerId, err := jwt.ParseUserId(c)
+		if err != nil {
+			return c.Redirect("/login")
+		}
+
+		file, err := c.FormFile("image")
+		if err != nil {
+			log.Errorf("can't get image from post dealer image request: %v", err)
+		}
+
+		imageUrl, err := SaveDealerImage(dealerId.String(), file)
+		if err != nil {
+			log.Errorf("can't save dealer image: %v", err)
+		}
+
+		img := fmt.Sprintf("<img src='%s', alt='Dealer image' />", imageUrl)
+
+		return c.SendString(img)
 	})
 }

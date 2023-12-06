@@ -1,9 +1,9 @@
 {{ template "dealer-profile-header" . }}
 
-<div class="pt-4" x-data="{selectedTab: 0}">
+<div class="cursor-pointer pt-4" x-data="{selectedTab: 0}">
   <div class="grid grid-cols-3 place-items-center border-b">
     <div
-      hx-get="/deals/active"
+      hx-get="/deal-list/active"
       hx-target="#content"
       hx-trigger="click"
       class="flex w-full justify-around"
@@ -13,7 +13,7 @@
       <img class="h-8 pb-2" src="/static/images/icons/deals-outline.svg" alt="Deals" x-show="selectedTab !== 0" />
     </div>
     <div
-      hx-get="/images"
+      hx-get="/dealer-images/{{ .account.ID }}"
       hx-target="#content"
       hx-trigger="click"
       class="flex w-full justify-around"
@@ -33,5 +33,5 @@
       <img class="h-8 pb-2" src="/static/images/icons/rating-outline.svg" alt="Ratings" x-show="selectedTab !== 2" />
     </div>
   </div>
-  <div id="content" class="pt-1" hx-get="/deals/active" hx-trigger="load once" hx-target="this"></div>
+  <div id="content" class="pt-1" hx-get="/deal-list/active" hx-trigger="load once" hx-target="this"></div>
 </div>
