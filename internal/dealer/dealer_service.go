@@ -32,3 +32,8 @@ func GetDealerImageUrls(dealerId string) ([]string, error) {
 
 	return imageUrls, nil
 }
+
+func DeleteDealerImage(imageUrl string) error {
+	path := strings.Replace(imageUrl, persistence.BaseUrl+"/", "", -1)
+	return persistence.DeleteImage(path)
+}

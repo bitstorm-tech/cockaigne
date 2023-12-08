@@ -5,8 +5,10 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/account"
 	"github.com/bitstorm-tech/cockaigne/internal/auth/jwt"
 	"github.com/bitstorm-tech/cockaigne/internal/deal"
+	"github.com/bitstorm-tech/cockaigne/internal/ui"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
+	"strings"
 )
 
 func Register(app *fiber.App) {
@@ -76,5 +78,32 @@ func Register(app *fiber.App) {
 		img := fmt.Sprintf("<img src='%s', alt='Dealer image' />", imageUrl)
 
 		return c.SendString(img)
+	})
+
+	app.Delete("/dealer-images", func(c *fiber.Ctx) error {
+		dealerId, err := jwt.ParseUserId(c)
+		if err != nil {
+			return c.Redirect("/login")
+		}
+
+		imageUrl := c.Query("image-url")
+
+		if !strings.Contains(imageUrl, dealerId.String()) {
+			log.Errorf("not allowed to delete image -> (dealer=%s, imageUrl=%s)", dealerId.String(), imageUrl)
+			return nil
+		}
+
+		err = DeleteDealerImage(imageUrl)
+		if err != nil {
+			log.Errorf("can't delete dealer image: %v", err)
+			return ui.ShowAlert(c, "Konnte Bild nicht löschen, bitte später nochmal versuchen.")
+		}
+
+		imageUrls, err := GetDealerImageUrls(dealerId.String())
+		if err != nil {
+			log.Errorf("can't get dealer images: %v", err)
+		}
+
+		return c.Render("fragments/dealer/images", fiber.Map{"imageUrls": imageUrls})
 	})
 }

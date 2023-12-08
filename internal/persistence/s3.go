@@ -86,3 +86,13 @@ func GetImageUrls(path string) ([]string, error) {
 
 	return imageUrls, nil
 }
+
+func DeleteImage(path string) error {
+	log.Debugf("delete image: %s", path)
+	_, err := S3.DeleteObject(context.TODO(), &s3.DeleteObjectInput{
+		Bucket: &Bucket,
+		Key:    &path,
+	})
+
+	return err
+}
