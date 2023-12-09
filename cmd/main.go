@@ -29,7 +29,7 @@ func main() {
 	persistence.ConnectToDb()
 	persistence.InitS3()
 
-	engine := html.New("./views", ".go.html")
+	engine := html.New("./views", ".gohtml")
 
 	app := fiber.New(fiber.Config{
 		Views: engine,

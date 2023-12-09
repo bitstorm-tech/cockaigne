@@ -23,7 +23,7 @@
       <img class="h-8 pb-2" src="/static/images/icons/images-outline.svg" alt="Images" x-show="selectedTab !== 1" />
     </div>
     <div
-      hx-get="/ratings"
+      hx-get="/dealer-ratings/{{ .account.ID }}"
       hx-target="#content"
       hx-trigger="click"
       class="flex w-full justify-around"

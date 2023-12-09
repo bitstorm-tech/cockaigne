@@ -5,6 +5,7 @@
   <div id="dealer-image-list" class="grid grid-cols-3 gap-1">
     {{ range $index, $url := .imageUrls }}
     <div class="relative">
+      {{ if $.isOwner }}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -18,16 +19,18 @@
           stroke-linejoin="round"
           d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
       </svg>
+      {{ end }}
       <img src="{{ $url }}" alt="Dealer image" class="h-36 w-full object-cover" />
     </div>
     {{ end }}
   </div>
-  {{ end }}
+  {{ end }} {{ if .isOwner }}
   <div class="absolute bottom-16 right-4">
     <button class="btn-circle p-2" @click="input.click()">
       <img src="/static/images/icons/plus.svg" alt="Add image" />
     </button>
   </div>
+  {{ end }}
 
   <input
     id="input"
