@@ -28,7 +28,7 @@ func Register(app *fiber.App) {
 		} else {
 			deal, err = GetDeal(dealId)
 			if err != nil {
-				return ui.ShowAlert(c, "Der Deal konnte leider nicht gefunden werden. Bitte versuche es später nochmal.")
+				return ui.ShowAlert(c, "Der Deal konnte leider nicht gefunden werden, bitte versuche es später nochmal.")
 			}
 		}
 
@@ -159,13 +159,13 @@ func Register(app *fiber.App) {
 		imageUrls, err := GetDealImageUrls(dealId)
 		if err != nil {
 			log.Errorf("can't get deal image urls: %v", err)
-			return c.SendString("Konnte Deal Details nicht laden. Bitte versuche es später nochmal.")
+			return c.SendString("Konnte Deal Details nicht laden, bitte versuche es später nochmal.")
 		}
 
 		details, err := GetDealDetails(dealId)
 		if err != nil {
 			log.Errorf("can't get deal details: %v", err)
-			return c.SendString("Konnte Deal Details nicht laden. Bitte versuche es später nochmal.")
+			return c.SendString("Konnte Deal Details nicht laden, bitte versuche es später nochmal.")
 		}
 
 		return c.Render(
@@ -230,7 +230,7 @@ func Register(app *fiber.App) {
 		err = SaveDealReport(dealId, userId.String(), reason)
 		if err != nil {
 			log.Errorf("can't save deal report: %v", err)
-			return ui.ShowAlert(c, "Deal konnte leider nicht gemeldet werden. Bitte versuche es später noch einmal.")
+			return ui.ShowAlert(c, "Deal konnte leider nicht gemeldet werden, bitte versuche es später noch einmal.")
 		}
 
 		return c.SendString("")
@@ -265,7 +265,7 @@ func Register(app *fiber.App) {
 		headers, err := GetFavoriteDealHeaders(userId.String())
 		if err != nil {
 			log.Errorf("can't get favorite deal headers: %v", err)
-			return ui.ShowAlert(c, "Kann favorisierte Deals aktuell nicht laden. Bitte später nochmal versuchen.")
+			return ui.ShowAlert(c, "Kann favorisierte Deals aktuell nicht laden, bitte später nochmal versuchen.")
 		}
 
 		return c.Render("fragments/deal/deals-list", fiber.Map{"dealHeaders": headers, "isFavoriteList": true})

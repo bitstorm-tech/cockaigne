@@ -47,7 +47,7 @@ func signup(c *fiber.Ctx) error {
 
 	if err != nil {
 		log.Errorf("can't signup -> don't know if account already exists: %v", err)
-		return ui.ShowAlert(c, "Leider gibt es aktuell ein technisches Problem. Bitte später noch einmal versuchen!")
+		return ui.ShowAlert(c, "Leider gibt es aktuell ein technisches Problem, bitte versuche es später noch einmal!")
 	}
 
 	if accExists {

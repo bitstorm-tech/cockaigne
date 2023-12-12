@@ -1,0 +1,38 @@
+<div id="rating-list" class="flex flex-col">
+  {{ if and (not .alreadyRated) (not .isOwner) }}
+    <button class="m-4" hx-get="/dealer-rating-modal/{{ .dealerId }}" hx-target="#rating-modal">
+      Bewertung abgeben
+    </button>
+  {{ end }}
+  {{ if eq (len .ratings) 0 }}
+    {{ if .isOwner }}
+      <span class="w-full pt-4 text-center">Leider hat dich noch niemand bewertet 🙁</span>
+    {{ else }}
+      <div class="flex w-full flex-col pt-4 text-center">
+        <span>Sei der erste der eine Bewertung schreibt!</span>
+        <span>(nur für Pro-Mitglieder)</span>
+      </div>
+    {{ end }}
+  {{ else }}
+    <div class="m-2 flex items-baseline justify-end gap-3">
+      Gesamtbewertung:
+      <div class="flex items-center gap-3 text-3xl">
+        {{ .averageRating }}
+        <div class="rating"><div class="mask mask-star"></div></div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 521 497"
+          class="h-6 w-6"
+          fill="currentColor"
+          stroke="currentColor">
+          <path
+            d="M269.465,5.725l72.47,146.841c1.495,3.029 4.391,5.133 7.733,5.618l162.049,23.547c5.026,0.731 8.794,5.085 8.794,10.164c-0,2.768 -1.12,5.422 -3.102,7.354l-117.26,114.3c-2.418,2.358 -3.524,5.762 -2.953,9.091l27.681,161.394c0.098,0.573 0.148,1.154 0.148,1.736c-0,5.634 -4.636,10.27 -10.271,10.27c-1.665,0 -3.305,-0.405 -4.779,-1.18l-144.941,-76.2c-2.989,-1.571 -6.569,-1.571 -9.558,0l-144.941,76.2c-1.473,0.775 -3.114,1.18 -4.779,1.18c-5.634,0 -10.27,-4.636 -10.27,-10.27c-0,-0.582 0.049,-1.163 0.148,-1.736l27.681,-161.394c0.571,-3.329 -0.535,-6.733 -2.954,-9.091l-117.259,-114.3c-1.983,-1.932 -3.102,-4.586 -3.102,-7.354c-0,-5.079 3.767,-9.433 8.794,-10.164l162.048,-23.547c3.342,-0.485 6.238,-2.589 7.733,-5.618l72.47,-146.841c1.728,-3.5 5.307,-5.725 9.21,-5.725c3.903,0 7.483,2.225 9.21,5.725Z" />
+        </svg>
+      </div>
+    </div>
+    {{ range .ratings }}
+      {{ template "rating-list-item" . }}
+    {{ end }}
+  {{ end }}
+  <div id="rating-modal"></div>
+</div>

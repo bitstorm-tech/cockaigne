@@ -50,7 +50,7 @@ func updateUseLocationService(c *fiber.Ctx) error {
 	err = UpdateUseLocationService(userId.String(), useLocationService)
 	if err != nil {
 		log.Errorf("can't save use location service: %v", err)
-		return ui.ShowAlert(c, "Kann Einstellung leider nicht speichern. Bitte später nochmal versuchen.")
+		return ui.ShowAlert(c, "Kann Einstellung leider nicht speichern, bitte später nochmal versuchen.")
 	}
 
 	if !useLocationService {
@@ -58,12 +58,12 @@ func updateUseLocationService(c *fiber.Ctx) error {
 		point, err := geo.GetPositionFromAddressFuzzy(address)
 		if err != nil {
 			log.Errorf("can't find position from address (%s): %v", address, err)
-			return ui.ShowAlert(c, "Ungültige Adresse. Bitte geben Sie eine genauere Adresse an.")
+			return ui.ShowAlert(c, "Ungültige Adresse, bitte geben Sie eine genauere Adresse an.")
 		}
 		err = UpdateLocation(userId.String(), point)
 		if err != nil {
 			log.Errorf("can't update location (%s): %v", address, err)
-			return ui.ShowAlert(c, "Kann Einstellung leider nicht speichern. Bitte später nochmal versuchen.")
+			return ui.ShowAlert(c, "Kann Einstellung leider nicht speichern, bitte später nochmal versuchen.")
 		}
 	}
 

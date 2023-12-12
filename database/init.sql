@@ -72,11 +72,11 @@ create table
 create table
     dealer_ratings
 (
-    user_id     uuid        not null references accounts (id) on delete restrict on update cascade,
-    dealer_id   uuid        not null references accounts (id) on delete restrict on update cascade,
-    stars       integer     not null,
-    rating_text text        null,
-    created     timestamptz not null default now(),
+    user_id   uuid        not null references accounts (id) on delete restrict on update cascade,
+    dealer_id uuid        not null references accounts (id) on delete restrict on update cascade,
+    stars     integer     not null,
+    "text"    text        null,
+    created   timestamptz not null default now(),
     constraint "dealer_ratings_pk" unique (user_id, dealer_id)
 );
 
@@ -298,7 +298,7 @@ create or replace view
 select r.user_id,
        r.dealer_id,
        r.stars,
-       r.rating_text,
+       r.text,
        r.created,
        a.username
 from dealer_ratings r
