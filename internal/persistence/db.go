@@ -17,17 +17,19 @@ func ConnectToDb() {
 	var pgUser = os.Getenv("PG_USER")
 	var pgPassword = os.Getenv("PG_PASSWORD")
 	var pgSslMode = os.Getenv("PG_SSL_MODE")
+	var pgSchema = os.Getenv("PG_SCHEMA")
 
-	log.Debugf("Connecting to database: %s:*********@%s:%s/%s", pgUser, pgHost, pgPort, pgDatabase)
 	connectionString := fmt.Sprintf(
-		"host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
+		"host=%s port=%s user=%s dbname=%s sslmode=%s search_path=public,%s",
 		pgHost,
 		pgPort,
 		pgUser,
 		pgDatabase,
-		pgPassword,
 		pgSslMode,
+		pgSchema,
 	)
+
+	log.Debugf("Connecting to database: %s", connectionString)
 
 	connectionString += " password=" + pgPassword
 

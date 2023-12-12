@@ -23,6 +23,7 @@ type Account struct {
 	TaxId                sql.NullString `db:"tax_id"`
 	DefaultCategory      sql.NullInt32  `db:"default_category"`
 	Location             sql.NullString
+	Created              time.Time
 	SearchRadiusInMeters int  `db:"search_radius_in_meters"`
 	UseLocationService   bool `db:"use_location_service"`
 }
