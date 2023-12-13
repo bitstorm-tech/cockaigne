@@ -1,29 +1,29 @@
 <span>{{ .description }}</span>
 <div class="grid grid-cols-3 gap-1 py-2">
-  {{ range $url := .imageUrls}}
-  <img src="{{ $url }}" alt="Deal image" />
+  {{ range $url := .imageUrls }}
+    <img src="{{ $url }}" alt="Deal image" class="h-24 w-full object-cover" />
   {{ end }}
 </div>
 {{ if .isUser }}
-<span class="py-4 text-xs">Endet am 1.1.2222</span>
-<div class="flex h-6 justify-between">
-  <div hx-get="/deal-likes/{{ .id }}" hx-target="this" hx-trigger="intersect once"></div>
-  <button
-    class="clean"
-    hx-get="/ui/deals/report-modal/{{ .id }}"
-    hx-target="#report-modal-{{ .id }}"
-    hx-swap="innerHTML">
-    <img src="/static/images/icons/report.svg" alt="Report deal" class="h-6" />
-  </button>
-</div>
-{{ else }}
-<div class="flex justify-between text-xs">
-  <span>Von: {formatDate(deal.start)}</span>
-  <div class="flex items-center gap-1">
-    <span>0</span>
-    <img src="/static/images/icons/like-outline.svg" alt="Likes" />
+  <span class="py-4 text-xs">Endet am 1.1.2222</span>
+  <div class="flex h-6 justify-between">
+    <div hx-get="/deal-likes/{{ .id }}" hx-target="this" hx-trigger="intersect once"></div>
+    <button
+      class="clean"
+      hx-get="/ui/deals/report-modal/{{ .id }}"
+      hx-target="#report-modal-{{ .id }}"
+      hx-swap="innerHTML">
+      <img src="/static/images/icons/report.svg" alt="Report deal" class="h-6" />
+    </button>
   </div>
-  <span>Bis: 12.12.2222</span>
-</div>
+{{ else }}
+  <div class="flex justify-between text-xs">
+    <span>Von: {formatDate(deal.start)}</span>
+    <div class="flex items-center gap-1">
+      <span>0</span>
+      <img src="/static/images/icons/like-outline.svg" alt="Likes" />
+    </div>
+    <span>Bis: 12.12.2222</span>
+  </div>
 {{ end }}
 <div id="report-modal-{{ .id }}"></div>
