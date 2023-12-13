@@ -1,28 +1,32 @@
-<form hx-post="/api/accounts/filter" hx-target="#modal">
-  <div class="form-control pb-6" x-data="{r: {{ .searchRadius }}}">
-    <label for="radius" class="flex items-center gap-1">
-      <span>Umkreis</span>
-      <span x-text="r * 2 / 1000"></span>
-      <span>km</span>
-    </label>
-    <input id="radius" type="range" name="searchRadiusInMeters" min="500" max="25000" step="500" x-model="r" />
+<div id="modal" class="modal modal-open">
+  <div class="modal-box">
+    <form hx-post="/api/accounts/filter" hx-target="#modal">
+      <div class="form-control pb-6" x-data="{r: {{ .searchRadius }}}">
+        <label for="radius" class="flex items-center gap-1">
+          <span>Umkreis</span>
+          <span x-text="r * 2 / 1000"></span>
+          <span>km</span>
+        </label>
+        <input id="radius" type="range" name="searchRadiusInMeters" min="500" max="25000" step="500" x-model="r" />
+      </div>
+      <div class="flex flex-col gap-2">
+        {{ range .categories }}
+          <div class="form-control-horizontal">
+            <input
+              type="checkbox"
+              id="{{ .Name }}"
+              class="checkbox"
+              name="favoriteCategoryIds"
+              value="{{ .ID }}"
+              :checked="{{ .IsFavorite $.favCategoryIds }}" />
+            <label for="{{ .Name }}">{{ .Name }}</label>
+          </div>
+        {{ end }}
+      </div>
+      <div class="modal-action">
+        <button>Speichern</button>
+        <button class="btn-primary" hx-delete="/ui/remove" hx-target="#modal">Abbrechen</button>
+      </div>
+    </form>
   </div>
-  <div class="flex flex-col gap-2">
-    {{ range .categories }}
-    <div class="form-control-horizontal">
-      <input
-        type="checkbox"
-        id="{{ .Name }}"
-        class="checkbox"
-        name="favoriteCategoryIds"
-        value="{{ .ID }}"
-        :checked="{{ .IsFavorite $.favCategoryIds }}" />
-      <label for="{{ .Name }}">{{ .Name }}</label>
-    </div>
-    {{ end }}
-  </div>
-  <div class="grid grid-cols-2 gap-4 pt-6">
-    <button>Speichern</button>
-    <button class="btn-primary" hx-delete="/ui/remove" hx-target="#modal">Abbrechen</button>
-  </div>
-</form>
+</div>
