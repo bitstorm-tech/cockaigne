@@ -1,7 +1,13 @@
 <span>{{ .description }}</span>
 <div class="grid grid-cols-3 gap-1 py-2">
-  {{ range $url := .imageUrls }}
-    <img src="{{ $url }}" alt="Deal image" class="h-24 w-full object-cover" />
+  {{ range $index, $url := .imageUrls }}
+    <img
+      src="{{ $url }}"
+      alt="Deal image"
+      class="h-24 w-full object-cover"
+      hx-get="/deal-image-zoom-modal/{{ $.id }}?index={{ $index }}"
+      hx-target="#image-zoom-modal"
+      hx-swap="innerHTML" />
   {{ end }}
 </div>
 {{ if .isUser }}
