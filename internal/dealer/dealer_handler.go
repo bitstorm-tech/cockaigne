@@ -18,11 +18,28 @@ func Register(app *fiber.App) {
 	app.Get("/templates", getTemplatesPage)
 	app.Get("/dealer-images/:id", getDealerImages)
 	app.Get("/dealer-ratings/:dealerId", getDealerRatings)
-	app.Get("/dealer-rating-modal/:dealerId", openRatingModal)
+	app.Get("/dealer-rating-modal/:dealerId", getRatingModal)
+	app.Get("/dealer-image-zoom-modal/:dealerId", getImageZoomDialog)
 	app.Post("/dealer-rating/:dealerId", createDealerRating)
 	app.Post("/dealer-images", addDealerImage)
 	app.Delete("/dealer-images", deleteDealerImage)
 	app.Delete("/dealer-rating/:dealerId", deleteDealerRating)
+}
+
+func getImageZoomDialog(c *fiber.Ctx) error {
+	dealerId := c.Params("dealerId")
+	startIndex, err := strconv.Atoi(c.Query("index", "0"))
+	if err != nil {
+		startIndex = 0
+	}
+
+	imageUrls, err := GetDealerImageUrls(dealerId)
+	if err != nil {
+		log.Errorf("can't get dealer images: %v", err)
+		return ui.ShowAlert(c, "Kann Dealer Bilder momentan nicht laden, bitte versuche es später nochmal.")
+	}
+
+	return c.Render("fragments/image-zoom-modal", fiber.Map{"ImageUrls": imageUrls, "StartIndex": startIndex})
 }
 
 func getDealerPage(c *fiber.Ctx) error {
@@ -76,7 +93,7 @@ func getDealerImages(c *fiber.Ctx) error {
 
 	isOwner := len(imageUrls) > 0 && strings.Contains(imageUrls[0], userId.String())
 
-	return c.Render("fragments/dealer/images", fiber.Map{"imageUrls": imageUrls, "isOwner": isOwner})
+	return c.Render("fragments/dealer/images", fiber.Map{"imageUrls": imageUrls, "isOwner": isOwner, "DealerId": dealerId})
 }
 
 func addDealerImage(c *fiber.Ctx) error {
@@ -162,7 +179,7 @@ func getDealerRatings(c *fiber.Ctx) error {
 	)
 }
 
-func openRatingModal(c *fiber.Ctx) error {
+func getRatingModal(c *fiber.Ctx) error {
 	dealerId := c.Params("dealerId")
 	editRating := c.Query("edit") == "true"
 
