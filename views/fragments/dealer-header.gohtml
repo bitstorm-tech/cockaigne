@@ -1,19 +1,24 @@
 {{ define "dealer-header" }}
-  <div class="flex flex-col p-4">
-    <div class="flex justify-between">
-      <div class="flex flex-col">
-        <span class="text-xs text-[#6a828c]"><b>Kategorie</b></span>
-        <span class="text-xs font-extralight italic text-[#6a828c]">{{ .category }}</span>
-        <span class="pb-2 pt-8 text-xl">{{ .account.Username }}</span>
-        <span class="text-xs">{{ .account.Street.String }} {{ .account.HouseNumber.String }}</span>
-        <span class="text-xs">{{ .account.ZipCode.Int32 }} {{ .account.City.String }}</span>
-      </div>
-      <div class="-mt-6 mr-8 flex flex-col items-center gap-2">
-        <ProfilePicture {imageUrl} />
-        <div class="absolute right-0 top-36">
-          <div class="flex items-center gap-4">
-            <a class="btn btn-warning rounded-l-full rounded-r-none" href="/deal/new">Neuer Deal</a>
+  <div class="flex h-52 justify-between">
+    <div class="m-4 flex flex-col">
+      <span class="text-xs text-[#6a828c]"><b>Kategorie</b></span>
+      <span class="text-xs font-extralight italic text-[#6a828c]">{{ .category }}</span>
+      <span class="pb-2 pt-8 text-xl">{{ .account.Username }}</span>
+      <span class="text-xs">{{ .account.Street.String }} {{ .account.HouseNumber.String }}</span>
+      <span class="text-xs">{{ .account.ZipCode.Int32 }} {{ .account.City.String }}</span>
+    </div>
+    <div class="-mt-6 mr-14 flex flex-col items-center gap-2">
+      <div class="h-24 w-24">
+        <div class="avatar z-50 cursor-pointer">
+          <div class="rounded-full bg-base-100 ring-2 ring-[#556368]">
+            {{/* <img src="{{ .ImageUrl }}" alt="Profile" />*/}}
+            <img src="/static/images/default-profile-dealer.svg" alt="Profile" />
           </div>
+        </div>
+      </div>
+      <div class="absolute right-0 top-36">
+        <div class="flex items-center gap-4">
+          <a class="btn btn-warning rounded-l-full rounded-r-none" href="/deal/new">Neuer Deal</a>
         </div>
       </div>
     </div>
