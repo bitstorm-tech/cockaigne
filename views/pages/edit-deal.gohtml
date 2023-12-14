@@ -52,7 +52,8 @@
         x-show="imagePreviewUrls[0]"
         :src="imagePreviewUrls[0]"
         @click="remove($refs.fileInput0, 0)"
-        class="h-24 w-full object-cover" />
+        class="h-24 w-full object-cover"
+        alt="Deal image 1" />
       <input x-ref="fileInput0" type="file" hidden @change="add($event, 0)" name="images" />
     </div>
     <div>
@@ -66,7 +67,8 @@
         x-show="imagePreviewUrls[1]"
         :src="imagePreviewUrls[1]"
         @click="remove($refs.fileInput1, 1)"
-        class="h-24 w-full object-cover" />
+        class="h-24 w-full object-cover"
+        alt="Deal image 1" />
       <input x-ref="fileInput1" type="file" hidden @change="add($event, 1)" name="images" />
     </div>
     <div>
@@ -80,7 +82,8 @@
         x-show="imagePreviewUrls[2]"
         :src="imagePreviewUrls[2]"
         @click="remove($refs.fileInput2, 2)"
-        class="h-24 w-full object-cover" />
+        class="h-24 w-full object-cover"
+        alt="Deal image 1" />
       <input x-ref="fileInput2" type="file" hidden @change="add($event, 2)" name="images" />
     </div>
   </div>
@@ -144,10 +147,7 @@
   <!-- Save and cancel -->
   <!--------------------->
   <div class="grid grid-cols-2 gap-2">
-    <button>
-      <img src="/static/images/spinner.svg" class="htmx-indicator h-6 animate-spin" />
-      Erstellen
-    </button>
+    <button>Erstellen</button>
     <a href="/" class="btn btn-primary">Abrechen</a>
   </div>
 </form>
