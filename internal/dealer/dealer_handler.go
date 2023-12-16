@@ -43,6 +43,11 @@ func getImageZoomDialog(c *fiber.Ctx) error {
 }
 
 func getDealerPage(c *fiber.Ctx) error {
+	userId, err := jwt.ParseUserId(c)
+	if err != nil {
+		return c.Redirect("/login")
+	}
+
 	dealerId := c.Params("dealerId")
 	acc, err := account.GetAccount(dealerId)
 
@@ -58,7 +63,21 @@ func getDealerPage(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).SendString("Not Found")
 	}
 
-	return c.Render("pages/dealer", fiber.Map{"account": acc, "category": category.Name}, "layouts/main")
+	googleMapsLink := fmt.Sprintf(
+		"https://maps.google.com/?q=%s %s,%d %s",
+		acc.Street.String,
+		acc.HouseNumber.String,
+		acc.ZipCode.Int32,
+		acc.City.String,
+	)
+
+	isOwner := dealerId == userId.String()
+
+	return c.Render(
+		"pages/dealer",
+		fiber.Map{"account": acc, "category": category.Name, "GoogleMapsLink": googleMapsLink, "IsOwner": isOwner},
+		"layouts/main",
+	)
 }
 
 func getOverviewPage(c *fiber.Ctx) error {
