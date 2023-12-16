@@ -104,3 +104,30 @@ func DeleteRating(dealerId string, userId string) error {
 
 	return err
 }
+
+func ToggleDealerFavorite(dealerId string, userId string) (bool, error) {
+	exists, err := IsFavorite(dealerId, userId)
+	if err != nil {
+		return false, err
+	}
+
+	if exists {
+		_, err = persistence.DB.Exec("delete from favorite_dealers where user_id = $1 and dealer_id = $2", userId, dealerId)
+	} else {
+		_, err = persistence.DB.Exec("insert into favorite_dealers (user_id, dealer_id) values ($1, $2)", userId, dealerId)
+	}
+
+	return !exists, err
+}
+
+func IsFavorite(dealerId string, userId string) (bool, error) {
+	exists := false
+	err := persistence.DB.Get(
+		&exists,
+		"select exists(select user_id from favorite_dealers where user_id = $1 and dealer_id = $2)",
+		userId,
+		dealerId,
+	)
+
+	return exists, err
+}

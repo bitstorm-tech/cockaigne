@@ -20,10 +20,50 @@ func Register(app *fiber.App) {
 	app.Get("/dealer-ratings/:dealerId", getDealerRatings)
 	app.Get("/dealer-rating-modal/:dealerId", getRatingModal)
 	app.Get("/dealer-image-zoom-modal/:dealerId", getImageZoomDialog)
+	app.Get("/dealer-header-favorite-button/:dealerId", getDealerHeaderFavoriteButton)
 	app.Post("/dealer-rating/:dealerId", createDealerRating)
 	app.Post("/dealer-images", addDealerImage)
+	app.Post("/dealer-favorite-toggle/:dealerId", toggleDealerFavorite)
 	app.Delete("/dealer-images", deleteDealerImage)
 	app.Delete("/dealer-rating/:dealerId", deleteDealerRating)
+}
+
+func getDealerHeaderFavoriteButton(c *fiber.Ctx) error {
+	userId, err := jwt.ParseUserId(c)
+	if err != nil {
+		return c.Redirect("/login")
+	}
+
+	dealerId := c.Params("dealerId")
+	isFavorite, err := IsFavorite(dealerId, userId.String())
+	if err != nil {
+		log.Errorf("can't check if dealer is favorite: %v", err)
+	}
+
+	return c.Render(
+		"fragments/dealer/dealer-header-favorite-button",
+		fiber.Map{"IsFavorite": isFavorite, "DealerId": dealerId},
+	)
+}
+
+func toggleDealerFavorite(c *fiber.Ctx) error {
+	userId, err := jwt.ParseUserId(c)
+	if err != nil {
+		return c.Redirect("/login")
+	}
+
+	dealerId := c.Params("dealerId")
+
+	isFavorite, err := ToggleDealerFavorite(dealerId, userId.String())
+	if err != nil {
+		log.Errorf("can't toggle dealer favorite: %v", err)
+		return ui.ShowAlert(c, "Kann favorisierte Dealer momentan nicht speichern, bitte versuche es später nochmal.")
+	}
+
+	return c.Render(
+		"fragments/dealer/dealer-header-favorite-button",
+		fiber.Map{"IsFavorite": isFavorite, "DealerId": dealerId},
+	)
 }
 
 func getImageZoomDialog(c *fiber.Ctx) error {
