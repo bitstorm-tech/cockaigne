@@ -108,7 +108,13 @@ func GetDealsFromView(state State, dealerId *string) ([]DealView, error) {
 		return []DealView{}, fmt.Errorf("unknown deal state: %s", state)
 	}
 
-	statement := fmt.Sprintf("select *, public.st_x(location) || ',' || public.st_y(location) as location from %s_deals_view", state)
+	statement := "select *, public.st_x(location) || ',' || public.st_y(location) as location from active_deals_view"
+	switch state {
+	case Past:
+		statement = "select *, public.st_x(location) || ',' || public.st_y(location) as location from past_deals_view"
+	case Future:
+		statement = "select *, public.st_x(location) || ',' || public.st_y(location) as location from future_deals_view"
+	}
 
 	if dealerId != nil {
 		statement += fmt.Sprintf(" where dealer_id = '%s'", *dealerId)
@@ -136,7 +142,13 @@ func GetDealHeaders(state State, dealerId *string) ([]Header, error) {
 		return []Header{}, fmt.Errorf("unknown deal state: %s", state)
 	}
 
-	statement := fmt.Sprintf("select id, title, username, dealer_id from %s_deals_view", state)
+	statement := "select id, title, username, dealer_id from active_deals_view"
+	switch state {
+	case Past:
+		statement = "select id, title, username, dealer_id from past_deals_view"
+	case Future:
+		statement = "select id, title, username, dealer_id from future_deals_view"
+	}
 
 	if dealerId != nil {
 		statement += fmt.Sprintf(" where dealer_id = '%s'", *dealerId)
@@ -349,4 +361,19 @@ func RemoveDealFavorite(dealId string, userId string) error {
 	)
 
 	return err
+}
+
+func GetFavoriteDealerDealHeaders(userId string) ([]Header, error) {
+	var header []Header
+
+	err := persistence.DB.Select(
+		&header,
+		"select id, d.dealer_id, title, username from active_deals_view d join favorite_dealers f on d.dealer_id = f.dealer_id where user_id = $1",
+		userId,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return header, nil
 }

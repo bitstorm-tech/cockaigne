@@ -16,63 +16,81 @@ import (
 func Register(app *fiber.App) {
 	app.Get("/deal/:dealId", getDeal)
 	app.Get("/ui/category-select", getCategorySelect)
-	app.Post("/api/deals", saveDeal)
 	app.Get("/deals/:state", getDealList)
-
-	app.Get("/deal-list/:state", func(c *fiber.Ctx) error {
-		user, err := jwt.ParseUser(c)
-		if err != nil {
-			log.Errorf("can't parse user: %v", err)
-			return c.Redirect("/login")
-		}
-
-		state := ToState(c.Params("state", "active"))
-		userIdString := user.ID.String()
-		userId := &userIdString
-
-		if !user.IsDealer {
-			userId = nil
-		}
-
-		dealHeaders, err := GetDealHeaders(state, userId)
-		if err != nil {
-			log.Error(err)
-			return ui.ShowAlert(c, err.Error())
-		}
-
-		onDealerPage := strings.Contains(c.OriginalURL(), "dealer")
-
-		return c.Render("fragments/deal/deals-list", fiber.Map{
-			"dealHeaders":  dealHeaders,
-			"isDealer":     user.IsDealer,
-			"onDealerPage": onDealerPage,
-		})
-	})
-
+	app.Get("/deal-list/:state", getDealsByState)
 	app.Get("/api/deals", getDealsAsJson)
 	app.Get("/deal-details/:id", getDealDetails)
 	app.Get("/deal-likes/:id", toggleDealLike)
 	app.Get("/ui/deals/report-modal/:id", getReportModal)
-	app.Post("/deal-report/:id", saveReport)
-	app.Get("/deal-favorite/:id", toggleFavorite)
+	app.Get("/deal-favorite-button/:id", getDealFavoriteButton)
+	app.Get("/deal-favorite-toggle/:id", toggleFavorite)
+	app.Get("/deal-favorites-list", getFavoriteDeals)
 	app.Get("/deal-image-zoom-modal/:dealId", getImageZoomModal)
-
-	app.Get("/deal-favorites-list", func(c *fiber.Ctx) error {
-		userId, err := jwt.ParseUserId(c)
-		if err != nil {
-			return c.Redirect("/login")
-		}
-
-		headers, err := GetFavoriteDealHeaders(userId.String())
-		if err != nil {
-			log.Errorf("can't get favorite deal headers: %v", err)
-			return ui.ShowAlert(c, "Kann favorisierte Deals aktuell nicht laden, bitte später nochmal versuchen.")
-		}
-
-		return c.Render("fragments/deal/deals-list", fiber.Map{"dealHeaders": headers, "isFavoriteList": true})
-	})
-
+	app.Get("/dealer-favorites-list", getFavoriteDealerDeals)
+	app.Post("/deal-report/:id", saveReport)
+	app.Post("/api/deals", saveDeal)
 	app.Delete("/deal-favorite-remove/:id", removeFavorite)
+}
+
+func getFavoriteDealerDeals(c *fiber.Ctx) error {
+	userId, err := jwt.ParseUserId(c)
+	if err != nil {
+		return c.Redirect("/login")
+	}
+
+	headers, err := GetFavoriteDealerDealHeaders(userId.String())
+	if err != nil {
+		log.Errorf("can't get favorite dealer deals: %v", err)
+		return ui.ShowAlert(c, "Kann favorisierte Dealer Deals nicht laden, bitte später nochmal versuchen.")
+	}
+
+	return c.Render("fragments/deal/deals-list", fiber.Map{"dealHeaders": headers, "showFavoriteToggle": false})
+}
+
+func getFavoriteDeals(c *fiber.Ctx) error {
+	userId, err := jwt.ParseUserId(c)
+	if err != nil {
+		return c.Redirect("/login")
+	}
+
+	headers, err := GetFavoriteDealHeaders(userId.String())
+	if err != nil {
+		log.Errorf("can't get favorite deal headers: %v", err)
+		return ui.ShowAlert(c, "Kann favorisierte Deals aktuell nicht laden, bitte später nochmal versuchen.")
+	}
+
+	return c.Render("fragments/deal/deals-list", fiber.Map{"dealHeaders": headers, "showFavoriteToggle": true})
+}
+
+func getDealsByState(c *fiber.Ctx) error {
+	user, err := jwt.ParseUser(c)
+	if err != nil {
+		log.Errorf("can't parse user: %v", err)
+		return c.Redirect("/login")
+	}
+
+	state := ToState(c.Params("state", "active"))
+	userIdString := user.ID.String()
+	userId := &userIdString
+
+	if !user.IsDealer {
+		userId = nil
+	}
+
+	dealHeaders, err := GetDealHeaders(state, userId)
+	if err != nil {
+		log.Error(err)
+		return ui.ShowAlert(c, err.Error())
+	}
+
+	onDealerPage := strings.Contains(c.OriginalURL(), "dealer")
+
+	return c.Render("fragments/deal/deals-list", fiber.Map{
+		"dealHeaders":        dealHeaders,
+		"isDealer":           user.IsDealer,
+		"onDealerPage":       onDealerPage,
+		"showFavoriteToggle": true,
+	})
 }
 
 func getDeal(c *fiber.Ctx) error {
@@ -168,9 +186,10 @@ func getDealList(c *fiber.Ctx) error {
 	onDealerPage := strings.Contains(c.OriginalURL(), "dealer")
 
 	return c.Render("fragments/deal/deals-list", fiber.Map{
-		"deals":        deals,
-		"isDealer":     user.IsDealer,
-		"onDealerPage": onDealerPage,
+		"deals":              deals,
+		"isDealer":           user.IsDealer,
+		"onDealerPage":       onDealerPage,
+		"showFavoriteToggle": true,
 	})
 }
 
@@ -268,23 +287,27 @@ func saveReport(c *fiber.Ctx) error {
 	return c.SendString("")
 }
 
+func getDealFavoriteButton(c *fiber.Ctx) error {
+	userId, _ := jwt.ParseUserId(c)
+	dealId := c.Params("id")
+
+	isFavorite := IsDealFavorite(dealId, userId.String())
+
+	return c.Render(
+		"fragments/deal/favorite-button",
+		fiber.Map{"id": dealId, "isFavorite": isFavorite},
+	)
+}
+
 func toggleFavorite(c *fiber.Ctx) error {
 	userId, _ := jwt.ParseUserId(c)
 	dealId := c.Params("id")
-	doToggle := c.Query("toggle") == "true"
-	isFavoriteList := c.Query("is_favorite_list") == "true"
 
-	isFavorite := false
-	if doToggle {
-		isFavorite = ToggleFavorite(dealId, userId.String())
-	} else {
-		isFavorite = IsDealFavorite(dealId, userId.String())
-
-	}
+	isFavorite := ToggleFavorite(dealId, userId.String())
 
 	return c.Render(
-		"fragments/deal/favorite",
-		fiber.Map{"id": dealId, "isFavorite": isFavorite, "isFavoriteList": isFavoriteList},
+		"fragments/deal/favorite-button",
+		fiber.Map{"id": dealId, "isFavorite": isFavorite},
 	)
 }
 
