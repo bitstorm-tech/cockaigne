@@ -1,0 +1,23 @@
+package view
+
+templ DealFavoriteToggleButton(id string, isFavorite bool) {
+	<button class="clean" @click.stop hx-target="this" hx-get={ "/deal-favorite-toggle/" + id }>
+		if isFavorite {
+			<img src="/static/images/icons/bookmark.svg" alt="Toggle favorite deal" class="h-5"/>
+		} else {
+			<img src="/static/images/icons/bookmark-outline.svg" alt="Toggle favorite deal" class="h-5"/>
+		}
+	</button>
+}
+
+templ DealFavoriteRemoveButton(id string) {
+	<button
+ 		class="clean"
+ 		@click.stop
+ 		hx-target={ "#deal-" + id }
+ 		hx-swap="outerHTML"
+ 		hx-delete={ "/deal-favorite-remove/" + id }
+	>
+		<img src="/static/images/icons/bookmark.svg" alt="Remove favorite deal" class="h-5"/>
+	</button>
+}

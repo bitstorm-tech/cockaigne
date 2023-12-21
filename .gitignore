@@ -3,4 +3,4 @@
 !.env.template
 tmp
 node_modules
- 
+*_templ.go

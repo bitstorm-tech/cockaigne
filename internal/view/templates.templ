@@ -1,0 +1,19 @@
+package view
+
+import "github.com/bitstorm-tech/cockaigne/internal/model"
+import "fmt"
+
+templ Templates(deals []model.Deal) {
+	@BaseLayout() {
+		<div class="flex flex-col gap-2 pt-4" x-data="{openDetailsId: ''}">
+			for _, deal := range deals {
+				<div class="flex flex-col">
+					<span class="bg-slate-500 p-2" @click={ fmt.Sprintf("openDetailsId = openDetailsId === '%[1]s' ? '' : '%[1]s'", deal.ID) }>
+						{ deal.Title }
+					</span>
+					<span class="bg-green-800 p-2" x-show={ fmt.Sprintf("openDetailsId === '%s'", deal.ID) }>{ deal.Description }</span>
+				</div>
+			}
+		</div>
+	}
+}

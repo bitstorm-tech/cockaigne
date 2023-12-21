@@ -3,20 +3,23 @@ package persistence
 import (
 	"context"
 	"fmt"
+	"mime/multipart"
+	"os"
+	"strings"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
-	"github.com/gofiber/fiber/v2/log"
-	"mime/multipart"
-	"os"
-	"strings"
+	"go.uber.org/zap"
 )
 
 var Bucket = os.Getenv("DO_SPACES_BUCKET")
 var BaseUrl = os.Getenv("DO_SPACES_BASE_URL")
 var S3 *s3.Client
+var DealerFolder = "dealer"
+var DealsFolder = "deals"
 
 func InitS3() {
 	key := os.Getenv("DO_SPACES_KEY")
@@ -37,12 +40,12 @@ func InitS3() {
 		config.WithEndpointResolverWithOptions(customResolver),
 	)
 	if err != nil {
-		log.Panicf("can't create config for DigitalOcean space: %v", err)
+		zap.L().Sugar().Panicf("can't create config for DigitalOcean space: %v", err)
 	}
 
 	S3 = s3.NewFromConfig(cfg)
 
-	log.Infof("S3 init done: region=%s, endpoint=%s, bucket=%s, baseUrl=%s", region, endpoint, Bucket, BaseUrl)
+	zap.L().Sugar().Infof("S3 init done: region=%s, endpoint=%s, bucket=%s, baseUrl=%s", region, endpoint, Bucket, BaseUrl)
 }
 
 func UploadImage(path string, image *multipart.FileHeader) error {
@@ -88,7 +91,7 @@ func GetImageUrls(path string) ([]string, error) {
 }
 
 func DeleteImage(path string) error {
-	log.Debugf("delete image: %s", path)
+	zap.L().Sugar().Debugf("delete image: %s", path)
 	_, err := S3.DeleteObject(context.TODO(), &s3.DeleteObjectInput{
 		Bucket: &Bucket,
 		Key:    &path,

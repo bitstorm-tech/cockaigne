@@ -1,0 +1,51 @@
+package view
+
+import "github.com/bitstorm-tech/cockaigne/internal/model"
+import "fmt"
+
+templ DealsList(dealHeaders []model.DealHeader, onDealerPage bool, isDealer bool, showFavoriteToggle bool, removeFavorite bool) {
+	<div class="flex flex-col gap-2" x-data="{openDetailsId: ''}">
+		for _, header := range dealHeaders {
+			<div id={ "deal-" + header.ID.String() }>
+				if !onDealerPage || !isDealer {
+					<div class="flex items-center justify-between bg-[#232b2e] px-2 py-0.5">
+						<a href={ templ.URL("/dealer/" + header.DealerId.String()) } class="flex items-center text-sm text-[#b2b2b2]">
+							{ header.Username }
+						</a>
+						<a href={ templ.URL("/dealer/" + header.DealerId.String()) } class="pr-1">
+							<img src="/static/images/icons/double-arrow.svg" alt="Zum Dealer springen" class="h-3"/>
+						</a>
+					</div>
+				}
+				<div
+ 					class="flex cursor-pointer items-center justify-between bg-[#2c363a] p-2"
+ 					@click={ fmt.Sprintf("openDetailsId = openDetailsId === '%[1]s' ? '' : '%[1]s'", header.ID) }
+				>
+					<span>{ header.Title }</span>
+					if isDealer {
+						<button class="clean" @click.stop="">
+							<img src="/static/images/icons/cog.svg" alt="Deal Einstellungen" class="h-5"/>
+						</button>
+					} else if showFavoriteToggle {
+						if removeFavorite {
+							@DealFavoriteRemoveButton(header.ID.String())
+						} else {
+							<div hx-get={ "/deal-favorite-button/" + header.ID.String() } hx-trigger="intersect once" hx-target="this"></div>
+						}
+					}
+				</div>
+				<div
+ 					class="flex flex-col justify-between bg-[#323e42] p-2"
+ 					hx-get={ "/deal-details/" + header.ID.String() }
+ 					hx-target={ "#details-footer-" + header.ID.String() }
+ 					hx-trigger="intersect once"
+ 					hx-swap="outerHTML"
+ 					x-show={ fmt.Sprintf("openDetailsId === '%s'", header.ID) }
+				>
+					<div id={ "details-footer-" + header.ID.String() }></div>
+				</div>
+			</div>
+		}
+	</div>
+	<div id="image-zoom-modal"></div>
+}

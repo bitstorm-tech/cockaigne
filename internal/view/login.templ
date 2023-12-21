@@ -1,0 +1,20 @@
+package view
+
+templ Login() {
+	@BaseLayout() {
+		<form hx-post="/api/login" hx-target="#alert" class="pt-1/3 pt-26 m-4 flex flex-col gap-4 p-4 pt-24">
+			<div class="form-control">
+				<label for="email">E-Mail</label>
+				<input id="email" type="email" name="email"/>
+			</div>
+			<div class="form-control">
+				<label for="password">Passwort</label>
+				<input id="password" type="password" name="password"/>
+			</div>
+			<div class="flex justify-center gap-3 pt-10">
+				<button>Einloggen</button>
+				<a class="btn btn-primary" href="/">Zurück</a>
+			</div>
+		</form>
+	}
+}

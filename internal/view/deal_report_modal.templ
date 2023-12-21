@@ -1,0 +1,37 @@
+package view
+
+templ DealReportModal(id string, reason string, title string) {
+	@Modal() {
+		<h1 class="text-lg font-bold">
+			Du willst den Deal
+			<i>{ title }</i>
+			melden?
+		</h1>
+		<form hx-post={ "/deal-report/" + id } hx-target="#modal" x-data="{reason: ''}">
+			<div class="grid grid-cols-1 py-4">
+				<div class="form-control">
+					<label for="reason">
+						if len(reason) > 0 {
+							Du hast diesen Deal schon gemeldet
+						} else {
+							Sag uns, was an dem Deal nicht passt
+						}
+					</label>
+					<textarea name="reason" id="reason" rows="3" x-bind="reason" disabled?={ len(reason) > 0 }>
+						{ reason }
+					</textarea>
+				</div>
+			</div>
+			<div class="modal-action">
+				if len(reason) > 0 {
+					<button class="btn" hx-delete="/ui/remove" hx-target="#modal">OK</button>
+				} else {
+					<div class="flex gap-2">
+						<button :disabled="reason.length === 0">Melden</button>
+						<button class="btn-primary" hx-delete="/ui/remove" hx-target="#modal">Abbrechen</button>
+					</div>
+				}
+			</div>
+		</form>
+	}
+}

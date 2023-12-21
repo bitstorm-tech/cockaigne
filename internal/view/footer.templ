@@ -1,0 +1,23 @@
+package view
+
+templ Footer(isDealer bool) {
+	<footer class="fixed bottom-0 left-0 right-0 h-10 border-t border-t-white border-opacity-25 bg-dark">
+		<div class="flex h-full items-center justify-around">
+			<a href="/">
+				<img class="h-6" src="/static/images/icons/home.svg" alt="Home"/>
+			</a>
+			if isDealer {
+				<a href="/deal-overview">
+					<img class="h-6" src="/static/images/icons/deals-overview.svg" alt="Deals overview"/>
+				</a>
+			} else {
+				<a href="#">
+					<img class="h-8" src="/static/images/icons/top-deals-outline.svg" alt="Top deals"/>
+				</a>
+				<a href="/map">
+					<img class="h-6" src="/static/images/icons/map-outline.svg" alt="Map"/>
+				</a>
+			}
+		</div>
+	</footer>
+}
