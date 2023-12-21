@@ -20,7 +20,7 @@ templ DealDetailsFooter(dealDetails model.DealDetails, imageUrls []string, isUse
 	if isUser {
 		<span class="py-4 text-xs">Endet am 1.1.2222</span>
 		<div class="flex h-6 justify-between">
-			<div hx-get={ "/deal-likes/" + dealDetails.ID.String() } hx-target="this" hx-trigger="intersect once"></div>
+			<div hx-get={ "/deal-likes/" + dealDetails.ID.String() + "?toggle=false" } hx-target="this" hx-trigger="intersect once"></div>
 			<button
  				class="clean"
  				hx-get={ "/ui/deals/report-modal/" + dealDetails.ID.String() }
