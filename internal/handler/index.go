@@ -9,7 +9,7 @@ import (
 
 func RegisterIndexHandlers(e *echo.Echo) {
 	e.GET("/", func(c echo.Context) error {
-		user, err := service.ParseUserEcho(c)
+		user, err := service.ParseUser(c)
 
 		if err != nil {
 			return c.Redirect(http.StatusTemporaryRedirect, "/login")

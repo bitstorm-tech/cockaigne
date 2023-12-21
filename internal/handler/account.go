@@ -14,7 +14,7 @@ func RegisterAccountHandlers(e *echo.Echo) {
 }
 
 func updateFilter(c echo.Context) error {
-	userId, _ := service.ParseUserIdEcho(c)
+	userId, _ := service.ParseUserId(c)
 
 	updateFilterRequest := model.UpdateFilterRequest{}
 
@@ -37,7 +37,7 @@ func updateFilter(c echo.Context) error {
 }
 
 func updateUseLocationService(c echo.Context) error {
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}

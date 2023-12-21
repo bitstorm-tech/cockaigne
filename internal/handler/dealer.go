@@ -31,7 +31,7 @@ func RegisterDealerHandlers(e *echo.Echo) {
 }
 
 func getDealerHeaderFavoriteButton(c echo.Context) error {
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -46,7 +46,7 @@ func getDealerHeaderFavoriteButton(c echo.Context) error {
 }
 
 func toggleDealerFavorite(c echo.Context) error {
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -79,7 +79,7 @@ func getImageZoomDialog(c echo.Context) error {
 }
 
 func getDealerPage(c echo.Context) error {
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -115,7 +115,7 @@ func getOverviewPage(c echo.Context) error {
 }
 
 func getTemplatesPage(c echo.Context) error {
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -130,7 +130,7 @@ func getTemplatesPage(c echo.Context) error {
 
 func getDealerImages(c echo.Context) error {
 	dealerId := c.Param("id")
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -146,7 +146,7 @@ func getDealerImages(c echo.Context) error {
 }
 
 func addDealerImage(c echo.Context) error {
-	dealerId, err := service.ParseUserIdEcho(c)
+	dealerId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -167,7 +167,7 @@ func addDealerImage(c echo.Context) error {
 }
 
 func deleteDealerImage(c echo.Context) error {
-	dealerId, err := service.ParseUserIdEcho(c)
+	dealerId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -195,7 +195,7 @@ func deleteDealerImage(c echo.Context) error {
 
 func getDealerRatings(c echo.Context) error {
 	dealerId := c.Param("dealerId")
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		c.Logger().Errorf("can't get userId: %v", err)
 	}
@@ -221,7 +221,7 @@ func getDealerRatings(c echo.Context) error {
 
 func getRatingModal(c echo.Context) error {
 	dealerId := c.Param("dealerId")
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -237,7 +237,7 @@ func getRatingModal(c echo.Context) error {
 }
 
 func createDealerRating(c echo.Context) error {
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -262,7 +262,7 @@ func createDealerRating(c echo.Context) error {
 
 func deleteDealerRating(c echo.Context) error {
 	dealerId := c.Param("dealerId")
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}

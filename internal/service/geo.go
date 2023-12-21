@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	"github.com/bitstorm-tech/cockaigne/internal/model"
-	"github.com/gofiber/fiber/v2/log"
+	"go.uber.org/zap"
 )
 
 func GetPositionFromAddress(city string, zip int, street string, houseNumber string) (model.Point, error) {
@@ -25,7 +25,7 @@ func GetPositionFromAddressFuzzy(address string) (model.Point, error) {
 }
 
 func pointFromQuery(query string) (model.Point, error) {
-	log.Debugf("Querying nominatim: %s", query)
+	zap.L().Sugar().Debugf("Querying nominatim: %s", query)
 	res, err := http.Get(query)
 	if err != nil {
 		return model.Point{}, fmt.Errorf("can't get response from nominatim: %v", err)
@@ -43,7 +43,7 @@ func pointFromQuery(query string) (model.Point, error) {
 	}
 
 	if len(results) > 1 {
-		log.Warnf("Found more then one (%s) positions for address (use first one!)", len(results))
+		zap.L().Sugar().Warnf("Found more then one (%s) positions for address (use first one!)", len(results))
 	}
 
 	lon, err := strconv.ParseFloat(results[0].Lon, 64)

@@ -33,7 +33,7 @@ func RegisterDealHandlers(e *echo.Echo) {
 }
 
 func getFavoriteDealerDeals(c echo.Context) error {
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -48,7 +48,7 @@ func getFavoriteDealerDeals(c echo.Context) error {
 }
 
 func getFavoriteDeals(c echo.Context) error {
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -63,7 +63,7 @@ func getFavoriteDeals(c echo.Context) error {
 }
 
 func getDealsByState(c echo.Context) error {
-	user, err := service.ParseUserEcho(c)
+	user, err := service.ParseUser(c)
 	if err != nil {
 		c.Logger().Errorf("can't parse user: %v", err)
 		return redirect.Login(c)
@@ -89,7 +89,7 @@ func getDealsByState(c echo.Context) error {
 }
 
 func getDeal(c echo.Context) error {
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -123,7 +123,7 @@ func getCategorySelect(c echo.Context) error {
 }
 
 func saveDeal(c echo.Context) error {
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -162,7 +162,7 @@ func saveDeal(c echo.Context) error {
 }
 
 func getDealList(c echo.Context) error {
-	user, err := service.ParseUserEcho(c)
+	user, err := service.ParseUser(c)
 	if err != nil {
 		c.Logger().Errorf("can't parse user: %v", err)
 		return redirect.Login(c)
@@ -217,7 +217,7 @@ func getDealDetails(c echo.Context) error {
 }
 
 func toggleDealLike(c echo.Context) error {
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -237,7 +237,7 @@ func toggleDealLike(c echo.Context) error {
 
 func getReportModal(c echo.Context) error {
 	dealId := c.Param("id")
-	reporterId, err := service.ParseUserIdEcho(c)
+	reporterId, err := service.ParseUserId(c)
 	if err != nil {
 		return view.RenderAlert("Nur angemeldete User können einen Deal melden", c)
 	}
@@ -251,7 +251,7 @@ func getReportModal(c echo.Context) error {
 }
 
 func saveReport(c echo.Context) error {
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		c.Logger().Error("can't save deal report -> no user ID")
 		return view.RenderAlert("Nur angemeldete User können einen Deal melden", c)
@@ -274,7 +274,7 @@ func saveReport(c echo.Context) error {
 }
 
 func getDealFavoriteButton(c echo.Context) error {
-	userId, _ := service.ParseUserIdEcho(c)
+	userId, _ := service.ParseUserId(c)
 	dealId := c.Param("id")
 	isFavorite := service.IsDealFavorite(dealId, userId.String())
 
@@ -282,7 +282,7 @@ func getDealFavoriteButton(c echo.Context) error {
 }
 
 func toggleFavorite(c echo.Context) error {
-	userId, _ := service.ParseUserIdEcho(c)
+	userId, _ := service.ParseUserId(c)
 	dealId := c.Param("id")
 	isFavorite := service.ToggleFavorite(dealId, userId.String())
 
@@ -290,7 +290,7 @@ func toggleFavorite(c echo.Context) error {
 }
 
 func removeFavorite(c echo.Context) error {
-	userId, err := service.ParseUserIdEcho(c)
+	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}

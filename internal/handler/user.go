@@ -9,7 +9,7 @@ import (
 
 func RegisterUserHandlers(e *echo.Echo) {
 	e.GET("/user", func(c echo.Context) error {
-		userId, err := service.ParseUserIdEcho(c)
+		userId, err := service.ParseUserId(c)
 		if err != nil {
 			return redirect.Login(c)
 		}

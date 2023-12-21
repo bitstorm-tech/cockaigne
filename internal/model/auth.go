@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"strconv"
 
-	"github.com/gofiber/fiber/v2/log"
+	"go.uber.org/zap"
 )
 
 type CreateAccountRequest struct {
@@ -30,7 +30,7 @@ func (c CreateAccountRequest) ToAccount(passwordHash string) Account {
 		zipCode, err = strconv.Atoi(c.ZipCode)
 
 		if err != nil {
-			log.Errorf("Can't convert zip code: %+v", err)
+			zap.L().Sugar().Errorf("Can't convert zip code: %+v", err)
 		}
 	}
 

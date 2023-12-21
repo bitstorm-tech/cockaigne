@@ -10,15 +10,15 @@ import (
 
 	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 func GetCategories() []model.Category {
 	var categories []model.Category
 	err := persistence.DB.Select(&categories, "select * from categories where is_active = true")
 	if err != nil {
-		log.Errorf("can't get categories: %v", err)
+		zap.L().Sugar().Errorf("can't get categories: %v", err)
 	}
 
 	return categories
@@ -190,7 +190,7 @@ func GetDealLikes(dealId string) int {
 	)
 
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		log.Errorf("can't get like count: %v", err)
+		zap.L().Sugar().Errorf("can't get like count: %v", err)
 		return 0
 	}
 
@@ -202,7 +202,7 @@ func ToggleLikes(dealId string, userId string) int {
 	err := persistence.DB.Get(&count, "select count(*)  from likes where deal_id = $1 and user_id = $2", dealId, userId)
 
 	if err != nil {
-		log.Errorf("can't check if like is already persisted: %v", err)
+		zap.L().Sugar().Errorf("can't check if like is already persisted: %v", err)
 		return 0
 	}
 
@@ -213,14 +213,14 @@ func ToggleLikes(dealId string, userId string) int {
 
 	_, err = persistence.DB.Exec(query, dealId, userId)
 	if err != nil {
-		log.Errorf("can't toggle like: %v", err)
+		zap.L().Sugar().Errorf("can't toggle like: %v", err)
 		return 0
 	}
 
 	likes := 0
 	err = persistence.DB.Get(&likes, "select likecount from like_counts_view where deal_id = $1", dealId)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		log.Errorf("can't get like count for deal %s: %v", dealId, err)
+		zap.L().Sugar().Errorf("can't get like count for deal %s: %v", dealId, err)
 		return 0
 	}
 
@@ -236,7 +236,7 @@ func IsDealLiked(dealId string, userId string) bool {
 		userId,
 	)
 	if err != nil {
-		log.Errorf("can't check if user has liked the deal %s: %v", dealId, err)
+		zap.L().Sugar().Errorf("can't check if user has liked the deal %s: %v", dealId, err)
 		return false
 	}
 
@@ -252,7 +252,7 @@ func IsDealFavorite(dealId string, userId string) bool {
 		userId,
 	)
 	if err != nil {
-		log.Errorf("can't check if deal %s is favorite: %v", dealId, err)
+		zap.L().Sugar().Errorf("can't check if deal %s is favorite: %v", dealId, err)
 		return false
 	}
 
@@ -270,7 +270,7 @@ func ToggleFavorite(dealId string, userId string) bool {
 	}
 
 	if err != nil {
-		log.Errorf("can't check if deal %s is favorite: %v", dealId, err)
+		zap.L().Sugar().Errorf("can't check if deal %s is favorite: %v", dealId, err)
 		return false
 	}
 

@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
+	"go.uber.org/zap"
 )
 
 type State string
@@ -28,7 +28,7 @@ func ToState(state string) State {
 		return Future
 	}
 
-	log.Warnf("invalid deal state (%s) -> use 'active' as default", state)
+	zap.L().Sugar().Warnf("invalid deal state (%s) -> use 'active' as default", state)
 
 	return Active
 }

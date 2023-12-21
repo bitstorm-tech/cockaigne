@@ -8,19 +8,19 @@ import (
 
 func RegisterUiHandlers(e *echo.Echo) {
 	e.GET("/ui/header", func(c echo.Context) error {
-		isAuthenticated := service.IsAuthenticatedEcho(c)
+		isAuthenticated := service.IsAuthenticated(c)
 
 		return view.Render(view.Header(isAuthenticated), c)
 	})
 
 	e.GET("/ui/footer", func(c echo.Context) error {
-		isAuthenticated := service.IsAuthenticatedEcho(c)
+		isAuthenticated := service.IsAuthenticated(c)
 
 		if !isAuthenticated {
 			return nil
 		}
 
-		isDealer := service.IsDealerEcho(c)
+		isDealer := service.IsDealer(c)
 
 		return view.Render(view.Footer(isDealer), c)
 	})

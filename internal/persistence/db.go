@@ -29,15 +29,13 @@ func ConnectToDb() {
 		pgSchema,
 	)
 
-	zap.L().Sugar().Infof("Connecting to database :%s", connectionString)
-
 	connectionString += " password=" + pgPassword
 
 	var err error
 	DB, err = sqlx.Connect("postgres", connectionString)
 	if err != nil {
-		zap.L().Sugar().Panicf("Can't open database connection: %+v", err)
+		zap.L().Sugar().Panic("Can't open database connection: ", err)
 	}
 
-	zap.L().Info("Database connection opened successfully")
+	zap.L().Sugar().Info("Connected to database: ", connectionString)
 }

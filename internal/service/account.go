@@ -5,8 +5,8 @@ import (
 
 	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 func GetSearchRadius(userId uuid.UUID) int {
@@ -14,7 +14,7 @@ func GetSearchRadius(userId uuid.UUID) int {
 	err := persistence.DB.Get(&searchRadius, "select search_radius_in_meters from accounts where id = $1", userId)
 
 	if err != nil {
-		log.Errorf("can't get search radius: %v", err)
+		zap.L().Sugar().Errorf("can't get search radius: %v", err)
 	}
 
 	return searchRadius
@@ -28,7 +28,7 @@ func GetFavoriteCategoryIds(userId uuid.UUID) []int {
 		userId,
 	)
 	if err != nil {
-		log.Errorf("can't get favorite categories: %v", err)
+		zap.L().Sugar().Errorf("can't get favorite categories: %v", err)
 		return []int{}
 	}
 
@@ -39,7 +39,7 @@ func GetDefaultCategoryId(userId uuid.UUID) int {
 	var defaultCategoryId = -1
 	err := persistence.DB.Get(&defaultCategoryId, "select default_category from accounts where id = $1", userId.String())
 	if err != nil {
-		log.Errorf("can't get default category of dealer: %s", userId.String())
+		zap.L().Sugar().Errorf("can't get default category of dealer: %s", userId.String())
 	}
 
 	return defaultCategoryId
@@ -53,7 +53,7 @@ func GetAccount(userId string) (model.Account, error) {
 		userId,
 	)
 	if err != nil {
-		log.Errorf("can't get account: %v", err)
+		zap.L().Sugar().Errorf("can't get account: %v", err)
 		return model.Account{}, err
 	}
 
@@ -68,7 +68,7 @@ func GetAccountByEmail(email string) (model.Account, error) {
 		email,
 	)
 	if err != nil {
-		log.Errorf("can't get account: %v", err)
+		zap.L().Sugar().Errorf("can't get account: %v", err)
 		return model.Account{}, err
 	}
 

@@ -8,7 +8,7 @@ import (
 
 	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
-	"github.com/gofiber/fiber/v2/log"
+	"go.uber.org/zap"
 )
 
 func SaveDealerImage(dealerId string, image *multipart.FileHeader) (string, error) {
@@ -73,7 +73,7 @@ func AlreadyRated(dealerId string, userId string) bool {
 	)
 
 	if err != nil {
-		log.Errorf("can't check if dealer %s was already rated by user %s", dealerId, userId)
+		zap.L().Sugar().Errorf("can't check if dealer %s was already rated by user %s", dealerId, userId)
 	}
 
 	return rated
