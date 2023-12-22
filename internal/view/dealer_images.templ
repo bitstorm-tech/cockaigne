@@ -5,7 +5,13 @@ import "fmt"
 templ DealerImages(imageUrls []string, isOwner bool, dealerId string) {
 	<div id="dealer-image-list-root">
 		if len(imageUrls) == 0 {
-			<span class="flex justify-around p-4">Füge ein paar Bilder hinzu und mach deine Seite noch schöner! 🚀</span>
+			<span class="flex justify-around p-8 text-center">
+				if isOwner {
+					🚀 Füge ein paar Bilder hinzu und mach deine Seite noch schöner!
+				} else {
+					Leider gibt es hier noch keine Bilder vom Dealer zu bestaunen.
+				}
+			</span>
 		} else {
 			<div id="dealer-image-list" class="grid grid-cols-3 gap-1">
 				for i, url := range imageUrls {
