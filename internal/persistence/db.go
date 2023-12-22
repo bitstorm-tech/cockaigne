@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/jmoiron/sqlx"
+	"go.uber.org/zap"
 )
 
 var DB *sqlx.DB
@@ -29,15 +29,13 @@ func ConnectToDb() {
 		pgSchema,
 	)
 
-	log.Debugf("Connecting to database: %s", connectionString)
-
 	connectionString += " password=" + pgPassword
 
 	var err error
 	DB, err = sqlx.Connect("postgres", connectionString)
 	if err != nil {
-		log.Fatalf("Can't open database connection: %+v", err)
+		zap.L().Sugar().Panic("Can't open database connection: ", err)
 	}
 
-	log.Info("Database connection opened successfully")
+	zap.L().Sugar().Info("Connected to database: ", connectionString)
 }

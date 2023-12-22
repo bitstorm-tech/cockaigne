@@ -1,0 +1,13 @@
+package view
+
+import "github.com/bitstorm-tech/cockaigne/internal/model"
+import "strconv"
+
+templ CategorySelect(name string, categories []model.Category, selectedId int) {
+	<select name="category">
+		<option selected disabled hidden value="-1">{ name } wählen ...</option>
+		for _, c := range categories {
+			<option value={ strconv.Itoa(c.ID) } selected?={ c.ID == selectedId }>{ c.Name }</option>
+		}
+	</select>
+}

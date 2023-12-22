@@ -1,0 +1,33 @@
+package view
+
+templ LocationModal() {
+	@Modal() {
+		<form hx-post="/api/accounts/use-location-service" hx-target="#modal">
+			<div class="flex flex-col gap-4">
+				<div class="form-control">
+					<label for="address">Adresse</label>
+					<input id="address" x-show="!useLocationService" x-model="address" type="text" name="address"/>
+				</div>
+				<div x-show="useLocationService" class="flex items-center gap-2">
+					<span x-show="determineLocation" class="loading loading-ring loading-lg"></span>
+					<span x-text="address"></span>
+				</div>
+				<div class="form-control-horizontal">
+					<input
+ 						id="use-location-service"
+ 						class="checkbox"
+ 						type="checkbox"
+ 						name="use-location-service"
+ 						@change="getCurrentPosition"
+ 						x-model="useLocationService"
+					/>
+					<label for="use-location-service">Aktuellen Standort verwenden</label>
+				</div>
+			</div>
+			<div class="modal-action">
+				<button @click="searchAddress">Speichern</button>
+				<button class="btn-primary" hx-delete="/ui/remove" hx-target="#modal">Abbrechen</button>
+			</div>
+		</form>
+	}
+}

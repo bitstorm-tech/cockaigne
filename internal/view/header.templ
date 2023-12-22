@@ -1,0 +1,83 @@
+package view
+
+import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
+
+templ Header(isAuthenticated bool, isDealer bool) {
+	<nav id="header" class="h-12 border-b border-b-white border-opacity-25" x-data="{showMenu: false}">
+		<div class="px-4 sm:px-6 lg:px-8">
+			<div class="flex h-12 items-center justify-between">
+				<a href="/"><img class="h-7" src="/static/images/logo-text.svg" alt="Logo"/></a>
+				<div class="hidden gap-1 md:flex">
+					if isAuthenticated {
+						<a class="menu-item" href="/logout">Logout</a>
+					} else {
+						<a class="menu-item" href="/login">Login</a>
+						<a class="menu-item" href="/signup">Registrieren</a>
+					}
+				</div>
+				<div class="flex select-none md:hidden" @click="showMenu = !showMenu">
+					<div class="h-8 w-8 cursor-pointer text-[#69828c]">
+						<span class="sr-only">Open main menu</span>
+						<div x-show="showMenu === true">
+							@icon.Close()
+						</div>
+						<div x-show="showMenu === false">
+							@icon.Menu()
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		// --------------
+		// Mobile menu
+		//---------------
+		<div
+ 			class="absolute right-2 top-10 z-50 select-none rounded-md bg-[#232b2e] md:hidden"
+ 			x-transition.duration.300ms
+ 			x-show="showMenu"
+ 			@click.outside="showMenu = false"
+		>
+			<div class="flex flex-col gap-5 p-6 sm:px-3 ">
+				if isAuthenticated {
+					if isDealer {
+						@DealerMenu()
+					} else {
+						@UserMenu()
+					}
+				} else {
+					@menuEntry("Einloggen", "/login", icon.Login())
+					@menuEntry("Registrieren", "/signup", icon.Registration())
+				}
+				<div class="flex gap-8 text-xs justify-around pt-8">
+					<a href="/imprint">Impressum</a>
+					<a href="/terms">AGB</a>
+					<a href="/privacy">Datenschutz</a>
+				</div>
+			</div>
+		</div>
+	</nav>
+}
+
+templ UserMenu() {
+	@menuEntry("Einstellungen", "/settings", icon.CogOutline())
+	@menuEntry("Kontaktiere uns", "/contact", icon.At())
+	@menuEntry("Basic vs Pro", "/basic-vs-pro", icon.Rocket())
+	@menuEntry("Abmelden", "/logout", icon.Logout())
+}
+
+templ DealerMenu() {
+	@menuEntry("Einstellungen", "/settings", icon.CogOutline())
+	@menuEntry("Abo & Preise", "/plans", icon.Money())
+	@menuEntry("Abo verwalten", "/plans", icon.SubManagement())
+	@menuEntry("Kontaktiere uns", "/contact", icon.At())
+	@menuEntry("Abmelden", "/logout", icon.Logout())
+}
+
+templ menuEntry(text string, href string, icon templ.Component) {
+	<a class="flex justify-start items-center gap-4" href={ templ.SafeURL(href) }>
+		<div class="shrink h-6 w-6">
+			@icon
+		</div>
+		{ text }
+	</a>
+}

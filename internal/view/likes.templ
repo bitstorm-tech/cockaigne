@@ -1,0 +1,14 @@
+package view
+
+templ Likes(dealId string, isLiked bool, likes string) {
+	<div id={ "likes-" + dealId } class="flex items-center gap-3">
+		<button class="clean" hx-get={ "/deal-likes/" + dealId + "?toggle=true" } hx-target={ "#likes-" + dealId } hx-swap="outerHTML">
+			if isLiked {
+				<img src="/static/images/icons/like.svg" alt="Like or dislike" class="h-6"/>
+			} else {
+				<img src="/static/images/icons/like-outline.svg" alt="Like or dislike" class="h-6"/>
+			}
+		</button>
+		<span id={ "like-count-" + dealId } class="text-lg">{ likes }</span>
+	</div>
+}
