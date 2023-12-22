@@ -1,6 +1,8 @@
 package view
 
-templ Header(isAuthenticated bool) {
+import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
+
+templ Header(isAuthenticated bool, isDealer bool) {
 	<nav id="header" class="h-12 border-b border-b-white border-opacity-25" x-data="{showMenu: false}">
 		<div class="px-4 sm:px-6 lg:px-8">
 			<div class="flex h-12 items-center justify-between">
@@ -14,28 +16,32 @@ templ Header(isAuthenticated bool) {
 					}
 				</div>
 				<div class="flex select-none md:hidden" @click="showMenu = !showMenu">
-					<div class="h-6 w-6 cursor-pointer text-gray-300">
+					<div class="h-8 w-8 cursor-pointer text-[#69828c]">
 						<span class="sr-only">Open main menu</span>
-						<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="showMenu === true">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
-						</svg>
-						<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="showMenu === false">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 6h16M4 12h16M4 18h16"></path>
-						</svg>
+						<div x-show="showMenu === true">
+							@icon.Close()
+						</div>
+						<div x-show="showMenu === false">
+							@icon.Menu()
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 		<!-- Mobile menu -->
 		<div
- 			class="absolute right-1 top-10 z-50 select-none rounded-xl bg-gray-600 md:hidden"
+ 			class="absolute right-1 top-10 z-50 select-none rounded-xl bg-[#2c363a] md:hidden"
  			x-transition.duration.300ms
  			x-show="showMenu"
  			@click.outside="showMenu = false"
 		>
 			<div class="space-y-1 px-2 pb-3 pt-2 sm:px-3">
 				if isAuthenticated {
-					<a class="menu-item block" href="/logout">Logout</a>
+					if isDealer {
+						@DealerMenu()
+					} else {
+						@UserMenu()
+					}
 				} else {
 					<a class="menu-item block" href="/login">Login</a>
 					<a class="menu-item block" href="/signup">Registieren</a>
@@ -43,4 +49,14 @@ templ Header(isAuthenticated bool) {
 			</div>
 		</div>
 	</nav>
+}
+
+templ UserMenu() {
+	<div>User</div>
+	<a class="menu-item block" href="/logout">Logout</a>
+}
+
+templ DealerMenu() {
+	<div>Dealer</div>
+	<a class="menu-item block" href="/logout">Logout</a>
 }

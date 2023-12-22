@@ -19,7 +19,7 @@ templ DealsList(dealHeaders []model.DealHeader, onDealerPage bool, isDealer bool
 					</div>
 				}
 				<div
- 					class="flex cursor-pointer items-center justify-between bg-[#2c363a] p-2"
+ 					class="flex cursor-pointer items-center justify-between bg-[#2c363a] p-2 pr-3"
  					@click={ fmt.Sprintf("openDetailsId = openDetailsId === '%[1]s' ? '' : '%[1]s'", header.ID) }
 				>
 					<div class="flex items-center gap-2">
@@ -34,7 +34,12 @@ templ DealsList(dealHeaders []model.DealHeader, onDealerPage bool, isDealer bool
 						if removeFavorite {
 							@DealFavoriteRemoveButton(header.ID.String())
 						} else {
-							<div hx-get={ "/deal-favorite-button/" + header.ID.String() } hx-trigger="intersect once" hx-target="this"></div>
+							<div
+ 								hx-get={ "/deal-favorite-button/" + header.ID.String() }
+ 								hx-trigger="intersect once"
+ 								hx-target="this"
+ 								hx-swap="outerHTML"
+							></div>
 						}
 					}
 				</div>
