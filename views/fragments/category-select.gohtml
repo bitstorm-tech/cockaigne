@@ -1,6 +1,0 @@
-<select name="category">
-  <option selected disabled hidden value="-1">{{.name}} wählen ...</option>
-  {{ range .categories }}
-  <option value="{{ .ID }}" :selected="{{ .ID }} == {{ $.selected }}">{{ .Name }}</option>
-  {{ end }}
-</select>
