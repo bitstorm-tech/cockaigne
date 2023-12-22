@@ -2,6 +2,7 @@ package view
 
 import "github.com/bitstorm-tech/cockaigne/internal/model"
 import "fmt"
+import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
 
 templ DealsList(dealHeaders []model.DealHeader, onDealerPage bool, isDealer bool, showFavoriteToggle bool, removeFavorite bool) {
 	<div class="flex flex-col gap-2" x-data="{openDetailsId: ''}">
@@ -21,7 +22,10 @@ templ DealsList(dealHeaders []model.DealHeader, onDealerPage bool, isDealer bool
  					class="flex cursor-pointer items-center justify-between bg-[#2c363a] p-2"
  					@click={ fmt.Sprintf("openDetailsId = openDetailsId === '%[1]s' ? '' : '%[1]s'", header.ID) }
 				>
-					<span>{ header.Title }</span>
+					<div class="flex items-center gap-2">
+						@icon.DealIcon(header.CategoryId)
+						<span>{ header.Title }</span>
+					</div>
 					if isDealer {
 						<button class="clean" @click.stop="">
 							<img src="/static/images/icons/cog.svg" alt="Deal Einstellungen" class="h-5"/>

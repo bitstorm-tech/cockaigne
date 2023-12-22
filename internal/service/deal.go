@@ -111,12 +111,12 @@ func GetDealHeaders(state model.State, dealerId *string) ([]model.DealHeader, er
 		return []model.DealHeader{}, fmt.Errorf("unknown deal state: %s", state)
 	}
 
-	statement := "select id, title, username, dealer_id from active_deals_view"
+	statement := "select id, title, username, dealer_id, category_id from active_deals_view"
 	switch state {
 	case model.Past:
-		statement = "select id, title, username, dealer_id from past_deals_view"
+		statement = "select id, title, username, dealer_id, category_id from past_deals_view"
 	case model.Future:
-		statement = "select id, title, username, dealer_id from future_deals_view"
+		statement = "select id, title, username, dealer_id, category_id from future_deals_view"
 	}
 
 	if dealerId != nil {
@@ -137,7 +137,7 @@ func GetFavoriteDealHeaders(userId string) ([]model.DealHeader, error) {
 	var headers []model.DealHeader
 	err := persistence.DB.Select(
 		&headers,
-		"select id, dealer_id, title, username from active_deals_view d join favorite_deals f on d.id = f.deal_id where f.user_id = $1",
+		"select id, dealer_id, title, username, category_id from active_deals_view d join favorite_deals f on d.id = f.deal_id where f.user_id = $1",
 		userId,
 	)
 	if err != nil {
@@ -327,7 +327,7 @@ func GetFavoriteDealerDealHeaders(userId string) ([]model.DealHeader, error) {
 
 	err := persistence.DB.Select(
 		&header,
-		"select id, d.dealer_id, title, username from active_deals_view d join favorite_dealers f on d.dealer_id = f.dealer_id where user_id = $1",
+		"select id, d.dealer_id, title, username, category_id from active_deals_view d join favorite_dealers f on d.dealer_id = f.dealer_id where user_id = $1",
 		userId,
 	)
 	if err != nil {

@@ -140,10 +140,11 @@ type DealView struct {
 }
 
 type DealHeader struct {
-	ID       uuid.UUID
-	DealerId uuid.UUID `db:"dealer_id"`
-	Title    string
-	Username string
+	ID         uuid.UUID
+	DealerId   uuid.UUID `db:"dealer_id"`
+	Title      string
+	Username   string
+	CategoryId int `db:"category_id"`
 }
 
 type DealDetails struct {
