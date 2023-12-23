@@ -20,6 +20,11 @@ templ DealerRatingList(ratings []model.DealerRating, dealerId string, alreadyRat
 				</div>
 			}
 		}
+		if len(ratings) == 0 && isOwner {
+			<div class="flex w-full flex-col pt-4 text-center">
+				<span>Leider hast du noch keine Bewertung bekommen 😕</span>
+			</div>
+		}
 		if len(ratings) > 0 {
 			<div class="m-2 flex items-baseline justify-end gap-3">
 				Gesamtbewertung:

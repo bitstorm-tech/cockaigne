@@ -4,181 +4,182 @@ import "github.com/bitstorm-tech/cockaigne/internal/model"
 import "strconv"
 
 templ DealEdit(deal model.Deal) {
-	<form
- 		class="flex flex-col gap-4 p-4"
- 		hx-post="/api/deals"
- 		hx-target="#alert"
- 		enctype="multipart/form-data"
- 		x-data="data"
-	>
-		// ------------------
-		//   Title
-		// ------------------
-		<div class="form-control">
-			<label for="title">Titel</label>
-			<input id="title" type="text" name="title"/>
-		</div>
-		//   <!------------------>
-		//   <!-- Description  -->
-		//   <!------------------>
-		<div class="form-control">
-			<label for="description">Beschreibung</label>
-			<textarea id="description" class="h-32" rows="10" name="description"></textarea>
-		</div>
-		//   <!------------------------->
-		//   <!-- Category selection  -->
-		//   <!------------------------->
-		<div class="form-control">
-			<label for="category-select">Kategorie</label>
-			<div
- 				id="category-select"
- 				hx-get={ "/ui/category-select?name=Kategorie&selected=" + strconv.Itoa(deal.CategoryId) }
- 				hx-trigger="load once"
- 				hx-target="this"
-			></div>
-		</div>
-		//   <!------------------->
-		//   <!-- Add pictures  -->
-		//   <!------------------->
-		<span class="label-text">
-			Bilder hinzufügen
-			<span class="text-xs">(optional)</span>
-			:
-		</span>
-		<div class="grid grid-cols-3 gap-2">
-			<div>
-				<button
- 					x-show="!imagePreviewUrls[0]"
- 					@click.prevent="$refs.fileInput0.click()"
- 					class="btn-outline btn-primary h-24 w-full"
-				>
-					+
-				</button>
-				<img
- 					x-show="imagePreviewUrls[0]"
- 					:src="imagePreviewUrls[0]"
- 					@click="remove($refs.fileInput0, 0)"
- 					class="h-24 w-full object-cover"
- 					alt="Deal image 1"
-				/>
-				<input x-ref="fileInput0" type="file" hidden @change="add($event, 0)" name="images"/>
+	@BaseLayout() {
+		<form
+ 			class="flex flex-col gap-4 p-4"
+ 			hx-post="/api/deals"
+ 			hx-target="#alert"
+ 			enctype="multipart/form-data"
+ 			x-data="data"
+		>
+			// ------------------
+			//   Title
+			// ------------------
+			<div class="form-control">
+				<label for="title">Titel</label>
+				<input id="title" type="text" name="title"/>
 			</div>
-			<div>
-				<button
- 					x-show="!imagePreviewUrls[1]"
- 					@click.prevent="$refs.fileInput1.click()"
- 					class="btn-outline btn-primary h-24 w-full"
-				>
-					+
-				</button>
-				<img
- 					x-show="imagePreviewUrls[1]"
- 					:src="imagePreviewUrls[1]"
- 					@click="remove($refs.fileInput1, 1)"
- 					class="h-24 w-full object-cover"
- 					alt="Deal image 1"
-				/>
-				<input x-ref="fileInput1" type="file" hidden @change="add($event, 1)" name="images"/>
+			//   <!------------------>
+			//   <!-- Description  -->
+			//   <!------------------>
+			<div class="form-control">
+				<label for="description">Beschreibung</label>
+				<textarea id="description" class="h-32" rows="10" name="description"></textarea>
 			</div>
-			<div>
-				<button
- 					x-show="!imagePreviewUrls[2]"
- 					@click.prevent="$refs.fileInput2.click()"
- 					class="btn-outline btn-primary h-24 w-full"
-				>
-					+
-				</button>
-				<img
- 					x-show="imagePreviewUrls[2]"
- 					:src="imagePreviewUrls[2]"
- 					@click="remove($refs.fileInput2, 2)"
- 					class="h-24 w-full object-cover"
- 					alt="Deal image 1"
-				/>
-				<input x-ref="fileInput2" type="file" hidden @change="add($event, 2)" name="images"/>
+			//   <!------------------------->
+			//   <!-- Category selection  -->
+			//   <!------------------------->
+			<div class="form-control">
+				<label for="category-select">Kategorie</label>
+				<div
+ 					id="category-select"
+ 					hx-get={ "/ui/category-select?name=Kategorie&selected=" + strconv.Itoa(deal.CategoryId) }
+ 					hx-trigger="load once"
+ 					hx-target="this"
+				></div>
 			</div>
-		</div>
-		//   <!--------------------------------------------------------------------------->
-		//   <!-- Switch between start date or start instatnly and end date or runtime  -->
-		//   <!--------------------------------------------------------------------------->
-		<div class="flex gap-6">
-			<div class="form-control-horizontal">
-				<input id="start-immediately" type="checkbox" class="checkbox" name="startInstantly" x-model="startInstantly"/>
-				<label for="start-immediately" class="cursor-pointer">Sofort starten</label>
-			</div>
-			<div class="form-control-horizontal">
-				<input id="runtime" type="checkbox" class="checkbox" name="ownEndDate" x-model="ownEndDate"/>
-				<label for="runtime" class="cursor-pointer">Individuelle Laufzeit</label>
-			</div>
-		</div>
-		//   <!------------------------------------>
-		//   <!-- Start date or start instatnly  -->
-		//   <!------------------------------------>
-		<div class="form-control" x-show="!startInstantly">
-			<label for="start-date-input">Start</label>
-			<input
- 				id="start-date-input"
- 				type="datetime-local"
- 				name="startDate"
- 				value={ deal.Start.Format("2006-01-02T15:04") }
-			/>
-		</div>
-		<div class="py-6 text-sm" x-show="startInstantly">
-			<span>Dein Deal startet sofort, wenn du auf "Erstellen" klickst!</span>
-		</div>
-		//   <!----------------------------------------->
-		//   <!-- End date or runtime 1, 2 or 3 days  -->
-		//   <!----------------------------------------->
-		<div class="flex select-none gap-4">
-			<div class="form-control w-full" x-show="ownEndDate">
-				<label for="duration-input">Ende</label>
-				<input id="duration-input" type="date" name="endDate"/>
-			</div>
-			<div class="form-control w-full py-3" x-show="!ownEndDate">
-				<label for="duration" class="text-sm">Laufzeit</label>
-				<div class="flex items-center gap-2">
-					<span x-text="runtime"></span>
-					<span>Tag(e)</span>
-					<input id="duration" name="duration" type="range" min="1" max="10" step="1" x-model="runtime"/>
+			//   <!------------------->
+			//   <!-- Add pictures  -->
+			//   <!------------------->
+			<span class="label-text">
+				Bilder hinzufügen
+				<span class="text-xs">(optional)</span>
+				:
+			</span>
+			<div class="grid grid-cols-3 gap-2">
+				<div>
+					<button
+ 						x-show="!imagePreviewUrls[0]"
+ 						@click.prevent="$refs.fileInput0.click()"
+ 						class="btn-outline btn-primary h-24 w-full"
+					>
+						+
+					</button>
+					<img
+ 						x-show="imagePreviewUrls[0]"
+ 						:src="imagePreviewUrls[0]"
+ 						@click="remove($refs.fileInput0, 0)"
+ 						class="h-24 w-full object-cover"
+ 						alt="Deal image 1"
+					/>
+					<input x-ref="fileInput0" type="file" hidden @change="add($event, 0)" name="images"/>
+				</div>
+				<div>
+					<button
+ 						x-show="!imagePreviewUrls[1]"
+ 						@click.prevent="$refs.fileInput1.click()"
+ 						class="btn-outline btn-primary h-24 w-full"
+					>
+						+
+					</button>
+					<img
+ 						x-show="imagePreviewUrls[1]"
+ 						:src="imagePreviewUrls[1]"
+ 						@click="remove($refs.fileInput1, 1)"
+ 						class="h-24 w-full object-cover"
+ 						alt="Deal image 1"
+					/>
+					<input x-ref="fileInput1" type="file" hidden @change="add($event, 1)" name="images"/>
+				</div>
+				<div>
+					<button
+ 						x-show="!imagePreviewUrls[2]"
+ 						@click.prevent="$refs.fileInput2.click()"
+ 						class="btn-outline btn-primary h-24 w-full"
+					>
+						+
+					</button>
+					<img
+ 						x-show="imagePreviewUrls[2]"
+ 						:src="imagePreviewUrls[2]"
+ 						@click="remove($refs.fileInput2, 2)"
+ 						class="h-24 w-full object-cover"
+ 						alt="Deal image 1"
+					/>
+					<input x-ref="fileInput2" type="file" hidden @change="add($event, 2)" name="images"/>
 				</div>
 			</div>
-		</div>
-		//   <!------------------------------------>
-		//   <!-- Save additionally as template  -->
-		//   <!------------------------------------>
-		<div class="form-control-horizontal pt-10">
-			<input id="template" type="checkbox" class="checkbox" name="template"/>
-			<label for="template">Zusätzlich als Vorlage speichern</label>
-		</div>
-		//   <!--------------------->
-		//   <!-- Save and cancel -->
-		//   <!--------------------->
-		<div class="grid grid-cols-2 gap-2">
-			<button>Erstellen</button>
-			<a href="/" class="btn btn-primary">Abrechen</a>
-		</div>
-	</form>
-	<div id="alert"></div>
-	<script>
-  const data = {
-    startInstantly: false,
-    ownEndDate: false,
-    runtime: 1,
-    imagePreviewUrls: [null, null, null],
-    add: function (event, index) {
-      const file = event.target.files[0];
+			//   <!--------------------------------------------------------------------------->
+			//   <!-- Switch between start date or start instatnly and end date or runtime  -->
+			//   <!--------------------------------------------------------------------------->
+			<div class="flex gap-6">
+				<div class="form-control-horizontal">
+					<input id="start-immediately" type="checkbox" class="checkbox" name="startInstantly" x-model="startInstantly"/>
+					<label for="start-immediately" class="cursor-pointer">Sofort starten</label>
+				</div>
+				<div class="form-control-horizontal">
+					<input id="runtime" type="checkbox" class="checkbox" name="ownEndDate" x-model="ownEndDate"/>
+					<label for="runtime" class="cursor-pointer">Individuelle Laufzeit</label>
+				</div>
+			</div>
+			//   <!------------------------------------>
+			//   <!-- Start date or start instatnly  -->
+			//   <!------------------------------------>
+			<div class="form-control" x-show="!startInstantly">
+				<label for="start-date-input">Start</label>
+				<input
+ 					id="start-date-input"
+ 					type="datetime-local"
+ 					name="startDate"
+ 					value={ deal.Start.Format("2006-01-02T15:04") }
+				/>
+			</div>
+			<div class="py-6 text-sm" x-show="startInstantly">
+				<span>Dein Deal startet sofort, wenn du auf "Erstellen" klickst!</span>
+			</div>
+			//   <!----------------------------------------->
+			//   <!-- End date or runtime 1, 2 or 3 days  -->
+			//   <!----------------------------------------->
+			<div class="flex select-none gap-4">
+				<div class="form-control w-full" x-show="ownEndDate">
+					<label for="duration-input">Ende</label>
+					<input id="duration-input" type="date" name="endDate"/>
+				</div>
+				<div class="form-control w-full py-3" x-show="!ownEndDate">
+					<label for="duration" class="text-sm">Laufzeit</label>
+					<div class="flex items-center gap-2">
+						<span x-text="runtime"></span>
+						<span>Tag(e)</span>
+						<input id="duration" name="duration" type="range" min="1" max="10" step="1" x-model="runtime"/>
+					</div>
+				</div>
+			</div>
+			//   <!------------------------------------>
+			//   <!-- Save additionally as template  -->
+			//   <!------------------------------------>
+			<div class="form-control-horizontal pt-10">
+				<input id="template" type="checkbox" class="checkbox" name="template"/>
+				<label for="template">Zusätzlich als Vorlage speichern</label>
+			</div>
+			//   <!--------------------->
+			//   <!-- Save and cancel -->
+			//   <!--------------------->
+			<div class="grid grid-cols-2 gap-2">
+				<button>Erstellen</button>
+				<a href="/" class="btn btn-primary">Abrechen</a>
+			</div>
+		</form>
+		<script>
+			const data = {
+				startInstantly: false,
+				ownEndDate: false,
+				runtime: 1,
+				imagePreviewUrls: [null, null, null],
+				add: function (event, index) {
+				const file = event.target.files[0];
 
-      if (!file) {
-        return;
-      }
+				if (!file) {
+					return;
+				}
 
-      const URL = window.URL || window.webkitURL;
-      this.imagePreviewUrls[index] = URL.createObjectURL(file);
-    },
-    remove: function (input, index) {
-      this.imagePreviewUrls[index] = null;
-      input.value = null;
-    }
-  };
-</script>
+				const URL = window.URL || window.webkitURL;
+				this.imagePreviewUrls[index] = URL.createObjectURL(file);
+				},
+				remove: function (input, index) {
+				this.imagePreviewUrls[index] = null;
+				input.value = null;
+				}
+			};
+		</script>
+	}
 }
