@@ -2,6 +2,7 @@ package view
 
 import "github.com/bitstorm-tech/cockaigne/internal/model"
 import "strconv"
+import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
 
 templ Dealer(acc model.Account, category string, isOwner bool, googleMapsLink string) {
 	@BaseLayout() {
@@ -70,7 +71,9 @@ templ dealerHeader(acc model.Account, category string, isOwner bool, googleMapsL
 	if isOwner {
 		<div class="absolute right-0 top-36">
 			<div class="flex items-center gap-4">
-				<a class="btn btn-warning rounded-l-full rounded-r-none" href="/deal/new">Neuer Deal</a>
+				<a class="btn btn-warning rounded-l-full rounded-r-none w-24" href="/deal/new">
+					@icon.NewDeal()
+				</a>
 			</div>
 		</div>
 	} else {
