@@ -36,7 +36,7 @@ templ DealsList(dealHeaders []model.DealHeader, onDealerPage bool, isDealer bool
 						} else {
 							<div
  								hx-get={ "/deal-favorite-button/" + header.ID.String() }
- 								hx-trigger="intersect once"
+ 								hx-trigger="load once"
  								hx-target="this"
  								hx-swap="outerHTML"
 							></div>
@@ -47,7 +47,7 @@ templ DealsList(dealHeaders []model.DealHeader, onDealerPage bool, isDealer bool
  					class="flex flex-col justify-between bg-[#323e42] p-2"
  					hx-get={ "/deal-details/" + header.ID.String() }
  					hx-target={ "#details-footer-" + header.ID.String() }
- 					hx-trigger="intersect once"
+ 					hx-trigger="load once"
  					hx-swap="outerHTML"
  					x-show={ fmt.Sprintf("openDetailsId === '%s'", header.ID) }
 				>

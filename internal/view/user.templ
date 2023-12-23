@@ -33,7 +33,7 @@ templ UserHeader(id string, username string, street string, houseNumber string, 
 			<div class="-mt-6 mr-16 flex flex-col">
 				<div class="avatar z-40 cursor-pointer">
 					<div class="h-24 w-24 rounded-full bg-base-100 ring-2 ring-[#556368]">
-						<div hx-get={ "/profile-image/" + id } hx-target="this" hx-trigger="intersect once"></div>
+						<div hx-get={ "/profile-image/" + id } hx-target="this" hx-trigger="load once"></div>
 					</div>
 				</div>
 			</div>

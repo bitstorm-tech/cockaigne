@@ -51,7 +51,7 @@ templ dealerRatingListItem(rating model.DealerRating) {
 		<div class="flex items-center justify-between border-y border-base-300 bg-[#232b2e] py-2 pl-24 pr-4">
 			<div class="absolute left-4 pt-6 avatar z-50 cursor-pointer">
 				<div class="rounded-full bg-base-100 ring-2 ring-[#556368] w-14 h-14">
-					<div hx-get={ "/profile-image/" + rating.UserId.String() } hx-target="this" hx-trigger="intersect once"></div>
+					<div hx-get={ "/profile-image/" + rating.UserId.String() } hx-target="this" hx-trigger="load once"></div>
 				</div>
 			</div>
 			<div class="flex gap-2 text-sm">
