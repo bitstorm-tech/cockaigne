@@ -113,10 +113,16 @@ func getDeal(c echo.Context) error {
 func getCategorySelect(c echo.Context) error {
 	categories := service.GetCategories()
 	name := c.QueryParam("name")
-	selected, err := strconv.Atoi(c.QueryParam("selected"))
-	if err != nil {
-		c.Logger().Errorf("can't parse selected category: %v", err)
-		selected = 0
+	selectedParam := c.QueryParam("selected")
+
+	selected := -1
+	var err error
+	if len(selectedParam) > 0 {
+		selected, err = strconv.Atoi(c.QueryParam("selected"))
+		if err != nil {
+			c.Logger().Errorf("can't parse selected category: %v", err)
+			selected = -1
+		}
 	}
 
 	return view.Render(view.CategorySelect(name, categories, selected), c)

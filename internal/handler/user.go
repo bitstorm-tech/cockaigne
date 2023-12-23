@@ -8,17 +8,19 @@ import (
 )
 
 func RegisterUserHandlers(e *echo.Echo) {
-	e.GET("/user", func(c echo.Context) error {
-		userId, err := service.ParseUserId(c)
-		if err != nil {
-			return redirect.Login(c)
-		}
+	e.GET("/user", getUser)
+}
 
-		acc, err := service.GetAccount(userId.String())
-		if err != nil {
-			c.Logger().Errorf("can't get account: %v", err)
-		}
+func getUser(c echo.Context) error {
+	userId, err := service.ParseUserId(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
 
-		return view.Render(view.User(acc.Username, "Josef-Frankl-Str.", "31A", "80995", "München", "12"), c)
-	})
+	acc, err := service.GetAccount(userId.String())
+	if err != nil {
+		c.Logger().Errorf("can't get account: %v", err)
+	}
+
+	return view.Render(view.User(acc.ID.String(), acc.Username, "Josef-Frankl-Str.", "31A", "80995", "München", "12"), c)
 }

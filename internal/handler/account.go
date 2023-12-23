@@ -6,11 +6,26 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/service"
 	"github.com/bitstorm-tech/cockaigne/internal/view"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 func RegisterAccountHandlers(e *echo.Echo) {
+	e.GET("/profile-image/:accountId", getProfileImage)
 	e.POST("/api/accounts/filter", updateFilter)
 	e.POST("/api/accounts/use-location-service", updateUseLocationService)
+}
+
+func getProfileImage(c echo.Context) error {
+	accountId := c.Param("accountId")
+	isDealer := c.QueryParam("dealer") == "true"
+
+	imageUrl, err := service.GetProfileImage(accountId)
+	if err != nil {
+		zap.L().Sugar().Errorf("can't get profile image for account '%s': %v", accountId, err)
+		return view.Render(view.ProfileImage("", isDealer), c)
+	}
+
+	return view.Render(view.ProfileImage(imageUrl, isDealer), c)
 }
 
 func updateFilter(c echo.Context) error {

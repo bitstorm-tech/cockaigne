@@ -1,6 +1,6 @@
 package view
 
-templ UserHeader(username string, street string, houseNumber string, zip string, city string, numberOfDeals string) {
+templ UserHeader(id string, username string, street string, houseNumber string, zip string, city string, numberOfDeals string) {
 	<div class="flex h-52 justify-between">
 		<div class="flex w-full justify-between">
 			<div class="m-4 flex flex-col gap-4">
@@ -33,7 +33,7 @@ templ UserHeader(username string, street string, houseNumber string, zip string,
 			<div class="-mt-6 mr-16 flex flex-col">
 				<div class="avatar z-40 cursor-pointer">
 					<div class="h-24 w-24 rounded-full bg-base-100 ring-2 ring-[#556368]">
-						<img src="/static/images/default-profile-user.svg" alt="Profile"/>
+						<div hx-get={ "/profile-image/" + id } hx-target="this" hx-trigger="intersect once"></div>
 					</div>
 				</div>
 			</div>
@@ -41,9 +41,9 @@ templ UserHeader(username string, street string, houseNumber string, zip string,
 	</div>
 }
 
-templ User(username string, street string, houseNumber string, zip string, city string, numberOfDeals string) {
+templ User(id string, username string, street string, houseNumber string, zip string, city string, numberOfDeals string) {
 	@BaseLayout() {
-		@UserHeader(username, street, houseNumber, zip, city, numberOfDeals)
+		@UserHeader(id, username, street, houseNumber, zip, city, numberOfDeals)
 		<div x-data="{selectedTab: 0}">
 			<div class="tabs tabs-bordered" x-cloak>
 				<div

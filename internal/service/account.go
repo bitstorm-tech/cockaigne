@@ -153,3 +153,12 @@ func UpdateLocation(userId string, location model.Point) error {
 	_, err := persistence.DB.Exec("update accounts set location = $1 where id = $2", location.ToWkt(), userId)
 	return err
 }
+
+func GetProfileImage(accountId string) (string, error) {
+	imageUrl, err := persistence.GetImageUrl(persistence.ProfileImagesFolder + "/" + accountId)
+	if err != nil {
+		return "", err
+	}
+
+	return imageUrl, nil
+}

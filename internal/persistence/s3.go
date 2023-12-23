@@ -18,8 +18,9 @@ import (
 var Bucket = os.Getenv("DO_SPACES_BUCKET")
 var BaseUrl = os.Getenv("DO_SPACES_BASE_URL")
 var S3 *s3.Client
-var DealerFolder = "dealer"
-var DealsFolder = "deals"
+var DealerImagesFolder = "dealer-images"
+var DealImagesFolder = "deal-images"
+var ProfileImagesFolder = "profile-images"
 
 func InitS3() {
 	key := os.Getenv("DO_SPACES_KEY")
@@ -88,6 +89,23 @@ func GetImageUrls(path string) ([]string, error) {
 	}
 
 	return imageUrls, nil
+}
+
+func GetImageUrl(path string) (string, error) {
+	imageUrls, err := GetImageUrls(path)
+	if err != nil {
+		return "", err
+	}
+
+	if len(imageUrls) > 1 {
+		zap.L().Sugar().Error("got more then one profile image URL (use first one)")
+	}
+
+	if len(imageUrls) == 0 {
+		return "", nil
+	}
+
+	return imageUrls[0], nil
 }
 
 func DeleteImage(path string) error {

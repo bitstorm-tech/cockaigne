@@ -290,13 +290,13 @@ func GetTemplates(dealerId string) ([]model.Deal, error) {
 func UploadDealImage(image *multipart.FileHeader, dealId string, prefix string) error {
 	tokens := strings.Split(image.Filename, ".")
 	fileExtension := tokens[len(tokens)-1]
-	path := fmt.Sprintf("%s/%s/%s%d.%s", persistence.DealsFolder, dealId, prefix, time.Now().UnixMilli(), fileExtension)
+	path := fmt.Sprintf("%s/%s/%s%d.%s", persistence.DealImagesFolder, dealId, prefix, time.Now().UnixMilli(), fileExtension)
 
 	return persistence.UploadImage(path, image)
 }
 
 func GetDealImageUrls(dealId string) ([]string, error) {
-	path := fmt.Sprintf("%s/%s", persistence.DealsFolder, dealId)
+	path := fmt.Sprintf("%s/%s", persistence.DealImagesFolder, dealId)
 
 	return persistence.GetImageUrls(path)
 }

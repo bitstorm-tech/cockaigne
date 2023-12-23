@@ -59,7 +59,7 @@ templ dealerHeader(acc model.Account, category string, isOwner bool, googleMapsL
 		<div class="-mt-6 mr-16 flex flex-col items-center gap-2">
 			<div class="avatar z-40 cursor-pointer">
 				<div class="h-24 w-24 rounded-full bg-base-100 ring-2 ring-[#556368]">
-					<img src="/static/images/default-profile-dealer.svg" alt="Profile"/>
+					<div hx-get={ "/profile-image/" + acc.ID.String() + "?dealer=true" } hx-target="this" hx-trigger="intersect once"></div>
 				</div>
 			</div>
 		</div>

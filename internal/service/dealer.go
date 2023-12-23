@@ -14,7 +14,7 @@ import (
 func SaveDealerImage(dealerId string, image *multipart.FileHeader) (string, error) {
 	tokens := strings.Split(image.Filename, ".")
 	fileExtension := tokens[len(tokens)-1]
-	path := fmt.Sprintf("%s/%s/%d.%s", persistence.DealerFolder, dealerId, time.Now().UnixMilli(), fileExtension)
+	path := fmt.Sprintf("%s/%s/%d.%s", persistence.DealerImagesFolder, dealerId, time.Now().UnixMilli(), fileExtension)
 	err := persistence.UploadImage(path, image)
 	if err != nil {
 		return "", err
@@ -26,7 +26,7 @@ func SaveDealerImage(dealerId string, image *multipart.FileHeader) (string, erro
 }
 
 func GetDealerImageUrls(dealerId string) ([]string, error) {
-	imageUrls, err := persistence.GetImageUrls(persistence.DealerFolder + "/" + dealerId)
+	imageUrls, err := persistence.GetImageUrls(persistence.DealerImagesFolder + "/" + dealerId)
 	if err != nil {
 		return []string{}, err
 	}
