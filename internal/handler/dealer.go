@@ -140,7 +140,7 @@ func getDealerImages(c echo.Context) error {
 		c.Logger().Errorf("can't get dealer image urls: %v", err)
 	}
 
-	isOwner := len(imageUrls) > 0 && strings.Contains(imageUrls[0], userId.String())
+	isOwner := dealerId == userId.String()
 
 	return view.Render(view.DealerImages(imageUrls, isOwner, dealerId), c)
 }
