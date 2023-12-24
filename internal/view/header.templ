@@ -32,7 +32,7 @@ templ Header(isAuthenticated bool, isDealer bool) {
 		// Mobile menu
 		//---------------
 		<div
- 			class="absolute right-2 top-10 z-50 select-none rounded-md bg-[#232b2e] md:hidden"
+ 			class="absolute right-2 top-10 z-50 select-none rounded-md border-2 border-[#232b2e] bg-dark md:hidden"
  			x-transition.duration.300ms
  			x-show="showMenu"
  			@click.outside="showMenu = false"
