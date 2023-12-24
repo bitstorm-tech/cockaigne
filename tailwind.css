@@ -7,6 +7,16 @@
     @apply bg-dark text-[#a6adba];
   }
 
+  h1 {
+    @apply text-3xl;
+    @apply my-4;
+  }
+
+  h2 {
+    @apply text-xl;
+    @apply my-3;
+  }
+
   button {
     @apply btn btn-warning focus:outline-none;
   }
