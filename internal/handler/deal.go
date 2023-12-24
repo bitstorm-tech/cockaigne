@@ -28,7 +28,7 @@ func RegisterDealHandlers(e *echo.Echo) {
 	e.GET("/deal-image-zoom-modal/:dealId", getImageZoomModal)
 	e.GET("/dealer-favorites-list", getFavoriteDealerDeals)
 	e.POST("/deal-report/:id", saveReport)
-	e.POST("/api/deals", saveDeal)
+	e.POST("/deals", saveDeal)
 	e.DELETE("/deal-favorite-remove/:id", removeFavorite)
 }
 
@@ -162,7 +162,7 @@ func saveDeal(c echo.Context) error {
 		}
 	}
 
-	c.Set("HX-Redirect", "/")
+	c.Response().Header().Set("HX-Redirect", "/")
 
 	return nil
 }

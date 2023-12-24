@@ -7,7 +7,7 @@ templ DealEdit(deal model.Deal) {
 	@BaseLayout() {
 		<form
  			class="flex flex-col gap-4 p-4"
- 			hx-post="/api/deals"
+ 			hx-post="/deals"
  			hx-target="#alert"
  			enctype="multipart/form-data"
  			x-data="data"
