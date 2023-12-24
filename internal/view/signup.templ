@@ -1,8 +1,9 @@
 package view
 
-templ Register() {
+templ Signup() {
 	@BaseLayout() {
-		<form class="flex flex-col gap-4 p-4" hx-post="/api/signup" hx-target="#alert" x-data="{isDealer: false}">
+		<form class="flex flex-col gap-4 p-6" hx-post="/api/signup" hx-target="#alert" x-data="{isDealer: false}">
+			<h1 class="text-center">Registrieren</h1>
 			<div class="form-control-horizontal">
 				<input id="dealer" type="checkbox" checked="checked" class="checkbox" name="isDealer" x-model="isDealer"/>
 				<label for="dealer" class="cursor-pointer">Ich bin ein Dealer</label>
@@ -59,7 +60,7 @@ templ Register() {
 					<input id="tax-id" type="text" name="taxId"/>
 				</div>
 			</div>
-			<div class="mt-4 flex justify-center gap-2">
+			<div class="mt-4 grid grid-cols-2 gap-2">
 				<button>Registrieren</button>
 				<a class="btn btn-primary" href="/">Abbrechen</a>
 			</div>
