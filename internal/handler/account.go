@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/redirect"
 	"github.com/bitstorm-tech/cockaigne/internal/service"
@@ -11,8 +13,34 @@ import (
 
 func RegisterAccountHandlers(e *echo.Echo) {
 	e.GET("/profile-image/:accountId", getProfileImage)
+	e.GET("/settings", openSettings)
+	e.GET("/settings-user-common", getUserCommonsSettings)
+	e.GET("/settings-user-profile-image", getUserProfileImageSettings)
 	e.POST("/api/accounts/filter", updateFilter)
 	e.POST("/api/accounts/use-location-service", updateUseLocationService)
+}
+
+func getUserProfileImageSettings(c echo.Context) error {
+	return view.Render(view.ProfileImageUserSettings(), c)
+}
+
+func getUserCommonsSettings(c echo.Context) error {
+	userId, err := service.ParseUserId(c)
+	if err != nil {
+		c.Redirect(http.StatusTemporaryRedirect, "/login")
+	}
+
+	acc, err := service.GetAccount(userId.String())
+	if err != nil {
+		zap.L().Sugar().Errorf("can't get user account by id '%s': %v", userId, err)
+		return view.RenderAlert("Deine Einstellungen konnten gerade nicht geladen werden, bitte versuche es später nochmal.", c)
+	}
+
+	return view.Render(view.CommonUserSettings(acc.Username, acc.Email), c)
+}
+
+func openSettings(c echo.Context) error {
+	return view.Render(view.Settings(), c)
 }
 
 func getProfileImage(c echo.Context) error {

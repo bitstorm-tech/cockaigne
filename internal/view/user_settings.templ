@@ -1,0 +1,54 @@
+package view
+
+templ Settings() {
+	@BaseLayout() {
+		<div class="p-4" x-data="{selectedTab: 0}">
+			<div class="tabs tabs-bordered" x-cloak>
+				<div
+ 					hx-get="/settings-user-common"
+ 					hx-target="#content"
+ 					hx-trigger="click"
+ 					class="tab"
+ 					:class="selectedTab === 0 ? 'tab-active' : ''"
+ 					@click="selectedTab = 0"
+				>
+					Allgemein
+				</div>
+				<div
+ 					hx-get="/settings-user-profile-image"
+ 					hx-target="#content"
+ 					hx-trigger="click"
+ 					class="tab"
+ 					:class="selectedTab === 1 ? 'tab-active' : ''"
+ 					@click="selectedTab = 1"
+				>
+					Profilbild
+				</div>
+			</div>
+			<div id="content" class="pt-8" hx-trigger="load once" hx-get="/settings-user-common"></div>
+		</div>
+	}
+}
+
+templ CommonUserSettings(username string, email string) {
+	<form class="flex flex-col gap-4" hx-post="/settings">
+		<div class="form-control">
+			<label for="username">Benutzername</label>
+			<input id="username" type="text" name="username" value={ username }/>
+		</div>
+		<div class="form-control">
+			<label for="email">Benutzername</label>
+			<input id="email" type="email" value={ email } disabled/>
+		</div>
+		<button @click.prevent class="btn btn-primary">E-Mail ändern</button>
+		<button class="btn btn-primary">Password ändern</button>
+		<div class="grid grid-cols-2 gap-4">
+			<button>Speichern</button>
+			<a class="btn btn-primary" href="/">Abbrechen</a>
+		</div>
+	</form>
+}
+
+templ ProfileImageUserSettings() {
+	<h1>Profile Image</h1>
+}
