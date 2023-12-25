@@ -2,6 +2,8 @@ package service
 
 import (
 	"fmt"
+	"mime/multipart"
+	"strings"
 
 	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
@@ -180,4 +182,29 @@ func UsernameExists(username string) bool {
 	}
 
 	return exists
+}
+
+func SaveProfileImage(accountId string, image *multipart.FileHeader) (string, error) {
+	tokens := strings.Split(image.Filename, ".")
+	fileExtension := tokens[len(tokens)-1]
+	path := fmt.Sprintf("%s/%s.%s", persistence.ProfileImagesFolder, accountId, fileExtension)
+	err := persistence.UploadImage(path, image)
+	if err != nil {
+		return "", err
+	}
+
+	imageUrl := persistence.S3BaseUrl + "/" + path
+
+	return imageUrl, nil
+}
+
+func DeleteProfileImage(accountId string) error {
+	path, err := persistence.GetImageUrl(fmt.Sprintf("%s/%s", persistence.ProfileImagesFolder, accountId))
+	if err != nil {
+		return err
+	}
+
+	path = strings.ReplaceAll(path, persistence.S3BaseUrl+"/", "")
+
+	return persistence.DeleteImage(path)
 }

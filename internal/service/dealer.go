@@ -20,7 +20,7 @@ func SaveDealerImage(dealerId string, image *multipart.FileHeader) (string, erro
 		return "", err
 	}
 
-	imageUrl := persistence.BaseUrl + "/" + path
+	imageUrl := persistence.S3BaseUrl + "/" + path
 
 	return imageUrl, nil
 }
@@ -35,7 +35,7 @@ func GetDealerImageUrls(dealerId string) ([]string, error) {
 }
 
 func DeleteDealerImage(imageUrl string) error {
-	path := strings.Replace(imageUrl, persistence.BaseUrl+"/", "", -1)
+	path := strings.Replace(imageUrl, persistence.S3BaseUrl+"/", "", -1)
 	return persistence.DeleteImage(path)
 }
 

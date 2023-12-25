@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/bitstorm-tech/cockaigne/internal/model"
@@ -15,10 +16,43 @@ func RegisterAccountHandlers(e *echo.Echo) {
 	e.GET("/profile-image/:accountId", getProfileImage)
 	e.GET("/settings", openSettings)
 	e.GET("/settings-user-common", getUserCommonsSettings)
-	e.GET("/settings-user-profile-image", getUserProfileImageSettings)
+	e.GET("/settings-profile-image", getProfileImageSettings)
 	e.POST("/settings", updateAccount)
+	e.POST("/profile-image-update", updateProfileImage)
 	e.POST("/api/accounts/filter", updateFilter)
 	e.POST("/api/accounts/use-location-service", updateUseLocationService)
+}
+
+func updateProfileImage(c echo.Context) error {
+	userId, err := service.ParseUserId(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	deleteImage := c.FormValue("delete-image") == "true"
+	if deleteImage {
+		err := service.DeleteProfileImage(userId.String())
+		if err != nil {
+			return view.RenderAlert("Profilbild kann nicht gelöscht werden, bitte versuche es später noch einmal.", c)
+		}
+	}
+
+	file, err := c.FormFile("profile-image")
+	if err != nil && !errors.Is(err, http.ErrMissingFile) {
+		zap.L().Sugar().Error("can't get image from request ", err)
+		return view.RenderAlert("Profilbild kann nicht gespeichert werden, bitte versuche es später noch einmal.", c)
+
+	}
+
+	if file != nil && !deleteImage {
+		_, err = service.SaveProfileImage(userId.String(), file)
+		if err != nil {
+			zap.L().Sugar().Error("can't save profile image: ", err)
+			return view.RenderAlert("Profilbild kann nicht gespeichert werden, bitte versuche es später noch einmal.", c)
+		}
+	}
+
+	return view.RenderToast("Profilbild erfolgreich geändert", c)
 }
 
 func updateAccount(c echo.Context) error {
@@ -43,8 +77,19 @@ func updateAccount(c echo.Context) error {
 	return view.RenderToast("Benutzername erfolgreich geändert", c)
 }
 
-func getUserProfileImageSettings(c echo.Context) error {
-	return view.Render(view.ProfileImageUserSettings(), c)
+func getProfileImageSettings(c echo.Context) error {
+	user, err := service.ParseUser(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	imageUrl, err := service.GetProfileImage(user.ID.String())
+	if err != nil {
+		zap.L().Sugar().Errorf("can't get profile image of user '%s': %v", user.ID, err)
+		return view.RenderAlert("Kann Profilbild nicht laden, bitte versuche es später nochmal.", c)
+	}
+
+	return view.Render(view.ProfileImageSettings(imageUrl, user.IsDealer), c)
 }
 
 func getUserCommonsSettings(c echo.Context) error {
