@@ -16,8 +16,31 @@ func RegisterAccountHandlers(e *echo.Echo) {
 	e.GET("/settings", openSettings)
 	e.GET("/settings-user-common", getUserCommonsSettings)
 	e.GET("/settings-user-profile-image", getUserProfileImageSettings)
+	e.POST("/settings", updateAccount)
 	e.POST("/api/accounts/filter", updateFilter)
 	e.POST("/api/accounts/use-location-service", updateUseLocationService)
+}
+
+func updateAccount(c echo.Context) error {
+	username := c.FormValue("username")
+	usernameExists := service.UsernameExists(username)
+
+	if usernameExists {
+		return view.RenderAlert("Der Benutzername ist leider schon vergeben.", c)
+	}
+
+	userId, err := service.ParseUserId(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	err = service.UpdateUsername(userId.String(), username)
+	if err != nil {
+		zap.L().Sugar().Error("can't update username: ", err)
+		return view.RenderAlert("Dein Account kann moment nicht geändert werden, bitte versuche es später nochmal.", c)
+	}
+
+	return view.RenderToast("Benutzername erfolgreich geändert", c)
 }
 
 func getUserProfileImageSettings(c echo.Context) error {

@@ -10,3 +10,8 @@ import (
 func Render(t templ.Component, c echo.Context) error {
 	return t.Render(context.TODO(), c.Response().Writer)
 }
+
+func RenderToTarget(t templ.Component, c echo.Context, target string) error {
+	c.Response().Header().Set("HX-Retarget", target)
+	return t.Render(context.TODO(), c.Response().Writer)
+}

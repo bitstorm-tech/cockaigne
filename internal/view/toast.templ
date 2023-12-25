@@ -1,0 +1,15 @@
+package view
+
+import "github.com/labstack/echo/v4"
+
+templ Toast(message string) {
+	<div id="toast" class="toast toast-center bottom-14" hx-delete="/ui/remove" hx-target="closest #toast" hx-swap="outerHTML" hx-trigger="load delay:2s">
+		<div class="alert alert-success">
+			<span>{ message }</span>
+		</div>
+	</div>
+}
+
+func RenderToast(message string, c echo.Context) error {
+	return RenderToTarget(Toast(message), c, "#toast")
+}

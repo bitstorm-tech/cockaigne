@@ -31,7 +31,7 @@ templ Settings() {
 }
 
 templ CommonUserSettings(username string, email string) {
-	<form class="flex flex-col gap-4" hx-post="/settings">
+	<form class="flex flex-col gap-4" hx-post="/settings" hx-target="closest #content">
 		<div class="form-control">
 			<label for="username">Benutzername</label>
 			<input id="username" type="text" name="username" value={ username }/>
@@ -40,8 +40,8 @@ templ CommonUserSettings(username string, email string) {
 			<label for="email">Benutzername</label>
 			<input id="email" type="email" value={ email } disabled/>
 		</div>
-		<button @click.prevent class="btn btn-primary">E-Mail ändern</button>
-		<button class="btn btn-primary">Password ändern</button>
+		<button type="button" class="btn btn-primary">E-Mail ändern</button>
+		<button type="button" class="btn btn-primary">Password ändern</button>
 		<div class="grid grid-cols-2 gap-4">
 			<button>Speichern</button>
 			<a class="btn btn-primary" href="/">Abbrechen</a>

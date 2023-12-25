@@ -154,6 +154,11 @@ func UpdateLocation(userId string, location model.Point) error {
 	return err
 }
 
+func UpdateUsername(userId string, username string) error {
+	_, err := persistence.DB.Exec("update accounts set username = $1 where id = $2", username, userId)
+	return err
+}
+
 func GetProfileImage(accountId string) (string, error) {
 	imageUrl, err := persistence.GetImageUrl(persistence.ProfileImagesFolder + "/" + accountId)
 	if err != nil {
@@ -161,4 +166,18 @@ func GetProfileImage(accountId string) (string, error) {
 	}
 
 	return imageUrl, nil
+}
+
+func UsernameExists(username string) bool {
+	exists := true
+	err := persistence.DB.Get(
+		&exists,
+		"select exists (select * from accounts where username ilike $1)",
+		username,
+	)
+	if err != nil {
+		zap.L().Sugar().Errorf("can't check if username '%s' already exists: %v", username, err)
+	}
+
+	return exists
 }

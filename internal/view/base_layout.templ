@@ -9,15 +9,13 @@ templ BaseLayout() {
 			<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"/>
 			<link rel="icon" href="/static/favicon.svg"/>
 			<link rel="stylesheet" href="/static/app.css"/>
-			<link
- 				rel="stylesheet"
- 				href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
- 				integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
- 				crossorigin=""
-			/>
-			<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-			<script src="https://unpkg.com/htmx.org@1.9.9"></script>
-			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+			// Leaflet
+			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9/dist/leaflet.min.css"/>
+			<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9/dist/leaflet.min.js"></script>
+			// htmx
+			<script src="https://cdn.jsdelivr.net/npm/htmx.org@1.9/dist/htmx.min.js" integrity="sha256-s73PXHQYl6U2SLEgf/8EaaDWGQFCm6H26I+Y69hOZp4=" crossorigin="anonymous"></script>
+			// alpinejs
+			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13/dist/cdn.min.js" integrity="sha256-yPqP9Fer3NIS83oH7y8pLJmQEd/6vKpXf7Hh4Adsplg=" crossorigin="anonymous"></script>
 			<script src="/static/js/geo.js"></script>
 			<title>Cockaigne City</title>
 		</head>
@@ -27,6 +25,7 @@ templ BaseLayout() {
 				{ children... }
 			</main>
 			<div id="alert"></div>
+			<div id="toast"></div>
 			<div hx-get="/ui/footer" hx-swap="outerHTML" hx-trigger="load"></div>
 		</body>
 	</html>
