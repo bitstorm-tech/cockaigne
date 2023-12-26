@@ -10,7 +10,12 @@ import (
 
 func RegisterSystemHandler(e *echo.Echo) {
 	e.GET("/contact", getContactPage)
+	e.GET("/basic-vs-pro", getBasicVsProPage)
 	e.POST("/contact", saveContactMessage)
+}
+
+func getBasicVsProPage(c echo.Context) error {
+	return view.Render(view.BasicVsPro(), c)
 }
 
 func saveContactMessage(c echo.Context) error {
