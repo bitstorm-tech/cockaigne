@@ -2,9 +2,12 @@ package view
 
 templ Contact() {
 	@BaseLayout() {
-		<form class="flex flex-col gap-6 p-4" hx-post="/contact" x-data="{message: ''}">
+		<form class="flex flex-col gap-6 p-6" hx-post="/contact" x-data="{message: ''}">
 			<span>
 				Hast du Fragen, Anmerkungen oder Lob? Oder willst du sonst etwas los werden? Schreib uns gerne eine Narchricht!
+			</span>
+			<span class="text-xs">
+				Auch wenn wir uns riesig über jedes Feedback freuen, kannst du uns nur alle 5 Minuten eine neue Nachricht schicken.
 			</span>
 			<div class="form-control">
 				<label for="message" x-text="`Nachricht (${message.length} / 1000)`"></label>

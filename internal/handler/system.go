@@ -19,6 +19,15 @@ func saveContactMessage(c echo.Context) error {
 		return redirect.Login(c)
 	}
 
+	lastMessageYoungerThen5Minutes, err := service.IsLastContactMessageYoungerThen5Minutes(userId.String())
+	if err != nil {
+		zap.L().Sugar().Error("can't check if last message is younger then 5 minutes: ", err)
+	}
+
+	if lastMessageYoungerThen5Minutes {
+		return view.RenderAlert("Du kannst uns nur alle 5 Minuten eine neue Nachricht schreiben, bitte versuche es später noch einmal.", c)
+	}
+
 	message := c.FormValue("message")
 	err = service.SaveContactMessage(userId.String(), message)
 	if err != nil {

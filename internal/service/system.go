@@ -15,3 +15,17 @@ func SaveContactMessage(accountId string, message string) error {
 
 	return err
 }
+
+func IsLastContactMessageYoungerThen5Minutes(accountId string) (bool, error) {
+	messageYoungerThen5Minutes := true
+	err := persistence.DB.Get(
+		&messageYoungerThen5Minutes,
+		"select exists (select * from contact_messages where account_id = $1 and created >= (now() - interval '5 minutes'))",
+		accountId,
+	)
+	if err != nil {
+		return true, err
+	}
+
+	return messageYoungerThen5Minutes, nil
+}
