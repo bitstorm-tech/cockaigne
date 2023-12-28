@@ -1,0 +1,162 @@
+package view
+
+templ Pricing(hasActiveSubscription bool, activeVouchers []string) {
+	@BaseLayout() {
+		<section class="flex flex-col items-center gap-4 p-4" x-data="{tabIndex: 0}">
+			<h1>Preise & Abos</h1>
+			if hasActiveSubscription {
+				<h2 class="text-red">Du hast bereits ein aktives Abo!</h2>
+			}
+			<div class="join">
+				<input class="join-item btn" type="radio" name="options" aria-label="Basic" checked @click="tabIndex = 0"/>
+				<input class="join-item btn" type="radio" name="options" aria-label="Monatsabo" @click="tabIndex = 1"/>
+				<input class="join-item btn" type="radio" name="options" aria-label="Jahresabbo" @click="tabIndex = 2"/>
+			</div>
+			<i class="px-4 text-center text-sm" :class="{'invisible': tabIndex === 0}">
+				Spare weitere 10% beim Abschluss eines Jahresabos!
+			</i>
+			// -------------------------------------
+			// Basic
+			// -------------------------------------
+			<template x-if="tabIndex === 0">
+				@basicPlanCard("Basic", "4,99 € / Deal") {
+					<ul>
+						<li class="list-disc">
+							<div class="flex items-baseline gap-2">
+								Zahle pro Tagesdeal  
+								<div class="text-xs">(24 Std. Laufzeit)</div>
+							</div>
+						</li>
+						<li class="list-disc">Kein Abo / keine Grundgebühr</li>
+					</ul>
+				}
+			</template>
+			<div class="w-full" hx-get="/active-vouchers-card" hx-target="this" hx-trigger="load" x-show="tabIndex === 0"></div>
+			// -------------------------------------
+			// Montly plan
+			// -------------------------------------
+			<template x-if="tabIndex === 1">
+				@planCard("Starter", "99,90 € / Monat", hasActiveSubscription, "") {
+					<ul>
+						<li class="list-disc">30 kostenlose Tagesdeals pro Monat</li>
+						<li class="list-disc">Preisvorteil von ~33% je Deal</li>
+						<li class="list-disc">Monatlich kündbar</li>
+					</ul>
+				}
+			</template>
+			<template x-if="tabIndex === 1">
+				@planCard("Exclusive", "249,90 € / Monat", hasActiveSubscription, "") {
+					<ul>
+						<li class="list-disc">90 kostenlose Tagesdeals pro Monat</li>
+						<li class="list-disc">Preisvorteil von ~44% je Deal</li>
+						<li class="list-disc">Einfache Statistikabfragen (coming soon)</li>
+						<li class="list-disc">Monatlich kündbar</li>
+					</ul>
+				}
+			</template>
+			<template x-if="tabIndex === 1">
+				@planCard("Premium", "349,90 € / Monat", hasActiveSubscription, "") {
+					<ul>
+						<li class="list-disc">300 kostenlose Tagesdeals pro Monat</li>
+						<li class="list-disc">Preisvorteil von ~76% je Deal</li>
+						<li class="list-disc">Erweiterte Statistikabfragen (coming soon)</li>
+						<li class="list-disc">Monatlich kündbar</li>
+					</ul>
+				}
+			</template>
+			// -------------------------------------
+			// Yearly plan
+			// -------------------------------------
+			<template x-if="tabIndex === 2">
+				@planCard("Starter", "1.099,90 € / Jahr", hasActiveSubscription, "") {
+					<ul>
+						<li class="list-disc">30 kostenlose Tagesdeals pro Monat</li>
+						<li class="list-disc">Preisvorteil von ~39% je Deal</li>
+						<li class="list-disc">Kündbar zum Aboende</li>
+					</ul>
+				}
+			</template>
+			<template x-if="tabIndex === 2">
+				@planCard("Exclusive", "2.699,90 € / Jahr", hasActiveSubscription, "") {
+					<ul>
+						<li class="list-disc">90 kostenlose Tagesdeals pro Monat</li>
+						<li class="list-disc">Preisvorteil von ~50% je Deal</li>
+						<li class="list-disc">Einfache Statistikabfragen (coming soon)</li>
+						<li class="list-disc">Kündbar zum Aboende</li>
+					</ul>
+				}
+			</template>
+			<template x-if="tabIndex === 2">
+				@planCard("Premium", "3.799,90 € / Jahr", hasActiveSubscription, "") {
+					<ul>
+						<li class="list-disc">300 kostenlose Tagesdeals pro Monat</li>
+						<li class="list-disc">Preisvorteil von ~79% je Deal</li>
+						<li class="list-disc">Erweiterte Statistikabfragen (coming soon)</li>
+						<li class="list-disc">Kündbar zum Aboende</li>
+					</ul>
+				}
+			</template>
+		</section>
+	}
+}
+
+templ planCard(title string, price string, hasActiveSubscription bool, planId string) {
+	@card() {
+		@cardHeader(title, price)
+		{ children... }
+		@cardFooter() {
+			if hasActiveSubscription {
+				<span>Du hast bereits ein aktives Abo!</span>
+			} else {
+				<button>Abo abschließen</button>
+			}
+		}
+	}
+}
+
+templ basicPlanCard(title string, price string) {
+	@card() {
+		@cardHeader(title, price)
+		{ children... }
+	}
+}
+
+templ VoucherCard(activeVouchers []string) {
+	@card() {
+		@cardHeader("Gutscheine", "")
+		if len(activeVouchers) > 0 {
+			<div class="text-sm">Bereits eingelöste Gutscheine:</div>
+			<ul class="text-xs">
+				for _, voucher := range activeVouchers {
+					<li>{ voucher }</li>
+					//   <li>{voucher.code} - noch {calculateVoucherValidDays(voucher)} Tag(e) gültig</li>
+				}
+			</ul>
+		}
+		<input id="voucher-code" type="text" class="text-100"/>
+		@cardFooter() {
+			<button type="button" class="btn btn-warning">Einlösen</button>
+		}
+	}
+}
+
+templ card() {
+	<form class="card w-full text-100 shadow-xl bg-neutral">
+		<div class="card-body gap-6">
+			{ children... }
+		</div>
+	</form>
+}
+
+templ cardHeader(title string, price string) {
+	<span class="card-title w-full justify-between">
+		<span>{ title }</span>
+		<span class="text-sm">{ price }</span>
+	</span>
+}
+
+templ cardFooter() {
+	<div class="card-actions justify-end">
+		{ children... }
+	</div>
+}

@@ -11,7 +11,17 @@ import (
 func RegisterSystemHandler(e *echo.Echo) {
 	e.GET("/contact", getContactPage)
 	e.GET("/basic-vs-pro", getBasicVsProPage)
+	e.GET("/pricing", getPricingPage)
+	e.GET("/active-vouchers-card", getActiveVouchers)
 	e.POST("/contact", saveContactMessage)
+}
+
+func getActiveVouchers(c echo.Context) error {
+	return view.Render(view.VoucherCard([]string{"a", "b", "c"}), c)
+}
+
+func getPricingPage(c echo.Context) error {
+	return view.Render(view.Pricing(false, []string{}), c)
 }
 
 func getBasicVsProPage(c echo.Context) error {
