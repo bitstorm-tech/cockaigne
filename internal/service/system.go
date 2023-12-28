@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 
+	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 )
 
@@ -28,4 +29,18 @@ func IsLastContactMessageYoungerThen5Minutes(accountId string) (bool, error) {
 	}
 
 	return messageYoungerThen5Minutes, nil
+}
+
+func GetActiveVouchers(accountId string) ([]model.ActiveVoucher, error) {
+	var activeVouchers []model.ActiveVoucher
+	err := persistence.DB.Select(
+		&activeVouchers,
+		"select * from active_vouchers_view where account_id = $1",
+		accountId,
+	)
+	if err != nil {
+		return []model.ActiveVoucher{}, err
+	}
+
+	return activeVouchers, nil
 }

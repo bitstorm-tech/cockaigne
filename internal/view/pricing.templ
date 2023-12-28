@@ -1,5 +1,7 @@
 package view
 
+import "github.com/bitstorm-tech/cockaigne/internal/model"
+
 templ Pricing(hasActiveSubscription bool, activeVouchers []string) {
 	@BaseLayout() {
 		<section class="flex flex-col items-center gap-4 p-4" x-data="{tabIndex: 0}">
@@ -7,7 +9,7 @@ templ Pricing(hasActiveSubscription bool, activeVouchers []string) {
 			if hasActiveSubscription {
 				<h2 class="text-red">Du hast bereits ein aktives Abo!</h2>
 			}
-			<div class="join">
+			<div class="join grid grid-cols-3 w-full">
 				<input class="join-item btn" type="radio" name="options" aria-label="Basic" checked @click="tabIndex = 0"/>
 				<input class="join-item btn" type="radio" name="options" aria-label="Monatsabo" @click="tabIndex = 1"/>
 				<input class="join-item btn" type="radio" name="options" aria-label="Jahresabbo" @click="tabIndex = 2"/>
@@ -121,19 +123,24 @@ templ basicPlanCard(title string, price string) {
 	}
 }
 
-templ VoucherCard(activeVouchers []string) {
+templ VoucherCard(activeVouchers []model.ActiveVoucher, err bool) {
 	@card() {
 		@cardHeader("Gutscheine", "")
 		if len(activeVouchers) > 0 {
 			<div class="text-sm">Bereits eingelöste Gutscheine:</div>
 			<ul class="text-xs">
 				for _, voucher := range activeVouchers {
-					<li>{ voucher }</li>
-					//   <li>{voucher.code} - noch {calculateVoucherValidDays(voucher)} Tag(e) gültig</li>
+					<li>{ voucher.Code } - noch { calculateVoucherValidDays(voucher) } Tag(e) gültig</li>
 				}
 			</ul>
 		}
-		<input id="voucher-code" type="text" class="text-100"/>
+		if err {
+			<i class="text-red-500">Kann aktive Gutscheine momentan nicht anzeigen, bitte versuche es später nochmal.</i>
+		}
+		<div class="form-control">
+			<label for="voucher-code">Gutscheincode</label>
+			<input id="voucher-code" type="text" class="text-100"/>
+		</div>
 		@cardFooter() {
 			<button type="button" class="btn btn-warning">Einlösen</button>
 		}
@@ -159,4 +166,8 @@ templ cardFooter() {
 	<div class="card-actions justify-end">
 		{ children... }
 	</div>
+}
+
+func calculateVoucherValidDays(voucher model.ActiveVoucher) string {
+	return "5"
 }

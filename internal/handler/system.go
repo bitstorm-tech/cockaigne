@@ -17,7 +17,17 @@ func RegisterSystemHandler(e *echo.Echo) {
 }
 
 func getActiveVouchers(c echo.Context) error {
-	return view.Render(view.VoucherCard([]string{"a", "b", "c"}), c)
+	userId, err := service.ParseUserId(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	activeVouchers, err := service.GetActiveVouchers(userId.String())
+	if err != nil {
+		zap.L().Sugar().Errorf("can't get active vouchers for user '%s': %v", userId, err)
+	}
+
+	return view.Render(view.VoucherCard(activeVouchers, err != nil), c)
 }
 
 func getPricingPage(c echo.Context) error {

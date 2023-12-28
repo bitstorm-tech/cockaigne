@@ -164,7 +164,7 @@ create table
 
 create table
   activated_vouchers (
-    user_id uuid not null references accounts (id) on delete restrict on update cascade,
+    account_id uuid not null references accounts (id) on delete restrict on update cascade,
     voucher_code text not null references vouchers (code) on delete restrict on update cascade,
     activated timestamptz not null default now(),
     constraint "activated_vouchers_pk" unique (user_id, voucher_code)
@@ -431,7 +431,7 @@ group by
 create or replace view
   active_vouchers_view as
 select
-  av.user_id,
+  av.account_id,
   av.activated,
   v.code,
   v.start,
