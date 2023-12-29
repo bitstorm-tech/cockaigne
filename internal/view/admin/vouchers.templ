@@ -19,7 +19,7 @@ templ Vouchers(vouchers []model.Voucher, err bool) {
 							<th>Kommentar</th>
 							<th>Start</th>
 							<th>Ende</th>
-							<th>Dauer (in Tagen)</th>
+							<th>Rabatt (in %)</th>
 							<th>Aktiv</th>
 							<th>Mehrfachnutzung</th>
 						</tr>
@@ -29,15 +29,9 @@ templ Vouchers(vouchers []model.Voucher, err bool) {
 							<tr class="hover">
 								<td>{ voucher.Code }</td>
 								<td>{ voucher.Comment }</td>
-								<td>
-									@date(voucher.Start)
-								</td>
-								<td>
-									@date(voucher.End)
-								</td>
-								<td>
-									@duration(voucher.DurationInDays)
-								</td>
+								<td>{ voucher.Start.Format("01.02.2006") }</td>
+								<td>{ voucher.End.Format("01.02.2006") }</td>
+								<td>{ fmt.Sprintf("%d", voucher.DiscountInPercent) }</td>
 								<td>
 									@checkbox(voucher.IsActive)
 								</td>

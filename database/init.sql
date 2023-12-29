@@ -150,9 +150,9 @@ create table
 create table
   vouchers (
     code text not null primary key,
-    start date null,
-    "end" date null,
-    duration_in_days integer null,
+    discount_in_percent int not null,
+    start date not null,
+    "end" date not null,
     is_active bool not null,
     multi_use bool not null,
     comment text not null,
@@ -162,11 +162,11 @@ create table
 
 
 create table
-  activated_vouchers (
+  redeemed_vouchers (
     account_id uuid not null references accounts (id) on delete restrict on update cascade,
     voucher_code text not null references vouchers (code) on delete restrict on update cascade,
-    activated timestamptz not null default now(),
-    constraint "activated_vouchers_pk" unique (account_id, voucher_code)
+    redeemed_at timestamptz not null default now(),
+    constraint "redeemed_vouchers_pk" unique (account_id, voucher_code)
   );
 
 
@@ -430,21 +430,18 @@ group by
 create or replace view
   active_vouchers_view as
 select
-  av.account_id,
-  av.activated,
+  rv.account_id,
+  rv.redeemed_at,
   v.code,
   v.start,
   v."end",
-  v.duration_in_days
+  v.discount_in_percent
 from
   vouchers v
-  join activated_vouchers av on v.code = av.voucher_code
+  join redeemed_vouchers rv on v.code = rv.voucher_code
 where
   v.is_active
-  and (now() between v."start" and v."end")
-  or (
-    now() between v."start" and v."start"  + (v.duration_in_days || ' days')::interval
-  );
+  and now() between v."start" and v."end";
 
 
 
