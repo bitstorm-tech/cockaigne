@@ -1,0 +1,74 @@
+package adminview
+
+templ VoucherCreate() {
+	@BaseLayout() {
+		<div class="flex flex-col p-6">
+			<h1>Gutschein erstellen</h1>
+			<form
+ 				hx-post="/admin-voucher"
+ 				class="flex flex-col gap-4"
+ 				x-data="{showDuration: true, startWhenEnter: false, start: new Date().toISOString().split('T')[0], end: new Date().toISOString().split('T')[0]}"
+			>
+				<div class="form-control">
+					<label for="code" class="select-none pl-2 text-xs">Gutschein-Code</label>
+					<input id="code" type="text" name="code"/>
+				</div>
+				<div class="flex flex-col gap-2">
+					<label for="comment" class="select-none pl-2 text-xs">Kommentar</label>
+					<input id="comment" type="text" name="comment"/>
+				</div>
+				<div class="grid grid-cols-2 gap-2">
+					<template x-if="!startWhenEnter">
+						<div class="flex flex-col gap-2">
+							<label for="start" class="select-none pl-2 text-xs">Start</label>
+							<input type="date" name="start" id="start" x-model="start"/>
+						</div>
+					</template>
+					<template x-if="startWhenEnter">
+						<div class="flex flex-col gap-2">
+							<label class="select-none pl-2 text-xs">Start</label>
+							<span class="flex h-full items-center">Sobald der Gutschein eingegeben wird</span>
+						</div>
+					</template>
+					<div>
+						<template x-if="!showDuration">
+							<div class="flex flex-col gap-2">
+								<label for="end" class="select-none pl-2 text-xs">Ende</label>
+								<input type="date" name="end" id="end" x-model="end"/>
+							</div>
+						</template>
+						<template x-if="showDuration">
+							<div class="flex flex-col gap-2">
+								<label for="duration" class="select-none pl-2 text-xs">Dauer in Tagen</label>
+								<input type="number" name="durationInDays" id="duration"/>
+							</div>
+						</template>
+					</div>
+				</div>
+				<div class="flex items-center gap-2">
+					<input
+ 						type="checkbox"
+ 						class="checkbox"
+ 						name="startWhenEnter"
+ 						id="start-when-enter"
+ 						@click="startWhenEnter = !startWhenEnter"
+					/>
+					<label for="start-when-enter" class="select-none">Beginnt nach Eingabbe</label>
+				</div>
+				<div class="flex items-center gap-2">
+					<input type="checkbox" class="checkbox" id="use-duration" checked @click="showDuration = !showDuration"/>
+					<label for="use-duration" class="select-none">Verwende Dauer</label>
+				</div>
+				<div class="flex items-center gap-2">
+					<input type="checkbox" class="checkbox" name="isActive" id="active" checked/>
+					<label for="active" class="select-none">Aktiv (kann verwendet werden)</label>
+				</div>
+				<div class="flex items-center gap-2">
+					<input type="checkbox" class="checkbox" name="multiUse" id="multi-use"/>
+					<label for="multi-use" class="select-none">Kann mehr als einmal aktiviert werden (von verschiedenen Dealern)</label>
+				</div>
+				<button>Gutschein erstellen</button>
+			</form>
+		</div>
+	}
+}

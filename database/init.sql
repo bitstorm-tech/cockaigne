@@ -149,9 +149,8 @@ create table
 
 create table
   vouchers (
-    id integer primary key,
-    code text not null unique,
-    start date not null,
+    code text not null primary key,
+    start date null,
     "end" date null,
     duration_in_days integer null,
     is_active bool not null,
@@ -167,7 +166,7 @@ create table
     account_id uuid not null references accounts (id) on delete restrict on update cascade,
     voucher_code text not null references vouchers (code) on delete restrict on update cascade,
     activated timestamptz not null default now(),
-    constraint "activated_vouchers_pk" unique (user_id, voucher_code)
+    constraint "activated_vouchers_pk" unique (account_id, voucher_code)
   );
 
 

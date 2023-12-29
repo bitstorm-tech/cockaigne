@@ -10,11 +10,12 @@ import (
 type Voucher struct {
 	Code           string
 	Comment        string
-	Start          sql.NullString
-	End            sql.NullString
-	DurationInDays int  `db:"duration_in_days"`
-	IsActive       bool `db:"is_active"`
-	MultiUse       bool `db:"multi_use"`
+	Start          sql.NullTime
+	End            sql.NullTime
+	DurationInDays sql.NullInt32 `db:"duration_in_days"`
+	IsActive       bool          `db:"is_active"`
+	MultiUse       bool          `db:"multi_use"`
+	Created        time.Time
 }
 
 type ActiveVoucher struct {

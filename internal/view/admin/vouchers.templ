@@ -1,0 +1,78 @@
+package adminview
+
+import "github.com/bitstorm-tech/cockaigne/internal/model"
+import "database/sql"
+import "fmt"
+
+templ Vouchers(vouchers []model.Voucher, err bool) {
+	@BaseLayout() {
+		<div class="p-6">
+			<h1>Liste aller Gutscheine</h1>
+			if err {
+				<i class="text-red-500">Fehler beim laden der Gutscheine!</i>
+			}
+			<div class="overflow-x-auto">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Code</th>
+							<th>Kommentar</th>
+							<th>Start</th>
+							<th>Ende</th>
+							<th>Dauer (in Tagen)</th>
+							<th>Aktiv</th>
+							<th>Mehrfachnutzung</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, voucher := range vouchers {
+							<tr>
+								<td>{ voucher.Code }</td>
+								<td>{ voucher.Comment }</td>
+								<td>
+									@date(voucher.Start)
+								</td>
+								<td>
+									@date(voucher.End)
+								</td>
+								<td>
+									@duration(voucher.DurationInDays)
+								</td>
+								<td>
+									@checkbox(voucher.IsActive)
+								</td>
+								<td>
+									@checkbox(voucher.MultiUse)
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	}
+}
+
+templ checkbox(checked bool) {
+	if checked {
+		✅
+	} else {
+		❌
+	}
+}
+
+templ date(date sql.NullTime) {
+	if date.Valid {
+		{ date.Time.Format("01.02.2006") }
+	} else {
+		n/a
+	}
+}
+
+templ duration(duration sql.NullInt32) {
+	if duration.Valid {
+		{ fmt.Sprintf("%d", duration.Int32) }
+	} else {
+		n/a
+	}
+}

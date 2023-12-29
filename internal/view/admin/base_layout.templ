@@ -1,0 +1,75 @@
+package adminview
+
+import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
+
+templ BaseLayout() {
+	<!DOCTYPE html>
+	<html lang="en" data-theme="dark">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"/>
+			<link rel="icon" href="/static/favicon.svg"/>
+			<link rel="stylesheet" href="/static/app.css"/>
+			// htmx
+			<script src="https://cdn.jsdelivr.net/npm/htmx.org@1.9/dist/htmx.min.js" integrity="sha256-s73PXHQYl6U2SLEgf/8EaaDWGQFCm6H26I+Y69hOZp4=" crossorigin="anonymous"></script>
+			// alpinejs
+			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13/dist/cdn.min.js" integrity="sha256-yPqP9Fer3NIS83oH7y8pLJmQEd/6vKpXf7Hh4Adsplg=" crossorigin="anonymous"></script>
+			<title>Cockaigne Admin</title>
+		</head>
+		<body>
+			<div hx-get="/admin-header" hx-swap="outerHTML" hx-trigger="load"></div>
+			<main>
+				{ children... }
+			</main>
+			<div id="alert"></div>
+			<div id="toast"></div>
+		</body>
+	</html>
+}
+
+templ Header() {
+	<nav id="header" class="h-12 border-b border-b-white border-opacity-25" x-data="{showMenu: false}">
+		<div class="px-4 sm:px-6 lg:px-8">
+			<div class="flex h-12 items-center justify-between">
+				<div class="flex gap-1">
+					<a href="/"><img class="h-7" src="/static/images/logo-text.svg" alt="Logo"/></a>
+					<b class="text-xl text-red-600">Admin Center</b>
+				</div>
+				<div class="hidden gap-2 md:flex">
+					<a class="menu-item" href="/admin-vouchers">Gutscheine</a>
+					<span>||</span>
+					<a class="menu-item" href="/admin-voucher-create">Gutschein erstellen</a>
+					<span>||</span>
+					<a class="menu-item" href="/admin-logout">Abmelden</a>
+				</div>
+				<div class="flex select-none md:hidden" @click="showMenu = !showMenu">
+					<div class="h-8 w-8 cursor-pointer text-[#69828c]">
+						<span class="sr-only">Open main menu</span>
+						<div x-show="showMenu === true">
+							@icon.Close()
+						</div>
+						<div x-show="showMenu === false">
+							@icon.Menu()
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		// --------------
+		// Mobile menu
+		//---------------
+		<div
+ 			class="absolute right-2 top-10 z-50 select-none rounded-md border-2 border-[#232b2e] bg-dark md:hidden"
+ 			x-transition.duration.300ms
+ 			x-show="showMenu"
+ 			@click.outside="showMenu = false"
+		>
+			<div class="flex flex-col gap-5 p-6 sm:px-3 ">
+				<a class="flex justify-start items-center gap-4" href="/admin-vouchers">Gutscheine</a>
+				<a class="flex justify-start items-center gap-4" href="/admin-voucher-create">Gutschein erstellen</a>
+				<a class="flex justify-start items-center gap-4" href="/admin-logout">Abmelden</a>
+			</div>
+		</div>
+	</nav>
+}
