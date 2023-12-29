@@ -34,13 +34,13 @@ templ Header() {
 			<div class="flex h-12 items-center justify-between">
 				<div class="flex gap-1">
 					<a href="/"><img class="h-7" src="/static/images/logo-text.svg" alt="Logo"/></a>
-					<b class="text-xl text-red-600">Admin Center</b>
+					<i class="text-xl text-red-600">Admin Center</i>
 				</div>
 				<div class="hidden gap-2 md:flex">
 					<a class="menu-item" href="/admin-vouchers">Gutscheine</a>
-					<span>||</span>
+					<span>/</span>
 					<a class="menu-item" href="/admin-voucher-create">Gutschein erstellen</a>
-					<span>||</span>
+					<span>/</span>
 					<a class="menu-item" href="/admin-logout">Abmelden</a>
 				</div>
 				<div class="flex select-none md:hidden" @click="showMenu = !showMenu">

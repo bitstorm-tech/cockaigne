@@ -26,7 +26,7 @@ templ Vouchers(vouchers []model.Voucher, err bool) {
 					</thead>
 					<tbody>
 						for _, voucher := range vouchers {
-							<tr>
+							<tr class="hover">
 								<td>{ voucher.Code }</td>
 								<td>{ voucher.Comment }</td>
 								<td>
