@@ -19,7 +19,6 @@ type Voucher struct {
 
 type ActiveVoucher struct {
 	AccountId         uuid.UUID `db:"account_id"`
-	Activated         bool
 	Code              string
 	Start             time.Time
 	End               time.Time
@@ -27,7 +26,7 @@ type ActiveVoucher struct {
 }
 
 type RedeemedVoucher struct {
-	AccountId   uuid.UUID `db:"account_id"`
-	VoucherCode string    `db:"voucher_code"`
-	RedeemedAt  time.Time `db:"redeemed_at"`
+	AccountId  uuid.UUID `db:"account_id"`
+	Code       string
+	RedeemedAt time.Time `db:"redeemed_at"`
 }

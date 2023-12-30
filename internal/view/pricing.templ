@@ -1,6 +1,8 @@
 package view
 
 import "github.com/bitstorm-tech/cockaigne/internal/model"
+import "fmt"
+import "time"
 
 templ Pricing(hasActiveSubscription bool, activeVouchers []string) {
 	@BaseLayout() {
@@ -103,7 +105,7 @@ templ Pricing(hasActiveSubscription bool, activeVouchers []string) {
 }
 
 templ planCard(title string, price string, hasActiveSubscription bool, planId string) {
-	@card() {
+	@card("plan-" + planId) {
 		@cardHeader(title, price)
 		{ children... }
 		@cardFooter() {
@@ -117,38 +119,40 @@ templ planCard(title string, price string, hasActiveSubscription bool, planId st
 }
 
 templ basicPlanCard(title string, price string) {
-	@card() {
+	@card("basic-plan") {
 		@cardHeader(title, price)
 		{ children... }
 	}
 }
 
 templ VoucherCard(activeVouchers []model.ActiveVoucher, err bool) {
-	@card() {
+	@card("voucher") {
 		@cardHeader("Gutscheine", "")
 		if len(activeVouchers) > 0 {
-			<div class="text-sm">Bereits eingelöste Gutscheine:</div>
-			<ul class="text-xs">
-				for _, voucher := range activeVouchers {
-					<li>{ voucher.Code } - noch { calculateVoucherValidDays(voucher) } Tag(e) gültig</li>
-				}
-			</ul>
+			<div>
+				<div class="text-sm pb-2">Bereits eingelöste Gutscheine:</div>
+				<ul class="text-xs">
+					for _, voucher := range activeVouchers {
+						<li>{ redeemedVoucherInfo(voucher) }</li>
+					}
+				</ul>
+			</div>
 		}
 		if err {
 			<i class="text-red-500">Kann aktive Gutscheine momentan nicht anzeigen, bitte versuche es später nochmal.</i>
 		}
 		<div class="form-control">
 			<label for="voucher-code">Gutscheincode</label>
-			<input id="voucher-code" type="text" class="text-100"/>
+			<input id="voucher-code" name="voucher-code" type="text" class="text-100"/>
 		</div>
 		@cardFooter() {
-			<button type="button" class="btn btn-warning">Einlösen</button>
+			<button hx-post="/voucher-redeem" hx-target="#voucher" hx-swap="outerHTML" class="btn btn-warning">Einlösen</button>
 		}
 	}
 }
 
-templ card() {
-	<form class="card w-full text-100 shadow-xl bg-neutral">
+templ card(id string) {
+	<form id={ id } class="card w-full text-100 shadow-xl bg-neutral">
 		<div class="card-body gap-6">
 			{ children... }
 		</div>
@@ -168,6 +172,14 @@ templ cardFooter() {
 	</div>
 }
 
-func calculateVoucherValidDays(voucher model.ActiveVoucher) string {
-	return "5"
+func redeemedVoucherInfo(voucher model.ActiveVoucher) string {
+	prefix := fmt.Sprintf("%s (%d%%) -", voucher.Code, voucher.DiscountInPercent)
+	now := time.Now()
+	daysLeft := int(voucher.End.Sub(now).Hours() / 24)
+
+	if daysLeft > 0 {
+		return fmt.Sprintf("%s noch %d Tag(e) gültig", prefix, daysLeft)
+	}
+
+	return prefix + " abgelaufen"
 }

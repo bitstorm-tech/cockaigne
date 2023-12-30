@@ -164,9 +164,9 @@ create table
 create table
   redeemed_vouchers (
     account_id uuid not null references accounts (id) on delete restrict on update cascade,
-    voucher_code text not null references vouchers (code) on delete restrict on update cascade,
+    code text not null references vouchers (code) on delete restrict on update cascade,
     redeemed_at timestamptz not null default now(),
-    constraint "redeemed_vouchers_pk" unique (account_id, voucher_code)
+    constraint "redeemed_vouchers_pk" unique (account_id, code)
   );
 
 
@@ -431,14 +431,13 @@ create or replace view
   active_vouchers_view as
 select
   rv.account_id,
-  rv.redeemed_at,
   v.code,
   v.start,
   v."end",
   v.discount_in_percent
 from
   vouchers v
-  join redeemed_vouchers rv on v.code = rv.voucher_code
+  join redeemed_vouchers rv on v.code = rv.code
 where
   v.is_active
   and now() between v."start" and v."end";

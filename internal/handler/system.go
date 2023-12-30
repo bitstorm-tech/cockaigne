@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"errors"
+
 	"github.com/bitstorm-tech/cockaigne/internal/redirect"
 	"github.com/bitstorm-tech/cockaigne/internal/service"
 	"github.com/bitstorm-tech/cockaigne/internal/view"
@@ -14,6 +16,31 @@ func RegisterSystemHandler(e *echo.Echo) {
 	e.GET("/pricing", getPricingPage)
 	e.GET("/active-vouchers-card", getActiveVouchers)
 	e.POST("/contact", saveContactMessage)
+	e.POST("/voucher-redeem", redeemVoucher)
+}
+
+func redeemVoucher(c echo.Context) error {
+	userId, err := service.ParseUserId(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	voucherCode := c.FormValue("voucher-code")
+	err = service.RedeemVoucher(userId.String(), voucherCode)
+	if err != nil {
+		if !errors.Is(err, service.ErrVoucherAlreadyRedeemed) &&
+			!errors.Is(err, service.ErrVoucherNotActive) &&
+			!errors.Is(err, service.ErrVoucherCannotBeRedeemed) {
+			zap.L().Sugar().Errorf("can't redeem voucher '%s': %v", voucherCode, err)
+		} else {
+			zap.L().Sugar().Infof("can't redeem voucher '%s': %s", voucherCode, err)
+		}
+		return view.RenderAlert("Gutschein konnte nicht eingelöst werden. Er ist entweder nicht mehr gültig, wurde schon eingelöst oder existiert nicht.", c)
+	}
+
+	activeVouchers, err := service.GetActiveVouchers(userId.String())
+
+	return view.Render(view.VoucherCard(activeVouchers, err != nil), c)
 }
 
 func getActiveVouchers(c echo.Context) error {

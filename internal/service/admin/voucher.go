@@ -7,7 +7,7 @@ import (
 
 func CreateVoucher(voucher model.Voucher) error {
 	_, err := persistence.DB.Exec(
-		"insert into vouchers (code, start, \"end\", discount_in_percent, is_active, multi_use, comment) values ($1, $2, $3, $4, $5, $6, $7)",
+		`insert into vouchers (code, start, "end", discount_in_percent, is_active, multi_use, comment) values ($1, $2, $3, $4, $5, $6, $7)`,
 		voucher.Code,
 		voucher.Start,
 		voucher.End,
