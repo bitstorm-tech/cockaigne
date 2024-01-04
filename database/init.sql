@@ -6,34 +6,15 @@ begin;
 
 
 
+----------------------------------------
+-- Table definitions
+----------------------------------------
 create table
   categories (
     id integer primary key,
     name text not null,
     is_active boolean not null default true
   );
-
-
-
-insert into
-  categories (id, name)
-values
-  (1, 'Elektronik & Technik'),
-  (2, 'Unterhaltung & Gaming'),
-  (3, 'Lebensmittel & Haushalt'),
-  (4, 'Fashion, Schmuck & Lifestyle'),
-  (5, 'Beauty, Wellness & Gesundheit'),
-  (6, 'Family & Kids'),
-  (7, 'Home & Living'),
-  (8, 'Baumarkt & Garten'),
-  (9, 'Auto, Fahhrad & Motorrad'),
-  (10, 'Gastronomie, Bars & Cafes'),
-  (11, 'Kultur & Freizeit'),
-  (12, 'Sport & Outdoor'),
-  (13, 'Reisen, Hotels & Übernachtungen'),
-  (14, 'Dienstleistungen & Finanzen'),
-  (15, 'Floristik'),
-  (16, 'Sonstiges');
 
 
 
@@ -174,7 +155,9 @@ create table
 create table
   plans (
     id serial primary key,
-    stripe_product_id text not null,
+    name text not null,
+    stripe_product_id text not null unique,
+    stripe_price_id text not null unique,
     free_days_per_month integer not null,
     active boolean not null default false,
     created timestamp not null default now()
@@ -184,12 +167,17 @@ create table
 
 create table
   subscriptions (
-    user_id uuid not null references accounts (id) on delete restrict on update cascade,
+    id serial primary key,
+    account_id uuid not null references accounts (id) on delete restrict on update cascade,
     plan_id integer not null references plans (id) on delete restrict on update cascade,
-    stripe_subscription_id text not null,
+    stripe_subscription_id text null,
     active boolean not null default false,
+    state text not null,
+    activation_code text not null,
     created timestamptz not null default now(),
-    constraint "subscriptions_pk" unique (user_id, stripe_subscription_id)
+    activated timestamptz null,
+    canceled timestamptz null,
+    constraint "account_subscription_key" unique (account_id, stripe_subscription_id)
   );
 
 
@@ -203,6 +191,9 @@ create table
 
 
 
+------------------------------------------
+-- View definitions
+------------------------------------------
 create or replace view
   like_counts_view as
 select
@@ -441,6 +432,31 @@ from
 where
   v.is_active
   and now() between v."start" and v."end";
+
+
+
+----------------------------------------------------
+-- Data
+----------------------------------------------------
+insert into
+  categories (id, name)
+values
+  (1, 'Elektronik & Technik'),
+  (2, 'Unterhaltung & Gaming'),
+  (3, 'Lebensmittel & Haushalt'),
+  (4, 'Fashion, Schmuck & Lifestyle'),
+  (5, 'Beauty, Wellness & Gesundheit'),
+  (6, 'Family & Kids'),
+  (7, 'Home & Living'),
+  (8, 'Baumarkt & Garten'),
+  (9, 'Auto, Fahhrad & Motorrad'),
+  (10, 'Gastronomie, Bars & Cafes'),
+  (11, 'Kultur & Freizeit'),
+  (12, 'Sport & Outdoor'),
+  (13, 'Reisen, Hotels & Übernachtungen'),
+  (14, 'Dienstleistungen & Finanzen'),
+  (15, 'Floristik'),
+  (16, 'Sonstiges');
 
 
 

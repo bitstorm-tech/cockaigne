@@ -3,7 +3,7 @@ module github.com/bitstorm-tech/cockaigne
 go 1.21
 
 require (
-	github.com/a-h/templ v0.2.501
+	github.com/a-h/templ v0.2.513
 	github.com/aws/aws-sdk-go-v2 v1.24.0
 	github.com/aws/aws-sdk-go-v2/config v1.26.2
 	github.com/aws/aws-sdk-go-v2/credentials v1.16.13
@@ -13,6 +13,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/lib/pq v1.10.9
+	github.com/stripe/stripe-go/v76 v76.10.0
 	go.uber.org/zap v1.26.0
 	golang.org/x/crypto v0.17.0
 )
