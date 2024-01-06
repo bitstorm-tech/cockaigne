@@ -11,7 +11,7 @@ func init() {
 	stripe.Key = os.Getenv("STRIPE_PRIVATE_API_KEY")
 }
 
-func CreateStripeCheckoutUrl(priceId string, domain string) (string, error) {
+func CreateStripeCheckoutSession(priceId string, domain string) (*stripe.CheckoutSession, error) {
 	params := &stripe.CheckoutSessionParams{
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
@@ -20,14 +20,14 @@ func CreateStripeCheckoutUrl(priceId string, domain string) (string, error) {
 			},
 		},
 		Mode:       stripe.String(string(stripe.CheckoutSessionModeSubscription)),
-		SuccessURL: stripe.String(domain + "/subscribe-success"),
+		SuccessURL: stripe.String(domain + "/subscripe-success"),
 		CancelURL:  stripe.String(domain + "/pricing"),
 	}
 
 	s, err := session.New(params)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return s.URL, nil
+	return s, nil
 }

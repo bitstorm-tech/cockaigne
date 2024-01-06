@@ -12,11 +12,11 @@ import (
 )
 
 func RegisterSubscriptionHandler(e *echo.Echo) {
-	e.POST("/subscribe/:planId", subscribe)
-	e.GET("/subscription-activate/:accountId/:activationCode", activateSubscription)
+	e.POST("/subscripe/:planId", subscripe)
+	e.GET("/subscripe-success", subscripeSuccess)
 }
 
-func subscribe(c echo.Context) error {
+func subscripe(c echo.Context) error {
 	accountId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
@@ -29,12 +29,6 @@ func subscribe(c echo.Context) error {
 		return view.RenderAlert("Momentan können keine Abonemants abgeschlossen werden. Bitte versuche es später nochmal.", c)
 	}
 
-	err = service.CreateSubscription(accountId.String(), planId)
-	if err != nil {
-		zap.L().Sugar().Error("can't create subscription: ", err)
-		return view.RenderAlert("Momentan können keine Abonemants abgeschlossen werden. Bitte versuche es später nochmal.", c)
-	}
-
 	plan, err := service.GetPlan(planId)
 	if err != nil {
 		zap.L().Sugar().Error("can't get plan: ", err)
@@ -42,17 +36,23 @@ func subscribe(c echo.Context) error {
 	}
 
 	domain := fmt.Sprintf("%s://%s", c.Scheme(), c.Request().Host)
-	url, err := service.CreateStripeCheckoutUrl(plan.StripePriceId, domain)
+	checkoutSession, err := service.CreateStripeCheckoutSession(plan.StripePriceId, domain)
 	if err != nil {
-		zap.L().Sugar().Error("can't create stripe checkout url: ", err)
+		zap.L().Sugar().Error("can't create stripe checkout session: ", err)
 		return view.RenderAlert("Momentan können keine Abonemants abgeschlossen werden. Bitte versuche es später nochmal.", c)
 	}
 
-	c.Response().Header().Add("HX-Redirect", url)
+	err = service.CreateSubscription(accountId.String(), planId, checkoutSession.ID)
+	if err != nil {
+		zap.L().Sugar().Error("can't create subscription: ", err)
+		return view.RenderAlert("Momentan können keine Abonemants abgeschlossen werden. Bitte versuche es später nochmal.", c)
+	}
+
+	c.Response().Header().Add("HX-Redirect", checkoutSession.URL)
 
 	return nil
 }
 
-func activateSubscription(c echo.Context) error {
-	return nil
+func subscripeSuccess(c echo.Context) error {
+	return view.Render(view.SubscripeSuccess(), c)
 }

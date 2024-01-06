@@ -14,7 +14,7 @@ import (
 )
 
 func RegisterDealHandlers(e *echo.Echo) {
-	e.GET("/deal/:dealId", getDeal)
+	e.GET("/deal/:dealId", openDealCreatePage)
 	e.GET("/ui/category-select", getCategorySelect)
 	e.GET("/deals/:state", getDealList)
 	e.GET("/deal-list/:state", getDealsByState)
@@ -88,7 +88,7 @@ func getDealsByState(c echo.Context) error {
 	return view.Render(view.DealsList(headers, user.IsDealer, onDealerPage, true, false), c)
 }
 
-func getDeal(c echo.Context) error {
+func openDealCreatePage(c echo.Context) error {
 	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)

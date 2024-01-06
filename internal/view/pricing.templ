@@ -108,7 +108,7 @@ templ planCard(title string, price string, hasActiveSubscription bool, planId st
 				if hasActiveSubscription {
 					<span>Du hast bereits ein aktives Abo!</span>
 				} else {
-					<button hx-post={ "/subscribe/" + planId }>Abo abschließen</button>
+					<button hx-post={ "/subscripe/" + planId }>Abo abschließen</button>
 				}
 			</div>
 		</div>

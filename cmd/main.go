@@ -27,6 +27,7 @@ func main() {
 	handler.RegisterDealHandlers(e)
 	handler.RegisterIndexHandlers(e)
 	handler.RegisterMapHandlers(e)
+	handler.RegisterStripeHandler(e)
 	handler.RegisterSubscriptionHandler(e)
 	handler.RegisterSystemHandler(e)
 	handler.RegisterUiHandlers(e)

@@ -25,14 +25,13 @@ type Plan struct {
 }
 
 type Subscription struct {
-	ID                   int
-	AccountId            uuid.UUID `db:"account_id"`
-	PlanId               int       `db:"plan_id"`
-	StripeSubscriptionId string    `db:"stripe_subscription_id"`
-	ActivationCode       string    `db:"activation_code"`
-	Active               bool
-	State                SubscriptionState
-	Created              time.Time
-	Activated            time.Time
-	Canceled             time.Time
+	ID                      int
+	AccountId               uuid.UUID `db:"account_id"`
+	PlanId                  int       `db:"plan_id"`
+	StripeSubscriptionId    string    `db:"stripe_subscription_id"`
+	StripeCheckoutSessionId string    `db:"stripe_checkout_session_id"`
+	State                   SubscriptionState
+	Created                 time.Time
+	Activated               time.Time
+	Canceled                time.Time
 }
