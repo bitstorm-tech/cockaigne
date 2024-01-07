@@ -1,6 +1,6 @@
 package view
 
-templ DealsOverview() {
+templ DealsOverview(dealerId string) {
 	@BaseLayout() {
 		<div class="flex flex-col gap-8">
 			<div class="grid grid-cols-2 gap-3 p-3">
@@ -10,38 +10,38 @@ templ DealsOverview() {
 			<div x-data="{selectedTab: 0}">
 				<div class="tabs tabs-bordered">
 					<div
- 						hx-get="/deals/active"
- 						hx-target="#content"
- 						hx-trigger="click"
- 						@click="selectedTab = 0"
- 						class="tab"
- 						:class="selectedTab === 0 ? 'tab-active' :''"
+						hx-get={ "/deals/active?dealer_id=" + dealerId }
+						hx-target="#content"
+						hx-trigger="click"
+						@click="selectedTab = 0"
+						class="tab"
+						:class="selectedTab === 0 ? 'tab-active' :''"
 					>
 						Aktiv
 					</div>
 					<div
- 						hx-get="/deals/future"
- 						hx-target="#content"
- 						hx-trigger="click"
- 						@click="selectedTab = 1"
- 						class="tab"
- 						:class="selectedTab === 1 ? 'tab-active' :''"
+						hx-get={ "/deals/future?dealer_id=" + dealerId }
+						hx-target="#content"
+						hx-trigger="click"
+						@click="selectedTab = 1"
+						class="tab"
+						:class="selectedTab === 1 ? 'tab-active' :''"
 					>
 						Geplant
 					</div>
 					<div
- 						hx-get="/deals/past"
- 						hx-target="#content"
- 						hx-trigger="click"
- 						@click="selectedTab = 2"
- 						class="tab"
- 						:class="selectedTab === 2 ? 'tab-active' :''"
+						hx-get={ "/deals/past?dealer_id=" + dealerId }
+						hx-target="#content"
+						hx-trigger="click"
+						@click="selectedTab = 2"
+						class="tab"
+						:class="selectedTab === 2 ? 'tab-active' :''"
 					>
 						Abgelaufen
 					</div>
 				</div>
 			</div>
 		</div>
-		<div id="content" class="pt-4" hx-get="/deals/active" hx-trigger="load once" hx-target="this"></div>
+		<div id="content" class="pt-4" hx-get={ "/deals/active?dealer_id=" + dealerId } hx-trigger="load once" hx-target="this"></div>
 	}
 }

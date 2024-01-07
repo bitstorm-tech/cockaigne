@@ -112,7 +112,12 @@ func getDealerPage(c echo.Context) error {
 }
 
 func getOverviewPage(c echo.Context) error {
-	return view.Render(view.DealsOverview(), c)
+	dealerId, err := service.ParseUserId(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	return view.Render(view.DealsOverview(dealerId.String()), c)
 }
 
 func getTemplatesPage(c echo.Context) error {

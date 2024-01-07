@@ -18,7 +18,6 @@ func RegisterDealHandlers(e *echo.Echo) {
 	e.GET("/deal/:dealId", openDealCreatePage)
 	e.GET("/ui/category-select", getCategorySelect)
 	e.GET("/deals/:state", getDealList)
-	e.GET("/deal-list/:state", getDealsByState)
 	e.GET("/api/deals", getDealsAsJson)
 	e.GET("/deal-details/:id", getDealDetails)
 	e.GET("/deal-likes/:id", toggleDealLike)
@@ -61,33 +60,6 @@ func getFavoriteDeals(c echo.Context) error {
 	}
 
 	return view.Render(view.DealsList(headers, false, false, true, true), c)
-}
-
-func getDealsByState(c echo.Context) error {
-	user, err := service.ParseUser(c)
-	if err != nil {
-		return redirect.Login(c)
-	}
-
-	state := model.ToState(c.Param("state"))
-	userIdString := user.ID.String()
-	userId := &userIdString
-
-	dealerId := c.QueryParam("dealer_id")
-
-	if !user.IsDealer && len(dealerId) > 0 {
-		userId = &dealerId
-	}
-
-	headers, err := service.GetDealHeaders(state, userId)
-	if err != nil {
-		zap.L().Sugar().Error("can't get deal header: ", err)
-		return view.RenderAlert(err.Error(), c)
-	}
-
-	onDealerPage := strings.Contains(c.Request().URL.Path, "dealer")
-
-	return view.Render(view.DealsList(headers, user.IsDealer, onDealerPage, true, false), c)
 }
 
 func openDealCreatePage(c echo.Context) error {
@@ -172,19 +144,13 @@ func saveDeal(c echo.Context) error {
 func getDealList(c echo.Context) error {
 	user, err := service.ParseUser(c)
 	if err != nil {
-		zap.L().Sugar().Error("can't parse user: ", err)
 		return redirect.Login(c)
 	}
 
 	state := model.ToState(c.Param("state"))
-	userIdString := user.ID.String()
-	userId := &userIdString
+	dealerId := c.QueryParam("dealer_id")
 
-	if !user.IsDealer {
-		userId = nil
-	}
-
-	headers, err := service.GetDealHeaders(state, userId)
+	headers, err := service.GetDealHeaders(state, dealerId)
 	if err != nil {
 		zap.L().Sugar().Error("can't get deal headers: ", err)
 		return view.RenderAlert(err.Error(), c)
@@ -192,7 +158,7 @@ func getDealList(c echo.Context) error {
 
 	onDealerPage := strings.Contains(c.Request().URL.Path, "dealer")
 
-	return view.Render(view.DealsList(headers, user.IsDealer, onDealerPage, true, false), c)
+	return view.Render(view.DealsList(headers, onDealerPage, user.IsDealer, true, false), c)
 }
 
 func getDealsAsJson(c echo.Context) error {

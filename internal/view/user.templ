@@ -47,45 +47,45 @@ templ User(id string, username string, street string, houseNumber string, zip st
 		<div x-data="{selectedTab: 0}">
 			<div class="tabs tabs-bordered" x-cloak>
 				<div
- 					hx-get="/deal-list/active"
- 					hx-target="#content"
- 					hx-trigger="click"
- 					class="tab"
- 					:class="selectedTab === 0 ? 'tab-active' : ''"
- 					@click="selectedTab = 0"
+					hx-get="/deals/active"
+					hx-target="#content"
+					hx-trigger="click"
+					class="tab"
+					:class="selectedTab === 0 ? 'tab-active' : ''"
+					@click="selectedTab = 0"
 				>
 					<img class="h-8 pb-2" src="/static/images/icons/deals.svg" alt="Deals" x-show="selectedTab === 0"/>
 					<img class="h-8 pb-2" src="/static/images/icons/deals-outline.svg" alt="Deals" x-show="selectedTab !== 0"/>
 				</div>
 				<div
- 					hx-get="/dealer-favorites-list"
- 					hx-target="#content"
- 					hx-trigger="click"
- 					class="tab"
- 					:class="selectedTab === 1 ? 'tab-active' : ''"
- 					@click="selectedTab = 1"
+					hx-get="/dealer-favorites-list"
+					hx-target="#content"
+					hx-trigger="click"
+					class="tab"
+					:class="selectedTab === 1 ? 'tab-active' : ''"
+					@click="selectedTab = 1"
 				>
 					<img class="h-8 pb-2" src="/static/images/icons/heart.svg" alt="Images" x-show="selectedTab === 1"/>
 					<img class="h-8 pb-2" src="/static/images/icons/heart-outline.svg" alt="Images" x-show="selectedTab !== 1"/>
 				</div>
 				<div
- 					hx-get="/deal-favorites-list"
- 					hx-target="#content"
- 					hx-trigger="click"
- 					class="tab"
- 					:class="selectedTab === 2 ? 'tab-active' : ''"
- 					@click="selectedTab = 2"
+					hx-get="/deal-favorites-list"
+					hx-target="#content"
+					hx-trigger="click"
+					class="tab"
+					:class="selectedTab === 2 ? 'tab-active' : ''"
+					@click="selectedTab = 2"
 				>
 					<img class="h-8 pb-2" src="/static/images/icons/bookmark-boxed.svg" alt="Ratings" x-show="selectedTab === 2"/>
 					<img
- 						class="h-8 pb-2"
- 						src="/static/images/icons/bookmark-boxed-outline.svg"
- 						alt="Ratings"
- 						x-show="selectedTab !== 2"
+						class="h-8 pb-2"
+						src="/static/images/icons/bookmark-boxed-outline.svg"
+						alt="Ratings"
+						x-show="selectedTab !== 2"
 					/>
 				</div>
 			</div>
-			<div id="content" class="pt-1" hx-trigger="load once" hx-get="/deal-list/active"></div>
+			<div id="content" class="pt-1" hx-trigger="load once" hx-get="/deals/active"></div>
 		</div>
 	}
 }

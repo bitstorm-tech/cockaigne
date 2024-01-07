@@ -106,7 +106,7 @@ func GetDealsFromView(state model.State, dealerId *string) ([]model.DealView, er
 	return deals, nil
 }
 
-func GetDealHeaders(state model.State, dealerId *string) ([]model.DealHeader, error) {
+func GetDealHeaders(state model.State, dealerId string) ([]model.DealHeader, error) {
 	if state != model.Future && state != model.Active && state != model.Past {
 		return []model.DealHeader{}, fmt.Errorf("unknown deal state: %s", state)
 	}
@@ -119,8 +119,8 @@ func GetDealHeaders(state model.State, dealerId *string) ([]model.DealHeader, er
 		statement = "select id, title, username, dealer_id, category_id from future_deals_view"
 	}
 
-	if dealerId != nil {
-		statement += fmt.Sprintf(" where dealer_id = '%s'", *dealerId)
+	if len(dealerId) > 0 {
+		statement += fmt.Sprintf(" where dealer_id = '%s'", dealerId)
 	}
 
 	var headers []model.DealHeader
