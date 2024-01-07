@@ -5,6 +5,7 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/service"
 	"github.com/bitstorm-tech/cockaigne/internal/view"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 func RegisterUserHandlers(e *echo.Echo) {
@@ -19,7 +20,7 @@ func getUser(c echo.Context) error {
 
 	acc, err := service.GetAccount(userId.String())
 	if err != nil {
-		c.Logger().Errorf("can't get account: %v", err)
+		zap.L().Sugar().Error("can't get account: ", err)
 	}
 
 	return view.Render(view.User(acc.ID.String(), acc.Username, "Josef-Frankl-Str.", "31A", "80995", "München", "12"), c)

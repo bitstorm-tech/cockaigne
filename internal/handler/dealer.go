@@ -12,6 +12,7 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/service"
 	"github.com/bitstorm-tech/cockaigne/internal/view"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 func RegisterDealerHandlers(e *echo.Echo) {
@@ -39,7 +40,7 @@ func getDealerHeaderFavoriteButton(c echo.Context) error {
 	dealerId := c.Param("dealerId")
 	isFavorite, err := service.IsFavorite(dealerId, userId.String())
 	if err != nil {
-		c.Logger().Errorf("can't check if dealer is favorite: %v", err)
+		zap.L().Sugar().Error("can't check if dealer is favorite: ", err)
 	}
 
 	return view.Render(view.DealerHeaderFavoriteButton(dealerId, isFavorite), c)
@@ -55,7 +56,7 @@ func toggleDealerFavorite(c echo.Context) error {
 
 	isFavorite, err := service.ToggleDealerFavorite(dealerId, userId.String())
 	if err != nil {
-		c.Logger().Errorf("can't toggle dealer favorite: %v", err)
+		zap.L().Sugar().Error("can't toggle dealer favorite: ", err)
 		return view.RenderAlert("Kann favorisierte Dealer momentan nicht speichern, bitte versuche es später nochmal.", c)
 	}
 
@@ -71,7 +72,7 @@ func getImageZoomDialog(c echo.Context) error {
 
 	imageUrls, err := service.GetDealerImageUrls(dealerId)
 	if err != nil {
-		c.Logger().Errorf("can't get dealer images: %v", err)
+		zap.L().Sugar().Error("can't get dealer images: ", err)
 		return view.RenderAlert("Kann Dealer Bilder momentan nicht laden, bitte versuche es später nochmal.", c)
 	}
 
@@ -88,13 +89,13 @@ func getDealerPage(c echo.Context) error {
 	acc, err := service.GetAccount(dealerId)
 
 	if err != nil {
-		c.Logger().Errorf("can't find dealer (%s): %v", dealerId, err)
+		zap.L().Sugar().Errorf("can't find dealer (%s): %+v", dealerId, err)
 		return c.NoContent(http.StatusNotFound)
 	}
 
 	category, err := service.GetCategory(int(acc.DefaultCategory.Int32))
 	if err != nil {
-		c.Logger().Errorf("can't get default category for dealer (%s): %v", dealerId, err)
+		zap.L().Sugar().Error("can't get default category for dealer (%s): %+v", dealerId, err)
 	}
 
 	googleMapsLink := fmt.Sprintf(
@@ -122,7 +123,7 @@ func getTemplatesPage(c echo.Context) error {
 
 	templateDeals, err := service.GetTemplates(userId.String())
 	if err != nil {
-		c.Logger().Errorf("can't get templates for dealer: %s", userId.String())
+		zap.L().Sugar().Error("can't get templates for dealer: ", userId.String())
 	}
 
 	return view.Render(view.Templates(templateDeals), c)
@@ -137,7 +138,7 @@ func getDealerImages(c echo.Context) error {
 
 	imageUrls, err := service.GetDealerImageUrls(dealerId)
 	if err != nil {
-		c.Logger().Errorf("can't get dealer image urls: %v", err)
+		zap.L().Sugar().Error("can't get dealer image urls: ", err)
 	}
 
 	isOwner := dealerId == userId.String()
@@ -153,12 +154,12 @@ func addDealerImage(c echo.Context) error {
 
 	file, err := c.FormFile("image")
 	if err != nil {
-		c.Logger().Errorf("can't get image from post dealer image request: %v", err)
+		zap.L().Sugar().Error("can't get image from post dealer image request: ", err)
 	}
 
 	imageUrl, err := service.SaveDealerImage(dealerId.String(), file)
 	if err != nil {
-		c.Logger().Errorf("can't save dealer image: %v", err)
+		zap.L().Sugar().Error("can't save dealer image: ", err)
 	}
 
 	img := fmt.Sprintf("<img src='%s', alt='Dealer image' class='h-36 w-full object-cover' />", imageUrl)
@@ -175,19 +176,19 @@ func deleteDealerImage(c echo.Context) error {
 	imageUrl := c.QueryParam("image-url")
 
 	if !strings.Contains(imageUrl, dealerId.String()) {
-		c.Logger().Errorf("not allowed to delete image -> (dealer=%s, imageUrl=%s)", dealerId.String(), imageUrl)
+		zap.L().Sugar().Errorf("not allowed to delete image -> (dealer=%s, imageUrl=%s)", dealerId.String(), imageUrl)
 		return nil
 	}
 
 	err = service.DeleteDealerImage(imageUrl)
 	if err != nil {
-		c.Logger().Errorf("can't delete dealer image: %v", err)
+		zap.L().Sugar().Error("can't delete dealer image: ", err)
 		return view.RenderAlert("Konnte Bild nicht löschen, bitte später nochmal versuchen.", c)
 	}
 
 	imageUrls, err := service.GetDealerImageUrls(dealerId.String())
 	if err != nil {
-		c.Logger().Errorf("can't get dealer images: %v", err)
+		zap.L().Sugar().Error("can't get dealer images: ", err)
 	}
 
 	return view.Render(view.DealerImages(imageUrls, true, dealerId.String()), c)
@@ -197,12 +198,12 @@ func getDealerRatings(c echo.Context) error {
 	dealerId := c.Param("dealerId")
 	userId, err := service.ParseUserId(c)
 	if err != nil {
-		c.Logger().Errorf("can't get userId: %v", err)
+		zap.L().Sugar().Error("can't get userId: ", err)
 	}
 
 	ratings, err := service.GetDealerRatings(dealerId, userId.String())
 	if err != nil {
-		c.Logger().Errorf("can't get dealer ratings for dealer %s: %v", dealerId, err)
+		zap.L().Sugar().Errorf("can't get dealer ratings for dealer %s: %+v", dealerId, err)
 	}
 
 	isOwner := dealerId == userId.String()
@@ -247,13 +248,13 @@ func createDealerRating(c echo.Context) error {
 	starsText := c.FormValue("stars")
 	stars, err := strconv.Atoi(starsText)
 	if err != nil {
-		c.Logger().Errorf("can't convert stars-text '%s' into int: %v", starsText, err)
+		zap.L().Sugar().Errorf("can't convert stars-text '%s' into int: %+v", starsText, err)
 		return view.RenderAlert("Konnte Bewertung nicht speichern, bitte versuche es später noch mal.", c)
 	}
 
 	err = service.SaveDealerRating(userId.String(), dealerId, stars, text)
 	if err != nil {
-		c.Logger().Errorf("can't save dealer rating: %v", err)
+		zap.L().Sugar().Error("can't save dealer rating: ", err)
 		return view.RenderAlert("Konnte Bewertung nicht speichern, bitte versuche es später noch mal.", c)
 	}
 
@@ -269,7 +270,7 @@ func deleteDealerRating(c echo.Context) error {
 
 	err = service.DeleteDealerRating(dealerId, userId.String())
 	if err != nil {
-		c.Logger().Errorf("can't delete dealer rating: %v", err)
+		zap.L().Sugar().Error("can't delete dealer rating: ", err)
 		return view.RenderAlert("Konnte Bewertung nicht löschen, bitte später noch einmal versuchen.", c)
 	}
 

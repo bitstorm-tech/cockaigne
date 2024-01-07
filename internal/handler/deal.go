@@ -11,6 +11,7 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/service"
 	"github.com/bitstorm-tech/cockaigne/internal/view"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 func RegisterDealHandlers(e *echo.Echo) {
@@ -40,7 +41,7 @@ func getFavoriteDealerDeals(c echo.Context) error {
 
 	headers, err := service.GetFavoriteDealerDealHeaders(userId.String())
 	if err != nil {
-		c.Logger().Errorf("can't get favorite dealer deals: %v", err)
+		zap.L().Sugar().Error("can't get favorite dealer deals: ", err)
 		return view.RenderAlert("Kann favorisierte Dealer Deals nicht laden, bitte später nochmal versuchen.", c)
 	}
 
@@ -55,7 +56,7 @@ func getFavoriteDeals(c echo.Context) error {
 
 	headers, err := service.GetFavoriteDealHeaders(userId.String())
 	if err != nil {
-		c.Logger().Errorf("can't get favorite deal headers: %v", err)
+		zap.L().Sugar().Error("can't get favorite deal headers: ", err)
 		return view.RenderAlert("Kann favorisierte Deals aktuell nicht laden, bitte später nochmal versuchen.", c)
 	}
 
@@ -65,7 +66,6 @@ func getFavoriteDeals(c echo.Context) error {
 func getDealsByState(c echo.Context) error {
 	user, err := service.ParseUser(c)
 	if err != nil {
-		c.Logger().Errorf("can't parse user: %v", err)
 		return redirect.Login(c)
 	}
 
@@ -73,13 +73,15 @@ func getDealsByState(c echo.Context) error {
 	userIdString := user.ID.String()
 	userId := &userIdString
 
-	if !user.IsDealer {
-		userId = nil
+	dealerId := c.QueryParam("dealer_id")
+
+	if !user.IsDealer && len(dealerId) > 0 {
+		userId = &dealerId
 	}
 
 	headers, err := service.GetDealHeaders(state, userId)
 	if err != nil {
-		c.Logger().Error(err)
+		zap.L().Sugar().Error("can't get deal header: ", err)
 		return view.RenderAlert(err.Error(), c)
 	}
 
@@ -120,7 +122,7 @@ func getCategorySelect(c echo.Context) error {
 	if len(selectedParam) > 0 {
 		selected, err = strconv.Atoi(c.QueryParam("selected"))
 		if err != nil {
-			c.Logger().Errorf("can't parse selected category: %v", err)
+			zap.L().Sugar().Error("can't parse selected category: ", err)
 			selected = -1
 		}
 	}
@@ -140,24 +142,24 @@ func saveDeal(c echo.Context) error {
 	}
 
 	deal.DealerId = userId
-	c.Logger().Debugf("Create deal: %+v", deal)
+	zap.L().Sugar().Debug("create deal: ", deal)
 
 	dealId, err := service.SaveDeal(deal)
 	if err != nil {
-		c.Logger().Errorf("can't save deal: %v", err)
+		zap.L().Sugar().Error("can't save deal: ", err)
 		return view.RenderAlert("Leider ist beim Erstellen etwas schief gegangen, bitte versuche es später nochmal.", c)
 	}
 
 	form, err := c.MultipartForm()
 	if err != nil {
-		c.Logger().Errorf("can't get multipart form: %v", err)
+		zap.L().Sugar().Error("can't get multipart form: ", err)
 		return view.RenderAlert("Leider ist beim Erstellen etwas schief gegangen, bitte versuche es später nochmal.", c)
 	}
 
 	for index, file := range form.File["images"] {
 		err = service.UploadDealImage(file, dealId.String(), fmt.Sprintf("%d-", index))
 		if err != nil {
-			c.Logger().Errorf("can't upload deal image: %v", err)
+			zap.L().Sugar().Error("can't upload deal image: ", err)
 			return view.RenderAlert("Leider ist beim Erstellen etwas schief gegangen, bitte versuche es später nochmal.", c)
 		}
 	}
@@ -170,7 +172,7 @@ func saveDeal(c echo.Context) error {
 func getDealList(c echo.Context) error {
 	user, err := service.ParseUser(c)
 	if err != nil {
-		c.Logger().Errorf("can't parse user: %v", err)
+		zap.L().Sugar().Error("can't parse user: ", err)
 		return redirect.Login(c)
 	}
 
@@ -184,7 +186,7 @@ func getDealList(c echo.Context) error {
 
 	headers, err := service.GetDealHeaders(state, userId)
 	if err != nil {
-		c.Logger().Error(err)
+		zap.L().Sugar().Error("can't get deal headers: ", err)
 		return view.RenderAlert(err.Error(), c)
 	}
 
@@ -197,7 +199,7 @@ func getDealsAsJson(c echo.Context) error {
 	// extent := c.Query("extent")
 	deals, err := service.GetDealsFromView(model.Active, nil)
 	if err != nil {
-		c.Logger().Errorf("can't get deals: %v", err)
+		zap.L().Sugar().Error("can't get deals: ", err)
 		return nil
 	}
 
@@ -209,13 +211,13 @@ func getDealDetails(c echo.Context) error {
 	likes := service.GetDealLikes(dealId)
 	imageUrls, err := service.GetDealImageUrls(dealId)
 	if err != nil {
-		c.Logger().Errorf("can't get deal image urls: %v", err)
+		zap.L().Sugar().Error("can't get deal image urls: ", err)
 		return c.String(http.StatusNotFound, "Konnte Deal Details nicht laden, bitte versuche es später nochmal.")
 	}
 
 	details, err := service.GetDealDetails(dealId)
 	if err != nil {
-		c.Logger().Errorf("can't get deal details: %v", err)
+		zap.L().Sugar().Error("can't get deal details: ", err)
 		return c.String(http.StatusNotFound, "Konnte Deal Details nicht laden, bitte versuche es später nochmal.")
 	}
 
@@ -250,7 +252,7 @@ func getReportModal(c echo.Context) error {
 
 	report, err := service.GetDealReport(dealId, reporterId.String())
 	if err != nil {
-		c.Logger().Errorf("can't get deal report reason: %v", err)
+		zap.L().Sugar().Error("can't get deal report reason: ", err)
 	}
 
 	return view.Render(view.DealReportModal(dealId, report.Reason, report.Title), c)
@@ -259,20 +261,20 @@ func getReportModal(c echo.Context) error {
 func saveReport(c echo.Context) error {
 	userId, err := service.ParseUserId(c)
 	if err != nil {
-		c.Logger().Error("can't save deal report -> no user ID")
+		zap.L().Sugar().Error("can't save deal report -> no user ID: ", err)
 		return view.RenderAlert("Nur angemeldete User können einen Deal melden", c)
 	}
 
 	reason := c.FormValue("reason")
 	if len(reason) == 0 {
-		c.Logger().Error("can't save deal report -> no reason")
+		zap.L().Sugar().Error("can't save deal report -> no reason")
 		return view.RenderAlert("Bitte gib an, was an dem Deal nicht passt", c)
 	}
 
 	dealId := c.Param("id")
 	err = service.SaveDealReport(dealId, userId.String(), reason)
 	if err != nil {
-		c.Logger().Errorf("can't save deal report: %v", err)
+		zap.L().Sugar().Error("can't save deal report: ", err)
 		return view.RenderAlert("Deal konnte leider nicht gemeldet werden, bitte versuche es später noch einmal.", c)
 	}
 
@@ -304,7 +306,7 @@ func removeFavorite(c echo.Context) error {
 	dealId := c.Param("id")
 	err = service.RemoveDealFavorite(dealId, userId.String())
 	if err != nil {
-		c.Logger().Errorf("can't remove deal favorite: %v", err)
+		zap.L().Sugar().Error("can't remove deal favorite: ", err)
 	}
 
 	return nil
@@ -319,7 +321,7 @@ func getImageZoomModal(c echo.Context) error {
 
 	imageUrls, err := service.GetDealImageUrls(dealId)
 	if err != nil {
-		c.Logger().Errorf("can't get deal images: %v", err)
+		zap.L().Sugar().Error("can't get deal images: ", err)
 		return view.RenderAlert("Kann Deal Bilder momentan nicht laden, bitte versuche es später nochmal.", c)
 	}
 

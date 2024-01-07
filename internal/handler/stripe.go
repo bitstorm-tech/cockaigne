@@ -15,10 +15,10 @@ import (
 var webhookSecret = os.Getenv("WEBHOOK_SECRET")
 
 func RegisterStripeHandler(e *echo.Echo) {
-	e.POST("/api/stripe/payment-succeeded", paymentSucceeded)
+	e.POST("/api/stripe/webhook", processWebhookEvent)
 }
 
-func paymentSucceeded(c echo.Context) error {
+func processWebhookEvent(c echo.Context) error {
 	body, err := io.ReadAll(c.Request().Body)
 	if err != nil {
 		zap.L().Sugar().Error("can't read body: ", err)

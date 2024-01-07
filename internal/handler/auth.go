@@ -11,6 +11,7 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/service"
 	"github.com/bitstorm-tech/cockaigne/internal/view"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -34,16 +35,16 @@ func signup(c echo.Context) error {
 	request := model.CreateAccountRequest{}
 	err := c.Bind(&request)
 	if err != nil {
-		c.Logger().Errorf("Error while signup: %v", err)
+		zap.L().Sugar().Error("can't bind to signup request: ", err)
 		return view.RenderAlert("Fehler bei der Registrierung, bitte versuche es später nochmal.", c)
 	}
 
-	c.Logger().Debugf("Signup attempt: %+v", request.Email)
+	zap.L().Sugar().Debug("Signup attempt: ", request.Email)
 
 	accExists, err := service.AccountExists(request.Email, request.Username)
 
 	if err != nil {
-		c.Logger().Errorf("can't signup -> don't know if account already exists: %v", err)
+		zap.L().Sugar().Error("can't signup -> don't know if account already exists: ", err)
 		return view.RenderAlert("Leider gibt es aktuell ein technisches Problem, bitte versuche es später noch einmal!", c)
 	}
 
@@ -63,7 +64,7 @@ func signup(c echo.Context) error {
 		return view.RenderAlert("Bitte eine gültige E-Mail angeben", c)
 	}
 
-	c.Logger().Debugf("New account: %+v", request.Email)
+	zap.L().Sugar().Debug("new account: ", request.Email)
 
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -75,7 +76,7 @@ func signup(c echo.Context) error {
 	if acc.IsDealer {
 		postion, err := service.GetPositionFromAddress(acc.City.String, int(acc.ZipCode.Int32), acc.Street.String, acc.HouseNumber.String)
 		if err != nil {
-			c.Logger().Errorf("Error while getting position from address: %v", err)
+			zap.L().Sugar().Error("Error while getting position from address: ", err)
 			return view.RenderAlert("Die Adresse konnte nicht gefunden werden", c)
 		}
 
@@ -104,15 +105,15 @@ func login(c echo.Context) error {
 	err := c.Bind(&request)
 
 	if err != nil {
-		c.Logger().Errorf("Error while signup %v", err)
+		zap.L().Sugar().Error("can't bind to login request: ", err)
 		return view.RenderAlert("Login gerade nicht möglich, bitte später nochmal versuchen.", c)
 	}
 
-	c.Logger().Debugf("Login attempt: %+v", request.Email)
+	zap.L().Sugar().Debug("login attempt: ", request.Email)
 
 	acc, err := service.GetAccountByEmail(request.Email)
 	if err != nil {
-		c.Logger().Errorf("can't get account by email (%s): %v", request.Email, err)
+		zap.L().Sugar().Errorf("can't get account by email (%s): %v", request.Email, err)
 		return view.RenderAlert("Benutzername oder Passwort falsch", c)
 	}
 

@@ -131,16 +131,16 @@ func updateFilter(c echo.Context) error {
 
 	err := c.Bind(&updateFilterRequest)
 	if err != nil {
-		c.Logger().Errorf("can't parse filter update request: %v", err)
+		zap.L().Sugar().Error("can't parse filter update request: ", err)
 	}
 
 	if err := service.UpdateSearchRadius(userId, updateFilterRequest.SearchRadiusInMeters); err != nil {
-		c.Logger().Errorf("can't update accounts search_radius_in_meters: %v", err)
+		zap.L().Sugar().Error("can't update accounts search_radius_in_meters: ", err)
 		return view.RenderAlert("Fehler beim Verarbeiten der Filteränderung", c)
 	}
 
 	if err := service.UpdateSelectedCategories(userId, updateFilterRequest.FavoriteCategoryIds); err != nil {
-		c.Logger().Errorf("can't update selected categories: %s", err)
+		zap.L().Sugar().Error("can't update selected categories: ", err)
 		return view.RenderAlert("Fehler beim Verarbeiten der Filteränderung", c)
 	}
 
@@ -156,7 +156,7 @@ func updateUseLocationService(c echo.Context) error {
 	useLocationService := c.FormValue("use-location-service") == "on"
 	err = service.UpdateUseLocationService(userId.String(), useLocationService)
 	if err != nil {
-		c.Logger().Errorf("can't save use location service: %v", err)
+		zap.L().Sugar().Error("can't save use location service: ", err)
 		return view.RenderAlert("Kann Einstellung leider nicht speichern, bitte später nochmal versuchen.", c)
 	}
 
@@ -164,12 +164,12 @@ func updateUseLocationService(c echo.Context) error {
 		address := c.FormValue("address")
 		point, err := service.GetPositionFromAddressFuzzy(address)
 		if err != nil {
-			c.Logger().Errorf("can't find position from address (%s): %v", address, err)
+			zap.L().Sugar().Errorf("can't find position from address (%s): %v", address, err)
 			return view.RenderAlert("Ungültige Adresse, bitte geben Sie eine genauere Adresse an.", c)
 		}
 		err = service.UpdateLocation(userId.String(), point)
 		if err != nil {
-			c.Logger().Errorf("can't update location (%s): %v", address, err)
+			zap.L().Sugar().Errorf("can't update location (%s): %v", address, err)
 			return view.RenderAlert("Kann Einstellung leider nicht speichern, bitte später nochmal versuchen.", c)
 		}
 	}
