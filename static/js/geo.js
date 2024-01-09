@@ -8,10 +8,7 @@ async function getPosition(address) {
       return;
     }
 
-    return {
-      latitude: +addresses[0].lat,
-      longitude: +addresses[0].lon
-    };
+    return [+addresses[0].lat, +addresses[0].lon];
   }
 }
 

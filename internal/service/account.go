@@ -161,6 +161,33 @@ func UpdateUsername(userId string, username string) error {
 	return err
 }
 
+func UpdatePhone(userId string, phone string) error {
+	_, err := persistence.DB.Exec("update accounts set phone = $1 where id = $2", phone, userId)
+	return err
+}
+
+func UpdateTaxId(userId string, taxId string) error {
+	_, err := persistence.DB.Exec("update accounts set tax_id = $1 where id = $2", taxId, userId)
+	return err
+}
+
+func UpdateDefaultCategory(userId string, categoryId int) error {
+	_, err := persistence.DB.Exec("update accounts set default_category = $1 where id = $2", categoryId, userId)
+	return err
+}
+
+func UpdateDealerAddress(dealerId string, street string, houseNumber string, city string, zip int32) error {
+	_, err := persistence.DB.Exec(
+		"update accounts set street = $1, house_number = $2, city = $3, zip = $4 where id = $5",
+		street,
+		houseNumber,
+		city,
+		zip,
+		dealerId,
+	)
+	return err
+}
+
 func GetProfileImage(accountId string) (string, error) {
 	imageUrl, err := persistence.GetImageUrl(persistence.ProfileImagesFolder + "/" + accountId)
 	if err != nil {
@@ -170,12 +197,13 @@ func GetProfileImage(accountId string) (string, error) {
 	return imageUrl, nil
 }
 
-func UsernameExists(username string) bool {
+func UsernameExists(accountId string, username string) bool {
 	exists := true
 	err := persistence.DB.Get(
 		&exists,
-		"select exists (select * from accounts where username ilike $1)",
+		"select exists (select * from accounts where username ilike $1 and id != $2)",
 		username,
+		accountId,
 	)
 	if err != nil {
 		zap.L().Sugar().Errorf("can't check if username '%s' already exists: %v", username, err)

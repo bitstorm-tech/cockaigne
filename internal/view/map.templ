@@ -6,16 +6,16 @@ templ Map(searchRadius int, useLocationService bool, location string) {
 			<div id="map" class="absolute bottom-10 left-0 right-0 top-12 z-0"></div>
 			<div class="absolute right-4 top-16 flex gap-2">
 				<button
- 					class="btn-primary flex w-12 items-center justify-center rounded-full"
- 					hx-get="/ui/map/location-modal"
- 					hx-target="#modal"
+					class="btn-primary flex w-12 items-center justify-center rounded-full"
+					hx-get="/ui/map/location-modal"
+					hx-target="#modal"
 				>
 					<img src="/static/images/icons/map-pin.svg" alt="Location"/>
 				</button>
 				<button
- 					class="btn-primary flex w-12 items-center justify-center rounded-full p-3"
- 					hx-get="/ui/map/filter-modal"
- 					hx-target="#modal"
+					class="btn-primary flex w-12 items-center justify-center rounded-full p-3"
+					hx-get="/ui/map/filter-modal"
+					hx-target="#modal"
 				>
 					<img src="/static/images/icons/filter.svg" alt="Filter"/>
 				</button>
@@ -26,7 +26,7 @@ templ Map(searchRadius int, useLocationService bool, location string) {
 			<div id="modal"></div>
 			<template x-if="determineLocation">
 				<div
- 					class="absolute bottom-12 left-4 right-4 flex items-center justify-center gap-4 rounded-xl bg-success p-4 text-primary"
+					class="absolute bottom-12 left-4 right-4 flex items-center justify-center gap-4 rounded-xl bg-success p-4 text-primary"
 				>
 					<span class="loading loading-ring loading-lg"></span>
 					<span>Ermittle aktuelle Position</span>
@@ -81,8 +81,7 @@ templ Map(searchRadius int, useLocationService bool, location string) {
       searchAddress: async function () {
         if (this.useLocationService) return;
         this.determineLocation = true;
-        const { latitude, longitude } = await getPosition(this.address);
-        this.location = [latitude, longitude];
+        this.location = await getPosition(this.address);
         map.setView(this.location);
         this.determineLocation = false;
       },

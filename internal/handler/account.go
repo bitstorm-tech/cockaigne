@@ -3,6 +3,7 @@ package handler
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/redirect"
@@ -17,10 +18,68 @@ func RegisterAccountHandlers(e *echo.Echo) {
 	e.GET("/settings", openSettings)
 	e.GET("/settings-user-common", getUserCommonsSettings)
 	e.GET("/settings-profile-image", getProfileImageSettings)
+	e.GET("/settings-dealer-common", getDealerCommonSettings)
+	e.GET("/settings-dealer-address", getDealerAddressSettings)
 	e.POST("/settings", updateAccount)
+	e.POST("/settings-dealer-address", updateDealerAddress)
 	e.POST("/profile-image-update", updateProfileImage)
 	e.POST("/api/accounts/filter", updateFilter)
 	e.POST("/api/accounts/use-location-service", updateUseLocationService)
+}
+
+func updateDealerAddress(c echo.Context) error {
+	dealerId, err := service.ParseUserId(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	street := c.FormValue("street")
+	houseNumber := c.FormValue("housenumber")
+	city := c.FormValue("city")
+	zipString := c.FormValue("zip")
+	zip, err := strconv.Atoi(zipString)
+	if err != nil {
+		zap.L().Sugar().Error("can't convert zip string into int: ", err)
+		return view.RenderAlert("Kann Adresse momentan nicht aktuallisieren, bitte versuche es später noch einmal.", c)
+	}
+
+	err = service.UpdateDealerAddress(dealerId.String(), street, houseNumber, city, int32(zip))
+	if err != nil {
+		zap.L().Sugar().Error("can't update dealer address: ", err)
+		return view.RenderAlert("Kann Adresse momentan nicht aktuallisieren, bitte versuche es später noch einmal.", c)
+	}
+
+	return view.RenderToast("Adresse erfolgreich geändert", c)
+}
+
+func getDealerAddressSettings(c echo.Context) error {
+	dealerId, err := service.ParseUserId(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	acc, err := service.GetAccount(dealerId.String())
+	if err != nil {
+		zap.L().Sugar().Error("can't get account: ", err)
+		return view.RenderAlert("Kann aktuelle Adresse momentan nicht laden, bitte versuche es später nochmal.", c)
+	}
+
+	return view.Render(view.AddressSettings(acc), c)
+}
+
+func getDealerCommonSettings(c echo.Context) error {
+	dealerId, err := service.ParseUserId(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	account, err := service.GetAccount(dealerId.String())
+	if err != nil {
+		zap.L().Sugar().Error("can't get account: ", err)
+		return view.RenderAlert("Kann Einstellungen gerade nicht laden, bitte versuche es später noch einmal.", c)
+	}
+
+	return view.Render(view.CommonDealerSettings(account), c)
 }
 
 func updateProfileImage(c echo.Context) error {
@@ -56,25 +115,52 @@ func updateProfileImage(c echo.Context) error {
 }
 
 func updateAccount(c echo.Context) error {
-	username := c.FormValue("username")
-	usernameExists := service.UsernameExists(username)
-
-	if usernameExists {
-		return view.RenderAlert("Der Benutzername ist leider schon vergeben.", c)
-	}
-
 	userId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
 
+	username := c.FormValue("username")
+	usernameExists := service.UsernameExists(userId.String(), username)
+
+	if usernameExists {
+		return view.RenderAlert("Der Benutzername ist leider schon vergeben.", c)
+	}
+
 	err = service.UpdateUsername(userId.String(), username)
 	if err != nil {
 		zap.L().Sugar().Error("can't update username: ", err)
-		return view.RenderAlert("Dein Account kann moment nicht geändert werden, bitte versuche es später nochmal.", c)
+		return view.RenderAlert("Dein Benutzername kann moment nicht geändert werden, bitte versuche es später nochmal.", c)
 	}
 
-	return view.RenderToast("Benutzername erfolgreich geändert", c)
+	phone := c.FormValue("phone")
+	err = service.UpdatePhone(userId.String(), phone)
+	if err != nil {
+		zap.L().Sugar().Error("can't update phone: ", err)
+		return view.RenderAlert("Deine Telefonnummer kann moment nicht geändert werden, bitte versuche es später nochmal.", c)
+	}
+
+	taxId := c.FormValue("tax-id")
+	err = service.UpdateTaxId(userId.String(), taxId)
+	if err != nil {
+		zap.L().Sugar().Error("can't update tax ID: ", err)
+		return view.RenderAlert("Deine Steuernummer ID kann moment nicht geändert werden, bitte versuche es später nochmal.", c)
+	}
+
+	categoryIdString := c.FormValue("category")
+	categoryId, err := strconv.Atoi(categoryIdString)
+	if err != nil {
+		zap.L().Sugar().Error("can't convert cagetory ID from string to int: ", err)
+		return view.RenderAlert("Deine Branche kann moment nicht geändert werden, bitte versuche es später nochmal.", c)
+	}
+
+	err = service.UpdateDefaultCategory(userId.String(), categoryId)
+	if err != nil {
+		zap.L().Sugar().Error("can't update tax ID: ", err)
+		return view.RenderAlert("Deine Branche kann moment nicht geändert werden, bitte versuche es später nochmal.", c)
+	}
+
+	return view.RenderToast("Einstellungen erfolgreich geändert", c)
 }
 
 func getProfileImageSettings(c echo.Context) error {
@@ -108,7 +194,12 @@ func getUserCommonsSettings(c echo.Context) error {
 }
 
 func openSettings(c echo.Context) error {
-	return view.Render(view.Settings(), c)
+	user, err := service.ParseUser(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	return view.Render(view.Settings(user.IsDealer), c)
 }
 
 func getProfileImage(c echo.Context) error {
