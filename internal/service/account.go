@@ -236,3 +236,19 @@ func DeleteProfileImage(accountId string) error {
 
 	return persistence.DeleteImage(path)
 }
+
+func SetActivationCode(email string, code int) error {
+	_, err := persistence.DB.Exec(
+		"update accounts set activation_code = $1 where email ilike $2",
+		code,
+		email,
+	)
+
+	return err
+}
+
+func ActivateAccount(code int) error {
+	_, err := persistence.DB.Exec("update accounts set active = true where activation_code = $1", code)
+
+	return err
+}

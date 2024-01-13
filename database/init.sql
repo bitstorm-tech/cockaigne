@@ -26,6 +26,8 @@ create table
     username text not null,
     email text not null,
     password text not null,
+    active boolean not null default false,
+    activation_code integer null,
     is_dealer boolean not null default false,
     street text null,
     age integer null,

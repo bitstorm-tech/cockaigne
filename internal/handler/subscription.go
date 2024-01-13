@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/bitstorm-tech/cockaigne/internal/redirect"
@@ -35,7 +34,7 @@ func subscripe(c echo.Context) error {
 		return view.RenderAlert("Momentan können keine Abonemants abgeschlossen werden. Bitte versuche es später nochmal.", c)
 	}
 
-	domain := fmt.Sprintf("%s://%s", c.Scheme(), c.Request().Host)
+	domain := service.BuildDomain(c)
 	checkoutSession, err := service.CreateStripeCheckoutSession(plan.StripePriceId, domain)
 	if err != nil {
 		zap.L().Sugar().Error("can't create stripe checkout session: ", err)

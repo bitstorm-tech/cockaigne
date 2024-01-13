@@ -4,10 +4,12 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/bitstorm-tech/cockaigne/internal/model"
+	"github.com/bitstorm-tech/cockaigne/internal/redirect"
 	"github.com/bitstorm-tech/cockaigne/internal/service"
 	"github.com/bitstorm-tech/cockaigne/internal/view"
 	"github.com/labstack/echo/v4"
@@ -25,10 +27,50 @@ func RegisterAuthHandlers(e *echo.Echo) {
 		return view.Render(view.Signup(), c)
 	})
 
+	e.GET("/signup-complete", completeSignup)
 	e.GET("/logout", logout)
+	e.POST("/activate", activateAccount)
+	e.POST("/api/send-activation-email", sendActivationEmail)
 	e.POST("/api/signup", signup)
 	e.POST("/api/login", login)
 
+}
+
+func sendActivationEmail(c echo.Context) error {
+	email := c.FormValue("email")
+	domain := service.BuildDomain(c)
+
+	err := service.SendAccountActivationMail(email, domain)
+	if err != nil {
+		zap.L().Sugar().Error("can't send account activation email: ", err)
+		return view.RenderAlert("Momentan können keine Aktivierungs-Emails versendet werden. Bitte versuche es später nochmal.", c)
+	}
+
+	return nil
+}
+
+func activateAccount(c echo.Context) error {
+	codeString := c.FormValue("code")
+	code, err := strconv.Atoi(codeString)
+	if err != nil {
+		zap.L().Sugar().Error("can't convert activation code '%s' to a number: %+v", codeString, err)
+		return view.RenderAlert("Der angegebene Aktivierungscode ist ungütlig.", c)
+	}
+
+	err = service.ActivateAccount(code)
+	if err != nil {
+		zap.L().Sugar().Error("can't activate account: ", err)
+		return view.RenderAlert("Aktivierung des Accounts momentan nicht möglich. Bitte versuche es später nochmal.", c)
+	}
+
+	return redirect.Login(c)
+}
+
+func completeSignup(c echo.Context) error {
+	email := c.QueryParam("email")
+	code := c.QueryParam("code")
+
+	return view.Render(view.SignupComplete(email, code), c)
 }
 
 func signup(c echo.Context) error {
@@ -115,6 +157,11 @@ func login(c echo.Context) error {
 	if err != nil {
 		zap.L().Sugar().Errorf("can't get account by email (%s): %v", request.Email, err)
 		return view.RenderAlert("Benutzername oder Passwort falsch", c)
+	}
+
+	if !acc.Active {
+		zap.L().Sugar().Infof("login attempt from '%s', but not yet activated", acc.Email)
+		return view.RenderAlert("Account noch nicht aktiviert!", c)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(acc.Password), []byte(request.Password))
