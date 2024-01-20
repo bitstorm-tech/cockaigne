@@ -4,12 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/bitstorm-tech/cockaigne/internal/model"
-	"github.com/bitstorm-tech/cockaigne/internal/redirect"
 	"github.com/bitstorm-tech/cockaigne/internal/service"
 	"github.com/bitstorm-tech/cockaigne/internal/view"
 	"github.com/labstack/echo/v4"
@@ -29,41 +27,9 @@ func RegisterAuthHandlers(e *echo.Echo) {
 
 	e.GET("/signup-complete", completeSignup)
 	e.GET("/logout", logout)
-	e.POST("/activate", activateAccount)
-	e.POST("/api/send-activation-email", sendActivationEmail)
 	e.POST("/api/signup", signup)
 	e.POST("/api/login", login)
 
-}
-
-func sendActivationEmail(c echo.Context) error {
-	email := c.FormValue("email")
-	domain := service.BuildDomain(c)
-
-	err := service.SendAccountActivationMail(email, domain)
-	if err != nil {
-		zap.L().Sugar().Error("can't send account activation email: ", err)
-		return view.RenderAlert("Momentan können keine Aktivierungs-Emails versendet werden. Bitte versuche es später nochmal.", c)
-	}
-
-	return nil
-}
-
-func activateAccount(c echo.Context) error {
-	codeString := c.FormValue("code")
-	code, err := strconv.Atoi(codeString)
-	if err != nil {
-		zap.L().Sugar().Error("can't convert activation code '%s' to a number: %+v", codeString, err)
-		return view.RenderAlert("Der angegebene Aktivierungscode ist ungütlig.", c)
-	}
-
-	err = service.ActivateAccount(code)
-	if err != nil {
-		zap.L().Sugar().Error("can't activate account: ", err)
-		return view.RenderAlert("Aktivierung des Accounts momentan nicht möglich. Bitte versuche es später nochmal.", c)
-	}
-
-	return redirect.Login(c)
 }
 
 func completeSignup(c echo.Context) error {

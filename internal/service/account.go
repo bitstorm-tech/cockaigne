@@ -9,6 +9,7 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func GetSearchRadius(userId uuid.UUID) int {
@@ -249,6 +250,51 @@ func SetActivationCode(email string, code int) error {
 
 func ActivateAccount(code int) error {
 	_, err := persistence.DB.Exec("update accounts set active = true where activation_code = $1", code)
+
+	return err
+}
+
+func PasswordChange(email string, accountId string, baseUrl string) error {
+	code, err := uuid.NewRandom()
+	if err != nil {
+		return err
+	}
+
+	if len(email) > 0 {
+		_, err := persistence.DB.Exec(
+			"update accounts set change_password_code = $1 where email ilike $2",
+			code.String(),
+			email,
+		)
+		if err != nil {
+			return err
+		}
+	} else {
+		err := persistence.DB.Get(
+			&email,
+			"update accounts set change_password_code = $1 where id = $2 returning email",
+			code.String(),
+			accountId,
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	return SendPasswordChangeEmail(email, code.String(), baseUrl)
+}
+
+func ChangePassword(code string, password string) error {
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	_, err = persistence.DB.Exec(
+		"update accounts set password = $1, change_password_code = null where change_password_code = $2",
+		passwordHash,
+		code,
+	)
 
 	return err
 }

@@ -20,11 +20,96 @@ func RegisterAccountHandlers(e *echo.Echo) {
 	e.GET("/settings-profile-image", getProfileImageSettings)
 	e.GET("/settings-dealer-common", getDealerCommonSettings)
 	e.GET("/settings-dealer-address", getDealerAddressSettings)
+	e.GET("/password-change/:code", openPasswordChangePage)
+	e.GET("/send-password-change-email", openSendPasswordChangeEmailPage)
 	e.POST("/settings", updateAccount)
 	e.POST("/settings-dealer-address", updateDealerAddress)
 	e.POST("/profile-image-update", updateProfileImage)
+	e.POST("/api/send-password-change-email", sendPasswordChangeEmail)
+	e.POST("/activate", activateAccount)
+	e.POST("/password-change", changePassword)
 	e.POST("/api/accounts/filter", updateFilter)
 	e.POST("/api/accounts/use-location-service", updateUseLocationService)
+	e.POST("/api/send-activation-email", sendActivationEmail)
+}
+
+func openSendPasswordChangeEmailPage(c echo.Context) error {
+	return view.Render(view.SendPasswordChangeCodePage(), c)
+}
+
+func changePassword(c echo.Context) error {
+	code := c.FormValue("code")
+	password := c.FormValue("password")
+	passwordRepeat := c.FormValue("password-repeat")
+
+	if password != passwordRepeat {
+		return view.RenderAlert("Das Passwort und die Wiederholung stimmen nicht überein", c)
+	}
+
+	err := service.ChangePassword(code, password)
+	if err != nil {
+		zap.L().Sugar().Error("can't change password: ", err)
+		return view.RenderAlert("Das Passwort kann momentan nicht geändert werden. Bitte versuche es später nochmal.", c)
+	}
+
+	return view.RenderToast("Passwort erfolgreich geändert.", c)
+}
+
+func openPasswordChangePage(c echo.Context) error {
+	code := c.Param("code")
+
+	return view.Render(view.PasswordChangePage(code), c)
+}
+
+func sendPasswordChangeEmail(c echo.Context) error {
+	accountIdString := ""
+	accountId, err := service.ParseUserId(c)
+	if err == nil {
+		accountIdString = accountId.String()
+	}
+	email := c.FormValue("email")
+	if len(accountIdString) == 0 && len(email) == 0 {
+		return view.RenderAlert("Bitte E-Mail Adresse angeben.", c)
+	}
+
+	baseUrl := service.BuildDomain(c)
+	err = service.PasswordChange(email, accountIdString, baseUrl)
+	if err != nil {
+		zap.L().Sugar().Error("can't change password: ", err)
+		return view.RenderAlert("Dein Passwort kann aktuell nicht geändert werden. Bitte versuche es später nochmal.", c)
+	}
+
+	return view.RenderInfo("Wir haben dir eine E-Mail zum ändern deines Passworts geschickt.", c)
+}
+
+func sendActivationEmail(c echo.Context) error {
+	email := c.FormValue("email")
+	domain := service.BuildDomain(c)
+
+	err := service.SendAccountActivationMail(email, domain)
+	if err != nil {
+		zap.L().Sugar().Error("can't send account activation email: ", err)
+		return view.RenderAlert("Momentan können keine Aktivierungs-Emails versendet werden. Bitte versuche es später nochmal.", c)
+	}
+
+	return nil
+}
+
+func activateAccount(c echo.Context) error {
+	codeString := c.FormValue("code")
+	code, err := strconv.Atoi(codeString)
+	if err != nil {
+		zap.L().Sugar().Error("can't convert activation code '%s' to a number: %+v", codeString, err)
+		return view.RenderAlert("Der angegebene Aktivierungscode ist ungütlig.", c)
+	}
+
+	err = service.ActivateAccount(code)
+	if err != nil {
+		zap.L().Sugar().Error("can't activate account: ", err)
+		return view.RenderAlert("Aktivierung des Accounts momentan nicht möglich. Bitte versuche es später nochmal.", c)
+	}
+
+	return redirect.Login(c)
 }
 
 func updateDealerAddress(c echo.Context) error {

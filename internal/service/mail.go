@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	brevo "github.com/getbrevo/brevo-go/lib"
-	"go.uber.org/zap"
 )
 
 var br *brevo.APIClient
@@ -37,10 +36,28 @@ func SendAccountActivationMail(email string, baseUrl string) error {
 		ActivationUrl:  fmt.Sprintf("%s/signup-complete?email=%s&code=%d", baseUrl, email, activationCode),
 	})
 
-	templateIdString := os.Getenv("BREVO_SEND_ACTIVATION_CODE_TEMPLATE_ID")
-	templateId, err := strconv.Atoi(templateIdString)
+	templateId := os.Getenv("BREVO_ACTIVATE_ACCOUNT_TEMPLATE_ID")
+
+	return sendMail(templateId, email, &params)
+}
+
+type PasswordChangeParams struct {
+	ChangePasswordUrl string
+}
+
+func SendPasswordChangeEmail(email string, code string, baseUrl string) error {
+	templateId := os.Getenv("BREVO_CHANGE_PASSWORD_TEMPLATE_ID")
+
+	params := interface{}(PasswordChangeParams{
+		ChangePasswordUrl: fmt.Sprintf("%s/password-change/%s", baseUrl, code),
+	})
+
+	return sendMail(templateId, email, &params)
+}
+
+func sendMail(templateId string, email string, params *interface{}) error {
+	templId, err := strconv.Atoi(templateId)
 	if err != nil {
-		zap.L().Sugar().Errorf("can't convert template ID string '%s': %+v", templateIdString, err)
 		return err
 	}
 
@@ -48,8 +65,8 @@ func SendAccountActivationMail(email string, baseUrl string) error {
 		To: []brevo.SendSmtpEmailTo{{
 			Email: email,
 		}},
-		TemplateId: int64(templateId),
-		Params:     &params,
+		TemplateId: int64(templId),
+		Params:     params,
 	}
 
 	_, _, err = br.TransactionalEmailsApi.SendTransacEmail(context.TODO(), mail)

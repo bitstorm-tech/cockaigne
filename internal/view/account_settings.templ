@@ -72,7 +72,9 @@ templ CommonUserSettings(username string, email string) {
 			<input id="email" type="email" value={ email } disabled/>
 		</div>
 		<button type="button" class="btn btn-primary">E-Mail ändern</button>
-		<button type="button" class="btn btn-primary">Password ändern</button>
+		<button type="button" class="btn btn-primary" hx-post="/api/send-password-change-email">
+			Password ändern
+		</button>
 		<div class="grid grid-cols-2 gap-4">
 			<button>Speichern</button>
 			<a class="btn btn-primary" href="/">Abbrechen</a>
@@ -87,7 +89,7 @@ templ CommonDealerSettings(acc model.Account) {
 			<input id="username" type="text" name="username" value={ acc.Username }/>
 		</div>
 		<div class="form-control">
-			<label for="email">Benutzername</label>
+			<label for="email">E-Mail</label>
 			<input id="email" type="email" value={ acc.Email } disabled/>
 		</div>
 		<button type="button" class="btn btn-primary">E-Mail ändern</button>
@@ -108,7 +110,9 @@ templ CommonDealerSettings(acc model.Account) {
 				hx-target="this"
 			></div>
 		</div>
-		<button type="button" class="btn btn-primary">Password ändern</button>
+		<button type="button" class="btn btn-primary" hx-post="/api/send-password-change-email">
+			Password ändern
+		</button>
 		<div class="grid grid-cols-2 gap-4">
 			<button>Speichern</button>
 			<a class="btn btn-primary" href="/">Abbrechen</a>

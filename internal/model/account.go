@@ -14,6 +14,7 @@ type Account struct {
 	Email                string
 	Active               bool
 	ActivationCode       sql.NullString `db:"activation_code"`
+	ChangePasswordCode   sql.NullString `db:"change_password_code"`
 	Gender               sql.NullString
 	Age                  sql.NullInt32
 	IsDealer             bool `db:"is_dealer"`
