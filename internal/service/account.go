@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"mime/multipart"
 	"strings"
@@ -11,6 +12,8 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var ErrEmailAlreadyExists = errors.New("email already exists")
 
 func GetSearchRadius(userId uuid.UUID) int {
 	var searchRadius = 250
@@ -67,7 +70,7 @@ func GetAccountByEmail(email string) (model.Account, error) {
 	var account model.Account
 	err := persistence.DB.Get(
 		&account,
-		"select *, st_x(location) || ',' || st_y(location) as location from accounts where email = $1",
+		"select *, st_x(location) || ',' || st_y(location) as location from accounts where email ilike $1",
 		email,
 	)
 	if err != nil {
@@ -254,7 +257,7 @@ func ActivateAccount(code int) error {
 	return err
 }
 
-func PasswordChange(email string, accountId string, baseUrl string) error {
+func PreparePasswordChange(email string, accountId string, baseUrl string) error {
 	code, err := uuid.NewRandom()
 	if err != nil {
 		return err
@@ -293,6 +296,44 @@ func ChangePassword(code string, password string) error {
 	_, err = persistence.DB.Exec(
 		"update accounts set password = $1, change_password_code = null where change_password_code = $2",
 		passwordHash,
+		code,
+	)
+
+	return err
+}
+
+func PrepareEmailChange(accountId string, newEmail string, baseUrl string) error {
+	code, err := uuid.NewRandom()
+	if err != nil {
+		return err
+	}
+
+	var emailAlreadyExists bool
+	err = persistence.DB.Get(&emailAlreadyExists, "select exists(select * from accounts where email ilike $1)", newEmail)
+	if err != nil {
+		return err
+	}
+
+	if emailAlreadyExists {
+		return ErrEmailAlreadyExists
+	}
+
+	_, err = persistence.DB.Exec(
+		"update accounts set change_email_code = $1, new_email = $2 where id = $3",
+		code.String(),
+		newEmail,
+		accountId,
+	)
+	if err != nil {
+		return err
+	}
+
+	return SendEmailChangeEmail(newEmail, code.String(), baseUrl)
+}
+
+func ChangeEmail(code string) error {
+	_, err := persistence.DB.Exec(
+		"update accounts set email = new_email, new_email = null, change_email_code = null where change_email_code = $1",
 		code,
 	)
 

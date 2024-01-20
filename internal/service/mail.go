@@ -55,6 +55,20 @@ func SendPasswordChangeEmail(email string, code string, baseUrl string) error {
 	return sendMail(templateId, email, &params)
 }
 
+type EmailChangeParams struct {
+	ChangeEmailUrl string
+}
+
+func SendEmailChangeEmail(email string, code string, baseUrl string) error {
+	templateId := os.Getenv("BREVO_CHANGE_EMAIL_TEMPLATE_ID")
+
+	params := interface{}(EmailChangeParams{
+		ChangeEmailUrl: fmt.Sprintf("%s/email-change/%s", baseUrl, code),
+	})
+
+	return sendMail(templateId, email, &params)
+}
+
 func sendMail(templateId string, email string, params *interface{}) error {
 	templId, err := strconv.Atoi(templateId)
 	if err != nil {

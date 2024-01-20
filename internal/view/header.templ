@@ -7,9 +7,11 @@ templ Header(isAuthenticated bool, isDealer bool) {
 		<div class="px-4 sm:px-6 lg:px-8">
 			<div class="flex h-12 items-center justify-between">
 				<a href="/"><img class="h-7" src="/static/images/logo-text.svg" alt="Logo"/></a>
-				<div class="hidden gap-1 md:flex">
+				<div class="hidden gap-6 md:flex">
 					if isAuthenticated {
-						<a class="menu-item" href="/logout">Logout</a>
+						<a class="menu-item" href="/settings">Einstellungen</a>
+						<a class="menu-item" href="/contact">Kontaktiere uns</a>
+						<a class="menu-item" href="/logout">Abmelden</a>
 					} else {
 						<a class="menu-item" href="/login">Login</a>
 						<a class="menu-item" href="/signup">Registrieren</a>
@@ -32,10 +34,10 @@ templ Header(isAuthenticated bool, isDealer bool) {
 		// Mobile menu
 		//---------------
 		<div
- 			class="absolute right-2 top-10 z-50 select-none rounded-md border-2 border-[#232b2e] bg-dark md:hidden"
- 			x-transition.duration.300ms
- 			x-show="showMenu"
- 			@click.outside="showMenu = false"
+			class="absolute right-2 top-10 z-50 select-none rounded-md border-2 border-[#232b2e] bg-dark md:hidden"
+			x-transition.duration.300ms
+			x-show="showMenu"
+			@click.outside="showMenu = false"
 		>
 			<div class="flex flex-col gap-5 p-6 sm:px-3 ">
 				if isAuthenticated {

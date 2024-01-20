@@ -1,0 +1,36 @@
+package view
+
+templ EmailChangePage() {
+	@BaseLayout() {
+		<form class="flex flex-col gap-6 p-6" hx-post="/api/send-email-change-email">
+			<h1 class="text-center">E-Mail ändern</h1>
+			<span>
+				Bitte gibt die neue E-Mail Adresse ein. Wir schicken an diese Adresse eine E-Mail mit einem Bestätigungslink zum aktivieren der neuen E-Mail Adresse.
+			</span>
+			<div class="form-control">
+				<label for="email">E-Mail</label>
+				<input id="email" name="email" type="email"/>
+			</div>
+			<div class="grid grid-cols-2 gap-4">
+				<button class="btn btn-warning">Senden</button>
+				<a class="btn btn-primary" href="/settings">Zurück</a>
+			</div>
+		</form>
+	}
+}
+
+templ EmailChangeResultPage(err bool) {
+	@BaseLayout() {
+		<section class="flex flex-col gap-6 p-6 text-center">
+			if err {
+				<h1>E-Mail nicht geändert</h1>
+				<span>Leider konnte deine E-Mail Adresse nicht geändert werden 🙁</span>
+				<span>Bitte versuche es später nochmal</span>
+			} else {
+				<h1>E-Mail geändert</h1>
+				<span>Deine E-Mail Adresse wurde erfolgreich geändert 🥳</span>
+				<span>Du kannst diese Seite jetzt schließen</span>
+			}
+		</section>
+	}
+}

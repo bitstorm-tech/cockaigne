@@ -29,6 +29,8 @@ create table
     active boolean not null default false,
     activation_code integer null,
     change_password_code text null,
+    change_email_code text null,
+    new_email text null,
     is_dealer boolean not null default false,
     street text null,
     age integer null,

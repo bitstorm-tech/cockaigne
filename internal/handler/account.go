@@ -22,6 +22,8 @@ func RegisterAccountHandlers(e *echo.Echo) {
 	e.GET("/settings-dealer-address", getDealerAddressSettings)
 	e.GET("/password-change/:code", openPasswordChangePage)
 	e.GET("/send-password-change-email", openSendPasswordChangeEmailPage)
+	e.GET("/email-change", openEmailChangePage)
+	e.GET("/email-change/:code", changeEmail)
 	e.POST("/settings", updateAccount)
 	e.POST("/settings-dealer-address", updateDealerAddress)
 	e.POST("/profile-image-update", updateProfileImage)
@@ -31,6 +33,48 @@ func RegisterAccountHandlers(e *echo.Echo) {
 	e.POST("/api/accounts/filter", updateFilter)
 	e.POST("/api/accounts/use-location-service", updateUseLocationService)
 	e.POST("/api/send-activation-email", sendActivationEmail)
+	e.POST("/api/send-email-change-email", sendEmailChangeEmail)
+}
+
+func changeEmail(c echo.Context) error {
+	code := c.Param("code")
+
+	err := service.ChangeEmail(code)
+	if err != nil {
+		zap.L().Sugar().Error("can't change email: ", err)
+		return view.Render(view.EmailChangeResultPage(true), c)
+	}
+
+	return view.Render(view.EmailChangeResultPage(false), c)
+}
+
+func openEmailChangePage(c echo.Context) error {
+	return view.Render(view.EmailChangePage(), c)
+}
+
+func sendEmailChangeEmail(c echo.Context) error {
+	accountId, err := service.ParseUserId(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	baseUrl := service.BuildDomain(c)
+	newEmail := c.FormValue("email")
+	if len(newEmail) == 0 {
+		return view.RenderAlert("Bitte eine gültige E-Mail angeben.", c)
+	}
+
+	err = service.PrepareEmailChange(accountId.String(), newEmail, baseUrl)
+	if err != nil {
+		if errors.Is(err, service.ErrEmailAlreadyExists) {
+			return view.RenderAlert("E-Mail ist bereits mit einem anderen Account verknüpft.", c)
+		}
+
+		zap.L().Sugar().Error("can't prepare email change: ", err)
+		return view.RenderAlert("Momentan kannst du deine E-Mail nicht ändern. Bitte versuche es später nochmal.", c)
+	}
+
+	return view.RenderInfo("Wir haben dir an deine neue Adresse eine E-Mail mit dem Bestätigungslink geschickt.", c)
 }
 
 func openSendPasswordChangeEmailPage(c echo.Context) error {
@@ -73,7 +117,7 @@ func sendPasswordChangeEmail(c echo.Context) error {
 	}
 
 	baseUrl := service.BuildDomain(c)
-	err = service.PasswordChange(email, accountIdString, baseUrl)
+	err = service.PreparePasswordChange(email, accountIdString, baseUrl)
 	if err != nil {
 		zap.L().Sugar().Error("can't change password: ", err)
 		return view.RenderAlert("Dein Passwort kann aktuell nicht geändert werden. Bitte versuche es später nochmal.", c)
