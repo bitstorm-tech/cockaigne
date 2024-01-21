@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+
 	"github.com/bitstorm-tech/cockaigne/internal/redirect"
 	"github.com/bitstorm-tech/cockaigne/internal/service"
 	"github.com/bitstorm-tech/cockaigne/internal/view"
@@ -10,6 +12,45 @@ import (
 
 func RegisterUserHandlers(e *echo.Echo) {
 	e.GET("/user", getUser)
+	e.GET("/deals-count-badge", getDealsCountBadge)
+	e.GET("/favorite-deals-count-badge", getFavoriteDealsCountBadge)
+	e.GET("/favorite-dealers-count-badge", getFavoriteDealersCountBadge)
+}
+
+func getDealsCountBadge(c echo.Context) error {
+	return view.Render(view.DealsCountBadge("1"), c)
+}
+
+func getFavoriteDealersCountBadge(c echo.Context) error {
+	userId, err := service.ParseUserId(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	headers, err := service.GetFavoriteDealerDealHeaders(userId.String())
+	if err != nil {
+		zap.L().Sugar().Error("can't get favorite dealer deal headers: ", err)
+	}
+
+	count := fmt.Sprintf("%d", len(headers))
+
+	return view.Render(view.FavoriteDealerCountBadge(count), c)
+}
+
+func getFavoriteDealsCountBadge(c echo.Context) error {
+	userId, err := service.ParseUserId(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	count, err := service.GetFavoriteDealsCount(userId.String())
+	if err != nil {
+		zap.L().Sugar().Error("can't get favorite deals count: ", err)
+	}
+
+	countString := fmt.Sprintf("%d", count)
+
+	return view.Render(view.FavoriteDealsCountBadge(countString), c)
 }
 
 func getUser(c echo.Context) error {
@@ -23,5 +64,14 @@ func getUser(c echo.Context) error {
 		zap.L().Sugar().Error("can't get account: ", err)
 	}
 
-	return view.Render(view.User(acc.ID.String(), acc.Username, "Josef-Frankl-Str.", "31A", "80995", "München", "12"), c)
+	params := view.UserHeaderParameters{
+		ID:          acc.ID.String(),
+		Username:    acc.Username,
+		Street:      "Josef-Frankl-Str.",
+		HouseNumber: "31A",
+		Zip:         "80995",
+		City:        "München",
+	}
+
+	return view.Render(view.User(params), c)
 }

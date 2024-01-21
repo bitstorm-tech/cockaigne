@@ -287,6 +287,8 @@ func toggleFavorite(c echo.Context) error {
 	dealId := c.Param("id")
 	isFavorite := service.ToggleFavorite(dealId, userId.String())
 
+	c.Response().Header().Add("HX-Trigger", "updateFavDealsCountBadge")
+
 	return view.Render(view.DealFavoriteToggleButton(dealId, isFavorite), c)
 }
 

@@ -347,3 +347,14 @@ func GetTopDealHeaders(limit int) ([]model.DealHeader, error) {
 
 	return header, err
 }
+
+func GetFavoriteDealsCount(userId string) (int, error) {
+	count := 0
+	err := persistence.DB.Get(
+		&count,
+		"select count(*) from favorite_deals f join active_deals_view a on a.id = f.deal_id where f.user_id = $1",
+		userId,
+	)
+
+	return count, err
+}

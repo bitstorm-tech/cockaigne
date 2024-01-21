@@ -8,7 +8,7 @@ templ TopDealsPage() {
 				<div
 					hx-get="/deals-top/25"
 					hx-target="#content"
-					hx-trigger="click"
+					hx-trigger="click, load"
 					class="tab"
 					:class="selectedTab === 0 ? 'tab-active' : ''"
 					@click="selectedTab = 0"
@@ -26,7 +26,7 @@ templ TopDealsPage() {
 					Alle
 				</div>
 			</div>
-			<div id="content" class="pt-1" hx-get="/deals-top/25" hx-trigger="load once" hx-target="this"></div>
+			<div id="content" class="pt-1"></div>
 		</section>
 	}
 }

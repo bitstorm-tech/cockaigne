@@ -12,7 +12,7 @@ templ Dealer(acc model.Account, category string, isOwner bool, googleMapsLink st
 				<div
 					hx-get={ "/deals/active?dealer_id=" + acc.ID.String() }
 					hx-target="#content"
-					hx-trigger="click"
+					hx-trigger="click, load"
 					class="tab"
 					:class="selectedTab === 0 ? 'tab-active' : ''"
 					@click="selectedTab = 0"
@@ -43,7 +43,7 @@ templ Dealer(acc model.Account, category string, isOwner bool, googleMapsLink st
 					<img class="h-8 pb-2" src="/static/images/icons/rating-outline.svg" alt="Ratings" x-show="selectedTab !== 2"/>
 				</div>
 			</div>
-			<div id="content" class="pt-1" hx-get={ "/deals/active?dealer_id=" + acc.ID.String() } hx-trigger="load once" hx-target="this"></div>
+			<div id="content" class="pt-1"></div>
 		</div>
 	}
 }

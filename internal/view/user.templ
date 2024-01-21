@@ -1,31 +1,31 @@
 package view
 
-templ UserHeader(id string, username string, street string, houseNumber string, zip string, city string, numberOfDeals string) {
+type UserHeaderParameters struct {
+	ID          string
+	Username    string
+	Street      string
+	HouseNumber string
+	Zip         string
+	City        string
+}
+
+templ UserHeader(params UserHeaderParameters) {
 	<div class="flex h-52 justify-between">
 		<div class="flex w-full justify-between">
 			<div class="m-4 flex flex-col gap-4">
 				<div class="flex gap-2 fill-current text-xs text-[#69828c]">
-					<div class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]">
-						<img src="/static/images/icons/deals.svg" alt="Deals" class="h-3 w-auto"/>
-						{ numberOfDeals }
-					</div>
-					<div class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]">
-						<img src="/static/images/icons/heart.svg" alt="Deals" class="h-3 w-auto"/>
-						{ numberOfDeals }
-					</div>
-					<div class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]">
-						<img src="/static/images/icons/bookmark.svg" alt="Deals" class="h-3 w-auto"/>
-						{ numberOfDeals }
-					</div>
+					<div hx-get="/deals-count-badge" hx-trigger="load" hx-target="this"></div>
+					<div hx-get="/favorite-dealers-count-badge" hx-trigger="load" hx-target="this"></div>
+					<div hx-get="/favorite-deals-count-badge" hx-trigger="load, updateFavDealsCountBadge from:body" hx-target="this"></div>
 				</div>
-				<div class="text-2xl">{ username }</div>
+				<div class="text-2xl">{ params.Username }</div>
 				<div class="flex flex-col gap-2 text-sm">
 					<div class="font-extrabold">Dein Standort</div>
 					<div class="flex gap-1">
 						<img src="/static/images/icons/location.svg" alt="Location" class="h-6"/>
 						<div class="flex flex-col text-xs">
-							<div>{ street } { houseNumber }</div>
-							<div>{ zip } { city }</div>
+							<div>{ params.Street } { params.HouseNumber }</div>
+							<div>{ params.Zip } { params.City }</div>
 						</div>
 					</div>
 				</div>
@@ -33,7 +33,7 @@ templ UserHeader(id string, username string, street string, houseNumber string, 
 			<div class="-mt-6 mr-16 flex flex-col">
 				<div class="avatar z-40 cursor-pointer">
 					<div class="h-24 w-24 rounded-full bg-base-100 ring-2 ring-[#556368]">
-						<div hx-get={ "/profile-image/" + id } hx-target="this" hx-trigger="load once" hx-swap="outerHTML"></div>
+						<div hx-get={ "/profile-image/" + params.ID } hx-target="this" hx-trigger="load once" hx-swap="outerHTML"></div>
 					</div>
 				</div>
 			</div>
@@ -41,15 +41,36 @@ templ UserHeader(id string, username string, street string, houseNumber string, 
 	</div>
 }
 
-templ User(id string, username string, street string, houseNumber string, zip string, city string, numberOfDeals string) {
+templ DealsCountBadge(count string) {
+	<div class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]">
+		<img src="/static/images/icons/deals.svg" alt="Deals" class="h-3 w-auto"/>
+		{ count }
+	</div>
+}
+
+templ FavoriteDealerCountBadge(count string) {
+	<div class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]">
+		<img src="/static/images/icons/heart.svg" alt="Deals" class="h-3 w-auto"/>
+		{ count }
+	</div>
+}
+
+templ FavoriteDealsCountBadge(count string) {
+	<div class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]">
+		<img src="/static/images/icons/bookmark.svg" alt="Deals" class="h-3 w-auto"/>
+		{ count }
+	</div>
+}
+
+templ User(userHeaderParams UserHeaderParameters) {
 	@BaseLayout() {
-		@UserHeader(id, username, street, houseNumber, zip, city, numberOfDeals)
+		@UserHeader(userHeaderParams)
 		<div x-data="{selectedTab: 0}">
 			<div class="tabs tabs-bordered" x-cloak>
 				<div
 					hx-get="/deals/active"
 					hx-target="#content"
-					hx-trigger="click"
+					hx-trigger="click, load"
 					class="tab"
 					:class="selectedTab === 0 ? 'tab-active' : ''"
 					@click="selectedTab = 0"
@@ -85,7 +106,7 @@ templ User(id string, username string, street string, houseNumber string, zip st
 					/>
 				</div>
 			</div>
-			<div id="content" class="pt-1" hx-trigger="load once" hx-get="/deals/active"></div>
+			<div id="content" class="pt-1"></div>
 		</div>
 	}
 }
