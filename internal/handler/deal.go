@@ -18,6 +18,7 @@ func RegisterDealHandlers(e *echo.Echo) {
 	e.GET("/deal/:dealId", openDealCreatePage)
 	e.GET("/ui/category-select", getCategorySelect)
 	e.GET("/deals/:state", getDealList)
+	e.GET("/deals-top/:limit", getTopDealsList)
 	e.GET("/api/deals", getDealsAsJson)
 	e.GET("/deal-details/:id", getDealDetails)
 	e.GET("/deal-likes/:id", toggleDealLike)
@@ -27,9 +28,35 @@ func RegisterDealHandlers(e *echo.Echo) {
 	e.GET("/deal-favorites-list", getFavoriteDeals)
 	e.GET("/deal-image-zoom-modal/:dealId", getImageZoomModal)
 	e.GET("/dealer-favorites-list", getFavoriteDealerDeals)
+	e.GET("/top-deals", openTopDealsPage)
 	e.POST("/deal-report/:id", saveReport)
 	e.POST("/deals", saveDeal)
 	e.DELETE("/deal-favorite-remove/:id", removeFavorite)
+}
+
+func getTopDealsList(c echo.Context) error {
+	limitString := c.Param("limit")
+	limit, err := strconv.Atoi(limitString)
+	if err != nil {
+		zap.L().Sugar().Error("can't convert limit parameter to int: ", err)
+		return view.RenderAlert("Kann momentan die top Deals nicht laden. Bitte versuche es später nochmal.", c)
+	}
+
+	if limit > 100 {
+		limit = 100
+	}
+
+	header, err := service.GetTopDealHeaders(limit)
+	if err != nil {
+		zap.L().Sugar().Error("can't get top deals: ", err)
+		return view.RenderAlert("Kann momentan die top Deals nicht laden. Bitte versuche es später nochmal.", c)
+	}
+
+	return view.Render(view.DealsList(header, false, false, true, false), c)
+}
+
+func openTopDealsPage(c echo.Context) error {
+	return view.Render(view.TopDealsPage(), c)
 }
 
 func getFavoriteDealerDeals(c echo.Context) error {

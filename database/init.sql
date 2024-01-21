@@ -217,6 +217,41 @@ order by
 
 
 create or replace view
+  favorite_counts_view as
+select
+  deal_id,
+  count(deal_id) as favoritecount
+from
+  favorite_deals
+group by
+  deal_id
+order by
+  favoritecount desc;
+
+
+
+create or replace view
+  top_deals_view as
+select
+  id,
+  title,
+  username,
+  dealer_id,
+  category_id,
+  location,
+  coalesce(likecount, 0) as likes,
+  coalesce(favoritecount, 0) as favorites
+from
+  active_deals_view a
+  left join like_counts_view l on l.deal_id = a.id
+  left join favorite_counts_view f on f.deal_id = a.id
+order by
+  likes desc,
+  favorites desc;
+
+
+
+create or replace view
   dealer_view as
 select
   a.id,

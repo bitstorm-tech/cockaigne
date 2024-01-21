@@ -1,0 +1,32 @@
+package view
+
+templ TopDealsPage() {
+	@BaseLayout() {
+		<section class="flex flex-col">
+			<h1 class="text-center">TOP-Deals in deiner Nähe</h1>
+			<div class="tabs tabs-bordered" x-data="{selectedTab: 0}">
+				<div
+					hx-get="/deals-top/25"
+					hx-target="#content"
+					hx-trigger="click"
+					class="tab"
+					:class="selectedTab === 0 ? 'tab-active' : ''"
+					@click="selectedTab = 0"
+				>
+					Top 25
+				</div>
+				<div
+					hx-get="/deals-top/100"
+					hx-target="#content"
+					hx-trigger="click"
+					class="tab"
+					:class="selectedTab === 1 ? 'tab-active' : ''"
+					@click="selectedTab = 1"
+				>
+					Alle
+				</div>
+			</div>
+			<div id="content" class="pt-1" hx-get="/deals-top/25" hx-trigger="load once" hx-target="this"></div>
+		</section>
+	}
+}

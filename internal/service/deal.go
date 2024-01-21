@@ -336,3 +336,14 @@ func GetFavoriteDealerDealHeaders(userId string) ([]model.DealHeader, error) {
 
 	return header, nil
 }
+
+func GetTopDealHeaders(limit int) ([]model.DealHeader, error) {
+	var header []model.DealHeader
+	err := persistence.DB.Select(
+		&header,
+		"select id, dealer_id, title, username, category_id from top_deals_view limit $1",
+		limit,
+	)
+
+	return header, err
+}

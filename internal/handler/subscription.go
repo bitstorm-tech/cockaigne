@@ -11,11 +11,11 @@ import (
 )
 
 func RegisterSubscriptionHandler(e *echo.Echo) {
-	e.POST("/subscripe/:planId", subscripe)
-	e.GET("/subscripe-success", subscripeSuccess)
+	e.POST("/subscribe/:planId", subscribe)
+	e.GET("/subscribe-success", subscripeSuccess)
 }
 
-func subscripe(c echo.Context) error {
+func subscribe(c echo.Context) error {
 	accountId, err := service.ParseUserId(c)
 	if err != nil {
 		return redirect.Login(c)
