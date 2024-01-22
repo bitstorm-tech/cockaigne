@@ -19,8 +19,8 @@ templ DealsList(dealHeaders []model.DealHeader, onDealerPage bool, isDealer bool
 					</div>
 				}
 				<div
- 					class="flex cursor-pointer items-center justify-between bg-[#2c363a] p-2 pr-3"
- 					@click={ fmt.Sprintf("openDetailsId = openDetailsId === '%[1]s' ? '' : '%[1]s'", header.ID) }
+					class="flex cursor-pointer items-center justify-between bg-[#2c363a] p-2 pr-3"
+					@click={ fmt.Sprintf("openDetailsId = openDetailsId === '%[1]s' ? '' : '%[1]s'", header.ID) }
 				>
 					<div class="flex items-center gap-2">
 						@icon.DealIcon(header.CategoryId)
@@ -35,21 +35,21 @@ templ DealsList(dealHeaders []model.DealHeader, onDealerPage bool, isDealer bool
 							@DealFavoriteRemoveButton(header.ID.String())
 						} else {
 							<div
- 								hx-get={ "/deal-favorite-button/" + header.ID.String() }
- 								hx-trigger="load once"
- 								hx-target="this"
- 								hx-swap="outerHTML"
+								hx-get={ "/deal-favorite-button/" + header.ID.String() }
+								hx-trigger="load once"
+								hx-target="this"
+								hx-swap="outerHTML"
 							></div>
 						}
 					}
 				</div>
 				<div
- 					class="flex flex-col justify-between bg-[#323e42] p-2"
- 					hx-get={ "/deal-details/" + header.ID.String() }
- 					hx-target={ "#details-footer-" + header.ID.String() }
- 					hx-trigger="load once"
- 					hx-swap="outerHTML"
- 					x-show={ fmt.Sprintf("openDetailsId === '%s'", header.ID) }
+					class="flex flex-col justify-between bg-[#323e42] p-2"
+					hx-get={ "/deal-details/" + header.ID.String() }
+					hx-target={ "#details-footer-" + header.ID.String() }
+					hx-trigger="load once"
+					hx-swap="outerHTML"
+					x-show={ fmt.Sprintf("openDetailsId === '%s'", header.ID) }
 				>
 					<div id={ "details-footer-" + header.ID.String() }></div>
 				</div>
@@ -57,4 +57,52 @@ templ DealsList(dealHeaders []model.DealHeader, onDealerPage bool, isDealer bool
 		}
 	</div>
 	<div id="image-zoom-modal"></div>
+}
+
+templ DealDetailsFooter(dealDetails model.DealDetails, imageUrls []string, isDealer bool, likes string) {
+	<span>{ dealDetails.Description }</span>
+	<div class="grid grid-cols-3 gap-1 py-2">
+		for i, url := range imageUrls {
+			<img
+				src={ url }
+				alt="Deal image"
+				class="h-24 w-full object-cover"
+				hx-get={ fmt.Sprintf("/deal-image-zoom-modal/%s?index=%d", dealDetails.ID.String(), i) }
+				hx-target="#image-zoom-modal"
+				hx-swap="innerHTML"
+			/>
+		}
+	</div>
+	if isDealer {
+		@dealFooterDealer(likes)
+	} else {
+		@dealFooterUser(dealDetails.ID.String())
+	}
+	<div id={ "report-modal-" + dealDetails.ID.String() }></div>
+}
+
+templ dealFooterUser(dealId string) {
+	<span class="py-4 text-xs">Endet am 1.1.2222</span>
+	<div class="flex h-6 justify-between">
+		<div hx-get={ "/deal-likes/" + dealId + "?toggle=false" } hx-target="this" hx-trigger="load once"></div>
+		<button
+			class="clean"
+			hx-get={ "/ui/deals/report-modal/" + dealId }
+			hx-target={ "#report-modal-" + dealId }
+			hx-swap="innerHTML"
+		>
+			<img src="/static/images/icons/report.svg" alt="Report deal" class="h-6"/>
+		</button>
+	</div>
+}
+
+templ dealFooterDealer(likes string) {
+	<div class="flex justify-between">
+		<span>Von: 01.01.2222</span>
+		<div class="flex items-center gap-1">
+			<span>{ likes }</span>
+			<img src="/static/images/icons/like-outline.svg" alt="Likes" class="h-4"/>
+		</div>
+		<span>Bis: 12.12.2222</span>
+	</div>
 }

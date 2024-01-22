@@ -200,6 +200,11 @@ func getDealsAsJson(c echo.Context) error {
 }
 
 func getDealDetails(c echo.Context) error {
+	user, err := service.ParseUser(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
 	dealId := c.Param("id")
 	likes := service.GetDealLikes(dealId)
 	imageUrls, err := service.GetDealImageUrls(dealId)
@@ -214,7 +219,7 @@ func getDealDetails(c echo.Context) error {
 		return c.String(http.StatusNotFound, "Konnte Deal Details nicht laden, bitte versuche es später nochmal.")
 	}
 
-	return view.Render(view.DealDetailsFooter(details, imageUrls, true, strconv.Itoa(likes)), c)
+	return view.Render(view.DealDetailsFooter(details, imageUrls, user.IsDealer, strconv.Itoa(likes)), c)
 }
 
 func toggleDealLike(c echo.Context) error {
