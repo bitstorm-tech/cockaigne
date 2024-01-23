@@ -121,17 +121,7 @@ func getOverviewPage(c echo.Context) error {
 }
 
 func getTemplatesPage(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
-	if err != nil {
-		return redirect.Login(c)
-	}
-
-	templateDeals, err := service.GetTemplates(userId.String())
-	if err != nil {
-		zap.L().Sugar().Error("can't get templates for dealer: ", userId.String())
-	}
-
-	return view.Render(view.Templates(templateDeals), c)
+	return view.Render(view.Templates(), c)
 }
 
 func getDealerImages(c echo.Context) error {

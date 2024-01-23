@@ -107,7 +107,7 @@ func GetDealsFromView(state model.State, dealerId *string) ([]model.DealView, er
 }
 
 func GetDealHeaders(state model.State, dealerId string) ([]model.DealHeader, error) {
-	if state != model.Future && state != model.Active && state != model.Past {
+	if state != model.Future && state != model.Active && state != model.Past && state != model.Template {
 		return []model.DealHeader{}, fmt.Errorf("unknown deal state: %s", state)
 	}
 
@@ -117,6 +117,8 @@ func GetDealHeaders(state model.State, dealerId string) ([]model.DealHeader, err
 		statement = "select id, title, username, dealer_id, category_id from past_deals_view"
 	case model.Future:
 		statement = "select id, title, username, dealer_id, category_id from future_deals_view"
+	case model.Template:
+		statement = "select d.id, d.title, a.username, d.dealer_id, d.category_id from deals d join accounts a on a.id = d.dealer_id where template = true"
 	}
 
 	if len(dealerId) > 0 {
@@ -277,7 +279,7 @@ func ToggleFavorite(dealId string, userId string) bool {
 	return !isFavorite
 }
 
-func GetTemplates(dealerId string) ([]model.Deal, error) {
+func GetTemplateHeaders(dealerId string) ([]model.Deal, error) {
 	var templates []model.Deal
 	err := persistence.DB.Select(&templates, "select * from deals where template = true and dealer_id = $1", dealerId)
 	if err != nil {

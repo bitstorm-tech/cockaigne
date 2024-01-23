@@ -4,7 +4,7 @@ import "github.com/bitstorm-tech/cockaigne/internal/model"
 import "fmt"
 import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
 
-templ DealsList(dealHeaders []model.DealHeader, hideName bool, isDealer bool, showFavoriteToggle bool, removeFavorite bool) {
+templ DealsList(dealHeaders []model.DealHeader, hideName bool, isDealer bool, showFavoriteToggle bool, removeFavorite bool, canEdit bool) {
 	<div class="flex flex-col gap-2" x-data="{openDetailsId: ''}">
 		for _, header := range dealHeaders {
 			<div id={ "deal-" + header.ID.String() }>
@@ -26,11 +26,11 @@ templ DealsList(dealHeaders []model.DealHeader, hideName bool, isDealer bool, sh
 						@icon.DealIcon(header.CategoryId)
 						<span>{ header.Title }</span>
 					</div>
-					if isDealer {
-						<button class="clean" @click.stop="">
+					if canEdit {
+						<a class="clean" @click.stop="" href={ templ.SafeURL("/deal/" + header.ID.String()) }>
 							<img src="/static/images/icons/cog.svg" alt="Deal Einstellungen" class="h-5"/>
-						</button>
-					} else if showFavoriteToggle {
+						</a>
+					} else if showFavoriteToggle && !isDealer {
 						if removeFavorite {
 							@DealFavoriteRemoveButton(header.ID.String())
 						} else {

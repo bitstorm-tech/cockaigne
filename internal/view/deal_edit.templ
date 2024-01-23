@@ -6,25 +6,25 @@ import "strconv"
 templ DealEdit(deal model.Deal) {
 	@BaseLayout() {
 		<form
- 			class="flex flex-col gap-4 p-4"
- 			hx-post="/deals"
- 			hx-target="#alert"
- 			enctype="multipart/form-data"
- 			x-data="data"
+			class="flex flex-col gap-4 p-4"
+			hx-post="/deals"
+			hx-target="#alert"
+			enctype="multipart/form-data"
+			x-data="data"
 		>
 			// ------------------
 			//   Title
 			// ------------------
 			<div class="form-control">
 				<label for="title">Titel</label>
-				<input id="title" type="text" name="title"/>
+				<input id="title" type="text" name="title" value={ deal.Title }/>
 			</div>
 			//   <!------------------>
 			//   <!-- Description  -->
 			//   <!------------------>
 			<div class="form-control">
 				<label for="description">Beschreibung</label>
-				<textarea id="description" class="h-32" rows="10" name="description"></textarea>
+				<textarea id="description" class="h-32" rows="10" name="description" value={ deal.Description }></textarea>
 			</div>
 			//   <!------------------------->
 			//   <!-- Category selection  -->
@@ -32,10 +32,10 @@ templ DealEdit(deal model.Deal) {
 			<div class="form-control">
 				<label for="category-select">Kategorie</label>
 				<div
- 					id="category-select"
- 					hx-get={ "/ui/category-select?name=Kategorie&selected=" + strconv.Itoa(deal.CategoryId) }
- 					hx-trigger="load once"
- 					hx-target="this"
+					id="category-select"
+					hx-get={ "/ui/category-select?name=Kategorie&selected=" + strconv.Itoa(deal.CategoryId) }
+					hx-trigger="load once"
+					hx-target="this"
 				></div>
 			</div>
 			//   <!------------------->
@@ -49,52 +49,52 @@ templ DealEdit(deal model.Deal) {
 			<div class="grid grid-cols-3 gap-2">
 				<div>
 					<button
- 						x-show="!imagePreviewUrls[0]"
- 						@click.prevent="$refs.fileInput0.click()"
- 						class="btn-outline btn-primary h-24 w-full"
+						x-show="!imagePreviewUrls[0]"
+						@click.prevent="$refs.fileInput0.click()"
+						class="btn-outline btn-primary h-24 w-full"
 					>
 						+
 					</button>
 					<img
- 						x-show="imagePreviewUrls[0]"
- 						:src="imagePreviewUrls[0]"
- 						@click="remove($refs.fileInput0, 0)"
- 						class="h-24 w-full object-cover"
- 						alt="Deal image 1"
+						x-show="imagePreviewUrls[0]"
+						:src="imagePreviewUrls[0]"
+						@click="remove($refs.fileInput0, 0)"
+						class="h-24 w-full object-cover"
+						alt="Deal image 1"
 					/>
 					<input x-ref="fileInput0" type="file" hidden @change="add($event, 0)" name="images"/>
 				</div>
 				<div>
 					<button
- 						x-show="!imagePreviewUrls[1]"
- 						@click.prevent="$refs.fileInput1.click()"
- 						class="btn-outline btn-primary h-24 w-full"
+						x-show="!imagePreviewUrls[1]"
+						@click.prevent="$refs.fileInput1.click()"
+						class="btn-outline btn-primary h-24 w-full"
 					>
 						+
 					</button>
 					<img
- 						x-show="imagePreviewUrls[1]"
- 						:src="imagePreviewUrls[1]"
- 						@click="remove($refs.fileInput1, 1)"
- 						class="h-24 w-full object-cover"
- 						alt="Deal image 1"
+						x-show="imagePreviewUrls[1]"
+						:src="imagePreviewUrls[1]"
+						@click="remove($refs.fileInput1, 1)"
+						class="h-24 w-full object-cover"
+						alt="Deal image 1"
 					/>
 					<input x-ref="fileInput1" type="file" hidden @change="add($event, 1)" name="images"/>
 				</div>
 				<div>
 					<button
- 						x-show="!imagePreviewUrls[2]"
- 						@click.prevent="$refs.fileInput2.click()"
- 						class="btn-outline btn-primary h-24 w-full"
+						x-show="!imagePreviewUrls[2]"
+						@click.prevent="$refs.fileInput2.click()"
+						class="btn-outline btn-primary h-24 w-full"
 					>
 						+
 					</button>
 					<img
- 						x-show="imagePreviewUrls[2]"
- 						:src="imagePreviewUrls[2]"
- 						@click="remove($refs.fileInput2, 2)"
- 						class="h-24 w-full object-cover"
- 						alt="Deal image 1"
+						x-show="imagePreviewUrls[2]"
+						:src="imagePreviewUrls[2]"
+						@click="remove($refs.fileInput2, 2)"
+						class="h-24 w-full object-cover"
+						alt="Deal image 1"
 					/>
 					<input x-ref="fileInput2" type="file" hidden @change="add($event, 2)" name="images"/>
 				</div>
@@ -118,10 +118,10 @@ templ DealEdit(deal model.Deal) {
 			<div class="form-control" x-show="!startInstantly">
 				<label for="start-date-input">Start</label>
 				<input
- 					id="start-date-input"
- 					type="datetime-local"
- 					name="startDate"
- 					value={ deal.Start.Format("2006-01-02T15:04") }
+					id="start-date-input"
+					type="datetime-local"
+					name="startDate"
+					value={ deal.Start.Format("2006-01-02T15:04") }
 				/>
 			</div>
 			<div class="py-6 text-sm" x-show="startInstantly">

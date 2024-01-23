@@ -52,7 +52,7 @@ func getTopDealsList(c echo.Context) error {
 		return view.RenderAlert("Kann momentan die top Deals nicht laden. Bitte versuche es später nochmal.", c)
 	}
 
-	return view.Render(view.DealsList(header, false, false, true, false), c)
+	return view.Render(view.DealsList(header, false, false, true, false, false), c)
 }
 
 func openTopDealsPage(c echo.Context) error {
@@ -71,7 +71,7 @@ func getFavoriteDealerDeals(c echo.Context) error {
 		return view.RenderAlert("Kann favorisierte Dealer Deals nicht laden, bitte später nochmal versuchen.", c)
 	}
 
-	return view.Render(view.DealsList(headers, false, false, false, false), c)
+	return view.Render(view.DealsList(headers, false, false, false, false, false), c)
 }
 
 func getFavoriteDeals(c echo.Context) error {
@@ -86,7 +86,7 @@ func getFavoriteDeals(c echo.Context) error {
 		return view.RenderAlert("Kann favorisierte Deals aktuell nicht laden, bitte später nochmal versuchen.", c)
 	}
 
-	return view.Render(view.DealsList(headers, false, false, true, true), c)
+	return view.Render(view.DealsList(headers, false, false, true, true, false), c)
 }
 
 func openDealCreatePage(c echo.Context) error {
@@ -185,7 +185,7 @@ func getDealList(c echo.Context) error {
 
 	hideName := c.QueryParam("hide_name") == "true"
 
-	return view.Render(view.DealsList(headers, hideName, user.IsDealer, true, false), c)
+	return view.Render(view.DealsList(headers, hideName, user.IsDealer, true, false, false), c)
 }
 
 func getDealsAsJson(c echo.Context) error {

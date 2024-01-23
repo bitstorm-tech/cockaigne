@@ -13,9 +13,10 @@ import (
 type State string
 
 const (
-	Active State = "active"
-	Past   State = "past"
-	Future State = "future"
+	Active   State = "active"
+	Past     State = "past"
+	Future   State = "future"
+	Template State = "template"
 )
 
 func ToState(state string) State {
@@ -26,6 +27,8 @@ func ToState(state string) State {
 		return Past
 	case "future":
 		return Future
+	case "template":
+		return Template
 	}
 
 	zap.L().Sugar().Warnf("invalid deal state (%s) -> use 'active' as default", state)
