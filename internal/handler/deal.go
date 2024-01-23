@@ -183,9 +183,9 @@ func getDealList(c echo.Context) error {
 		return view.RenderAlert(err.Error(), c)
 	}
 
-	onDealerPage := strings.Contains(c.Request().URL.Path, "dealer")
+	hideName := c.QueryParam("hide_name") == "true"
 
-	return view.Render(view.DealsList(headers, onDealerPage, user.IsDealer, true, false), c)
+	return view.Render(view.DealsList(headers, hideName, user.IsDealer, true, false), c)
 }
 
 func getDealsAsJson(c echo.Context) error {

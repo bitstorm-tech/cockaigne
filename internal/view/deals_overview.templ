@@ -10,9 +10,9 @@ templ DealsOverview(dealerId string) {
 			<div x-data="{selectedTab: 0}">
 				<div class="tabs tabs-bordered">
 					<div
-						hx-get={ "/deals/active?dealer_id=" + dealerId }
+						hx-get={ "/deals/active?hide_name=true&dealer_id=" + dealerId }
 						hx-target="#content"
-						hx-trigger="click"
+						hx-trigger="click, load"
 						@click="selectedTab = 0"
 						class="tab"
 						:class="selectedTab === 0 ? 'tab-active' :''"
@@ -20,7 +20,7 @@ templ DealsOverview(dealerId string) {
 						Aktiv
 					</div>
 					<div
-						hx-get={ "/deals/future?dealer_id=" + dealerId }
+						hx-get={ "/deals/future?hide_name=true&dealer_id=" + dealerId }
 						hx-target="#content"
 						hx-trigger="click"
 						@click="selectedTab = 1"
@@ -30,7 +30,7 @@ templ DealsOverview(dealerId string) {
 						Geplant
 					</div>
 					<div
-						hx-get={ "/deals/past?dealer_id=" + dealerId }
+						hx-get={ "/deals/past?hide_name=true&dealer_id=" + dealerId }
 						hx-target="#content"
 						hx-trigger="click"
 						@click="selectedTab = 2"
@@ -42,6 +42,6 @@ templ DealsOverview(dealerId string) {
 				</div>
 			</div>
 		</div>
-		<div id="content" class="pt-4" hx-get={ "/deals/active?dealer_id=" + dealerId } hx-trigger="load once" hx-target="this"></div>
+		<div id="content" class="pt-1"></div>
 	}
 }
