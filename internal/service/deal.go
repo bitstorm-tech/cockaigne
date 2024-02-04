@@ -360,3 +360,64 @@ func GetFavoriteDealsCount(userId string) (int, error) {
 
 	return count, err
 }
+
+func HasActiveSubscription(dealerId string) (bool, error) {
+	hasActiveSub := false
+	err := persistence.DB.Get(
+		&hasActiveSub,
+		"select exists(select * from subscriptions where state = $1 and account_id = $2)",
+		model.SubActive,
+		dealerId,
+	)
+
+	return hasActiveSub, err
+}
+
+func GetFreeDaysLeftFromSubscription(dealerId string) (int, error) {
+	daysUsed := 0
+	err := persistence.DB.Get(
+		&daysUsed,
+		`select coalesce(0, sum(duration_in_hours) / 24)
+		from active_deals_view 
+		where date_trunc('month', start) = date_trunc('month', now()) 
+		  and date_trunc('year', start) = date_trunc('year', now()) 
+		  and dealer_id = $1`,
+		dealerId,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	freeDaysPerMont, err := GetFreeDaysPerMonth(dealerId)
+	if err != nil {
+		return 0, err
+	}
+
+	return freeDaysPerMont - daysUsed, nil
+}
+
+func GetFreeDaysPerMonth(dealerId string) (int, error) {
+	freeDaysPerMont := 0
+	err := persistence.DB.Get(
+		&freeDaysPerMont,
+		"select free_days_per_month from subscriptions s join plans p on s.plan_id = p.id where state = $1 and account_id = $2",
+		model.SubActive,
+		dealerId,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	return freeDaysPerMont, nil
+}
+
+func GetHighestVoucherDiscount(dealerId string) (int, error) {
+	highestDiscount := 0
+	err := persistence.DB.Get(
+		&highestDiscount,
+		"select max(discount_in_percent) from active_vouchers_view where account_id = $1",
+		dealerId,
+	)
+
+	return highestDiscount, err
+}

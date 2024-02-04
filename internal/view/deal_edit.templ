@@ -2,6 +2,7 @@ package view
 
 import "github.com/bitstorm-tech/cockaigne/internal/model"
 import "strconv"
+import "fmt"
 
 templ DealEdit(deal model.Deal) {
 	@BaseLayout() {
@@ -155,9 +156,10 @@ templ DealEdit(deal model.Deal) {
 			//   <!-- Save and cancel -->
 			//   <!--------------------->
 			<div class="grid grid-cols-2 gap-2">
-				<button>Erstellen</button>
+				<button hx-post="/deal-new-summary" hx-target="#summary-modal">Erstellen</button>
 				<a href="/" class="btn btn-primary">Abrechen</a>
 			</div>
+			<div id="summary-modal"></div>
 		</form>
 		<script>
 			const data = {
@@ -181,5 +183,80 @@ templ DealEdit(deal model.Deal) {
 				}
 			};
 		</script>
+	}
+}
+
+type NewDealSummaryModalParameter struct {
+	Err               bool
+	Start             string
+	End               string
+	Duration          string
+	Price             string
+	PriceWithDiscount string
+	Discount          string
+	FreeDaysLeft      string
+}
+
+templ NewDealSummaryModal(params NewDealSummaryModalParameter) {
+	@Modal() {
+		<h2>Das Wichtigste zusammengefasst</h2>
+		<div class="flex flex-col gap-4">
+			<div class="grid grid-cols-3">
+				<span>Start:</span>
+				<span class="col-span-2">{ params.Start }</span>
+				<span>Ende:</span>
+				<span class="col-span-2">{ params.End }</span>
+				<span>Dauer:</span>
+				<span class="col-span-2">{ params.Duration } Tag(e)</span>
+			</div>
+		</div>
+		<div class="py-4">
+			<hr/>
+		</div>
+		<div class="flex flex-col">
+			if len(params.FreeDaysLeft) > 0 {
+				if len(params.Price) > 0 {
+					<span class="text-xl">Kosten: { params.Price } €</span>
+					<span class="text-xs">
+						Du hast deine freien Tage für diese Monatsperiode aufgebraucht.
+						Falls du mehr freie Tage benötigst, kannst du auf ein größeres Abo umsteingen: 
+						<a href="/pricing">Abo wählen</a>
+					</span>
+				} else {
+					<span class="text-xl">Kosten: 0 €</span>
+					<span class="text-xs">
+						Verbleibende freien Tage: { params.FreeDaysLeft }
+					</span>
+				}
+			} else if len(params.PriceWithDiscount) > 0 {
+				<span class="text-xl">Kosten: <span class="line-through">{ params.Price }</span> { params.PriceWithDiscount } €</span>
+				<span class="text-xs">Du sparst durch einen aktiven Gutschein! { params.FreeDaysLeft }</span>
+			} else {
+				<span class="text-xl">Kosten: { params.Price } €</span>
+			}
+		</div>
+		<div class="pt-16">
+			<span>{ fmt.Sprintf("%+v", params) }</span>
+		</div>
+		if params.Err {
+			<div class="flex flex-col gap-4 text-red-500 italic">
+				<span>
+					Leider kann momentan nicht überprüft werden, ob du eine aktives Abo oder aktiven Gutschein hast.
+				</span>
+				<span>
+					Deshalb müssen wir dir für diesen Deal leider den Standard-Preis berechnen.
+				</span>
+				<span>
+					Du kannst es auch später nochmal versuchen oder melde dich bitte bei unserem Support-Team:
+					<a class="underline" href="mailto:support@cockaigne.city">Nachricht schreiben</a>!
+				</span>
+			</div>
+		}
+		<div class="modal-action">
+			<button>Jetzt starten!</button>
+			<button class="btn-primary" hx-delete="/ui/remove" hx-target="#summary-modal">
+				Nochmal überarbeiten
+			</button>
+		</div>
 	}
 }

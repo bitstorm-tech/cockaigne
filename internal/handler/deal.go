@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/redirect"
@@ -12,6 +13,11 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/view"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
+)
+
+var CannotCreateDealAlert = view.Alert(
+	"Es können momentan keine Deals erstellt werden. Wir arbeiten bereits mit Hochdruck an einer Lösung. Bitte versuche es später noch einmal.",
+	true,
 )
 
 func RegisterDealHandlers(e *echo.Echo) {
@@ -22,16 +28,146 @@ func RegisterDealHandlers(e *echo.Echo) {
 	e.GET("/api/deals", getDealsAsJson)
 	e.GET("/deal-details/:id", getDealDetails)
 	e.GET("/deal-likes/:id", toggleDealLike)
-	e.GET("/ui/deals/report-modal/:id", getReportModal)
 	e.GET("/deal-favorite-button/:id", getDealFavoriteButton)
 	e.GET("/deal-favorite-toggle/:id", toggleFavorite)
 	e.GET("/deal-favorites-list", getFavoriteDeals)
 	e.GET("/deal-image-zoom-modal/:dealId", getImageZoomModal)
 	e.GET("/dealer-favorites-list", getFavoriteDealerDeals)
 	e.GET("/top-deals", openTopDealsPage)
+	e.GET("/ui/deals/report-modal/:id", getReportModal)
+	e.POST("/deal-new-summary", openNewDealSummaryModal)
 	e.POST("/deal-report/:id", saveReport)
 	e.POST("/deals", saveDeal)
 	e.DELETE("/deal-favorite-remove/:id", removeFavorite)
+}
+
+func openNewDealSummaryModal(c echo.Context) error {
+	dealerId, err := service.ParseUserId(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	title := c.FormValue("title")
+	if len(title) == 0 {
+		return view.RenderAlert("Bitte einen Titel angeben", c)
+	}
+
+	description := c.FormValue("description")
+	if len(description) == 0 {
+		return view.RenderAlert("Bitte eine Beschreibung angeben", c)
+	}
+
+	timesAndDates, err := calculateDealTimesAndDates(c)
+	if err != nil {
+		zap.L().Sugar().Error("can't calculate deal times and dates: ", err)
+		return view.Render(CannotCreateDealAlert, c)
+	}
+
+	params := createSubscriptionModalParams(dealerId.String(), timesAndDates)
+	if params != nil {
+		return view.Render(view.NewDealSummaryModal(*params), c)
+	}
+
+	params = createDiscountModalParams(dealerId.String())
+	if params != nil {
+		return view.Render(view.NewDealSummaryModal(*params), c)
+	}
+
+	params = &view.NewDealSummaryModalParameter{
+		Err:      false,
+		Duration: c.FormValue("duration"),
+		Price:    fmt.Sprintf("%f", float64(timesAndDates.Duration)*4.99),
+	}
+
+	return view.Render(view.NewDealSummaryModal(*params), c)
+}
+
+type DealTimesAndDates struct {
+	Duration int
+	Start    time.Time
+	End      time.Time
+}
+
+func calculateDealTimesAndDates(c echo.Context) (DealTimesAndDates, error) {
+	dealTimesAndDates := DealTimesAndDates{}
+
+	if c.FormValue("startInstantly") == "on" {
+		dealTimesAndDates.Start = time.Now()
+	} else {
+		startDateTime, err := time.Parse("2006-01-02T15:04", c.FormValue("startDate"))
+		if err != nil {
+			return DealTimesAndDates{}, fmt.Errorf("can't parse start date: %w", err)
+		}
+		dealTimesAndDates.Start = startDateTime
+	}
+
+	if c.FormValue("ownEndDate") == "on" {
+		startTime := strings.Split(c.FormValue("startDate"), "T")[1]
+		endDate, err := time.Parse("2006-01-0215:04", c.FormValue("endDate")+startTime)
+		if err != nil {
+			return DealTimesAndDates{}, fmt.Errorf("can't parse end date: %w", err)
+		}
+		dealTimesAndDates.End = endDate
+		dealTimesAndDates.Duration = int(dealTimesAndDates.End.Sub(dealTimesAndDates.Start).Hours()) / 24
+	} else {
+		durationString := c.FormValue("duration")
+		duration, err := strconv.Atoi(durationString)
+		if err != nil {
+			return DealTimesAndDates{}, fmt.Errorf("can't convert duration from string (%s) to into number: %w", durationString, err)
+		}
+		dealTimesAndDates.End = dealTimesAndDates.Start.Add(time.Duration(duration*24) * time.Hour)
+		dealTimesAndDates.Duration = duration
+	}
+
+	return dealTimesAndDates, nil
+}
+
+func createSubscriptionModalParams(dealerId string, timesAndDates DealTimesAndDates) *view.NewDealSummaryModalParameter {
+	params := view.NewDealSummaryModalParameter{
+		Start:    timesAndDates.Start.Format("02.01.2006 um 15:04"),
+		End:      timesAndDates.End.Format("02.01.2006 um 15:04"),
+		Duration: fmt.Sprintf("%d", timesAndDates.Duration),
+	}
+
+	hasActiveSub, err := service.HasActiveSubscription(dealerId)
+	if err != nil {
+		zap.L().Sugar().Error("can't check if dealer has active subscription: ", err)
+		params.Err = true
+		return &params
+	}
+
+	if !hasActiveSub {
+		return nil
+	}
+
+	freeDaysLeft, err := service.GetFreeDaysLeftFromSubscription(dealerId)
+	if err != nil {
+		zap.L().Sugar().Error("can't get free days left from subscription: ", err)
+		params.Err = true
+		return &params
+	}
+
+	zap.L().Sugar().Info("daysLeft: ", freeDaysLeft)
+
+	params.FreeDaysLeft = fmt.Sprintf("%d", freeDaysLeft-timesAndDates.Duration)
+	params.Err = false
+	return &params
+}
+
+func createDiscountModalParams(dealerId string) *view.NewDealSummaryModalParameter {
+	params := view.NewDealSummaryModalParameter{}
+	highestDiscountInPercent, err := service.GetHighestVoucherDiscount(dealerId)
+	if err != nil {
+		zap.L().Sugar().Error("can't check if dealer has active voucher; ", err)
+		params.Err = true
+		return &params
+	}
+
+	if highestDiscountInPercent == 0 {
+		return nil
+	}
+
+	return nil
 }
 
 func getTopDealsList(c echo.Context) error {
