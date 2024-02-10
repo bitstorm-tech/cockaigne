@@ -65,27 +65,31 @@ func openNewDealSummaryModal(c echo.Context) error {
 
 	params := createSubscriptionModalParams(dealerId.String(), timesAndDates)
 	if params != nil {
+		addStartAndEndToSummaryModalParameter(params, timesAndDates)
 		return view.Render(view.NewDealSummaryModal(*params), c)
 	}
 
-	params = createDiscountModalParams(dealerId.String())
+	params = createDiscountModalParams(dealerId.String(), timesAndDates)
 	if params != nil {
+		addStartAndEndToSummaryModalParameter(params, timesAndDates)
 		return view.Render(view.NewDealSummaryModal(*params), c)
 	}
 
 	params = &view.NewDealSummaryModalParameter{
-		Err:      false,
-		Duration: c.FormValue("duration"),
-		Price:    fmt.Sprintf("%f", float64(timesAndDates.Duration)*4.99),
+		Err:   false,
+		Price: service.FormatPrice(float64(timesAndDates.DurationInDays) * 4.99),
+		// Price: fmt.Sprintf("%.2f", float64(timesAndDates.DurationInDays)*4.99),
 	}
+
+	addStartAndEndToSummaryModalParameter(params, timesAndDates)
 
 	return view.Render(view.NewDealSummaryModal(*params), c)
 }
 
 type DealTimesAndDates struct {
-	Duration int
-	Start    time.Time
-	End      time.Time
+	DurationInDays int
+	Start          time.Time
+	End            time.Time
 }
 
 func calculateDealTimesAndDates(c echo.Context) (DealTimesAndDates, error) {
@@ -108,7 +112,7 @@ func calculateDealTimesAndDates(c echo.Context) (DealTimesAndDates, error) {
 			return DealTimesAndDates{}, fmt.Errorf("can't parse end date: %w", err)
 		}
 		dealTimesAndDates.End = endDate
-		dealTimesAndDates.Duration = int(dealTimesAndDates.End.Sub(dealTimesAndDates.Start).Hours()) / 24
+		dealTimesAndDates.DurationInDays = int(dealTimesAndDates.End.Sub(dealTimesAndDates.Start).Hours()) / 24
 	} else {
 		durationString := c.FormValue("duration")
 		duration, err := strconv.Atoi(durationString)
@@ -116,19 +120,20 @@ func calculateDealTimesAndDates(c echo.Context) (DealTimesAndDates, error) {
 			return DealTimesAndDates{}, fmt.Errorf("can't convert duration from string (%s) to into number: %w", durationString, err)
 		}
 		dealTimesAndDates.End = dealTimesAndDates.Start.Add(time.Duration(duration*24) * time.Hour)
-		dealTimesAndDates.Duration = duration
+		dealTimesAndDates.DurationInDays = duration
 	}
 
 	return dealTimesAndDates, nil
 }
 
-func createSubscriptionModalParams(dealerId string, timesAndDates DealTimesAndDates) *view.NewDealSummaryModalParameter {
-	params := view.NewDealSummaryModalParameter{
-		Start:    timesAndDates.Start.Format("02.01.2006 um 15:04"),
-		End:      timesAndDates.End.Format("02.01.2006 um 15:04"),
-		Duration: fmt.Sprintf("%d", timesAndDates.Duration),
-	}
+func addStartAndEndToSummaryModalParameter(params *view.NewDealSummaryModalParameter, timesAndDates DealTimesAndDates) {
+	params.Start = timesAndDates.Start.Format("02.01.2006 um 15:04")
+	params.End = timesAndDates.End.Format("02.01.2006 um 15:04")
+	params.Duration = fmt.Sprintf("%d", timesAndDates.DurationInDays)
+}
 
+func createSubscriptionModalParams(dealerId string, timesAndDates DealTimesAndDates) *view.NewDealSummaryModalParameter {
+	params := view.NewDealSummaryModalParameter{}
 	hasActiveSub, err := service.HasActiveSubscription(dealerId)
 	if err != nil {
 		zap.L().Sugar().Error("can't check if dealer has active subscription: ", err)
@@ -141,20 +146,26 @@ func createSubscriptionModalParams(dealerId string, timesAndDates DealTimesAndDa
 	}
 
 	freeDaysLeft, err := service.GetFreeDaysLeftFromSubscription(dealerId)
+	zap.L().Sugar().Info("freeDaysLeft: ", freeDaysLeft)
 	if err != nil {
 		zap.L().Sugar().Error("can't get free days left from subscription: ", err)
 		params.Err = true
 		return &params
 	}
 
-	zap.L().Sugar().Info("daysLeft: ", freeDaysLeft)
+	daysLeftAfterDeal := freeDaysLeft - timesAndDates.DurationInDays
+	if daysLeftAfterDeal < 0 {
+		params.Price = fmt.Sprintf("%.2f", float64(-1*daysLeftAfterDeal)*4.99)
+		params.FreeDaysLeft = "0"
+	}
 
-	params.FreeDaysLeft = fmt.Sprintf("%d", freeDaysLeft-timesAndDates.Duration)
+	params.FreeDaysLeft = fmt.Sprintf("%d", daysLeftAfterDeal)
 	params.Err = false
+
 	return &params
 }
 
-func createDiscountModalParams(dealerId string) *view.NewDealSummaryModalParameter {
+func createDiscountModalParams(dealerId string, timesAndDates DealTimesAndDates) *view.NewDealSummaryModalParameter {
 	params := view.NewDealSummaryModalParameter{}
 	highestDiscountInPercent, err := service.GetHighestVoucherDiscount(dealerId)
 	if err != nil {
@@ -167,7 +178,12 @@ func createDiscountModalParams(dealerId string) *view.NewDealSummaryModalParamet
 		return nil
 	}
 
-	return nil
+	price := float64(timesAndDates.DurationInDays) * 4.99
+	params.Discount = fmt.Sprintf("%d", highestDiscountInPercent)
+	params.Price = service.FormatPrice(price)
+	params.PriceWithDiscount = service.FormatPriceWithDiscount(price, highestDiscountInPercent)
+
+	return &params
 }
 
 func getTopDealsList(c echo.Context) error {

@@ -377,7 +377,7 @@ func GetFreeDaysLeftFromSubscription(dealerId string) (int, error) {
 	daysUsed := 0
 	err := persistence.DB.Get(
 		&daysUsed,
-		`select coalesce(0, sum(duration_in_hours) / 24)
+		`select coalesce(sum(duration_in_hours) / 24, 0)
 		from active_deals_view 
 		where date_trunc('month', start) = date_trunc('month', now()) 
 		  and date_trunc('year', start) = date_trunc('year', now()) 
@@ -415,9 +415,23 @@ func GetHighestVoucherDiscount(dealerId string) (int, error) {
 	highestDiscount := 0
 	err := persistence.DB.Get(
 		&highestDiscount,
-		"select max(discount_in_percent) from active_vouchers_view where account_id = $1",
+		"select coalesce(max(discount_in_percent), 0) from active_vouchers_view where account_id = $1",
 		dealerId,
 	)
 
 	return highestDiscount, err
+}
+
+func FormatPrice(price float64) string {
+	priceString := fmt.Sprintf("%f", price)
+	dotIndex := strings.Index(priceString, ".")
+
+	return priceString[:dotIndex+3]
+}
+
+func FormatPriceWithDiscount(price float64, discountInPercent int) string {
+	percent := (100.0 - float64(discountInPercent)) / 100.0
+	priceWithDiscount := price * percent
+
+	return FormatPrice(priceWithDiscount)
 }

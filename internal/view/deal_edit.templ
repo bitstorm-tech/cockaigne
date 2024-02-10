@@ -2,7 +2,6 @@ package view
 
 import "github.com/bitstorm-tech/cockaigne/internal/model"
 import "strconv"
-import "fmt"
 
 templ DealEdit(deal model.Deal) {
 	@BaseLayout() {
@@ -220,28 +219,25 @@ templ NewDealSummaryModal(params NewDealSummaryModalParameter) {
 					<span class="text-xs">
 						Du hast deine freien Tage für diese Monatsperiode aufgebraucht.
 						Falls du mehr freie Tage benötigst, kannst du auf ein größeres Abo umsteingen: 
-						<a href="/pricing">Abo wählen</a>
+						<a class="underline" href="/pricing">Abo wählen</a>
 					</span>
 				} else {
 					<span class="text-xl">Kosten: 0 €</span>
 					<span class="text-xs">
-						Verbleibende freien Tage: { params.FreeDaysLeft }
+						Verbleibende freie Tage: { params.FreeDaysLeft }
 					</span>
 				}
 			} else if len(params.PriceWithDiscount) > 0 {
 				<span class="text-xl">Kosten: <span class="line-through">{ params.Price }</span> { params.PriceWithDiscount } €</span>
-				<span class="text-xs">Du sparst durch einen aktiven Gutschein! { params.FreeDaysLeft }</span>
+				<span class="text-xs">Du sparst durch einen aktiven Gutschein { params.Discount }%!</span>
 			} else {
 				<span class="text-xl">Kosten: { params.Price } €</span>
 			}
 		</div>
-		<div class="pt-16">
-			<span>{ fmt.Sprintf("%+v", params) }</span>
-		</div>
 		if params.Err {
 			<div class="flex flex-col gap-4 text-red-500 italic">
 				<span>
-					Leider kann momentan nicht überprüft werden, ob du eine aktives Abo oder aktiven Gutschein hast.
+					Wir können momentan nicht überprüfen, ob du eine aktives Abo oder aktiven Gutschein hast.
 				</span>
 				<span>
 					Deshalb müssen wir dir für diesen Deal leider den Standard-Preis berechnen.
