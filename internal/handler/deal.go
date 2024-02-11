@@ -336,8 +336,9 @@ func getDealList(c echo.Context) error {
 	}
 
 	hideName := c.QueryParam("hide_name") == "true"
+	canEdit := c.QueryParam("can_edit") == "true"
 
-	return view.Render(view.DealsList(headers, hideName, user.IsDealer, true, false, false), c)
+	return view.Render(view.DealsList(headers, hideName, user.IsDealer, true, false, canEdit), c)
 }
 
 func getDealsAsJson(c echo.Context) error {
