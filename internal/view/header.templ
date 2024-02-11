@@ -1,6 +1,7 @@
 package view
 
 import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
+import "strings"
 
 templ Header(isAuthenticated bool, isDealer bool) {
 	<nav id="header" class="h-12 border-b border-b-white border-opacity-25" x-data="{showMenu: false}">
@@ -70,16 +71,24 @@ templ UserMenu() {
 templ DealerMenu() {
 	@menuEntry("Einstellungen", "/settings", icon.CogOutline())
 	@menuEntry("Abo & Preise", "/pricing", icon.Money())
-	@menuEntry("Abo verwalten", "/plans", icon.SubManagement())
+	@menuEntry("Abo verwalten", "https://billing.stripe.com/p/login/test_4gw9AKfJh5rw9QQeUU", icon.SubManagement())
 	@menuEntry("Kontaktiere uns", "/contact", icon.At())
 	@menuEntry("Abmelden", "/logout", icon.Logout())
 }
 
 templ menuEntry(text string, href string, icon templ.Component) {
-	<a class="flex justify-start items-center gap-4" href={ templ.SafeURL(href) }>
+	<a class="flex justify-start items-center gap-4" href={ templ.SafeURL(href) } target={target(href)}>
 		<div class="shrink h-6 w-6">
 			@icon
 		</div>
 		{ text }
 	</a>
+}
+
+func target(href string) string {
+    if strings.Contains(href, "stripe") {
+        return "_blank"
+    }
+
+    return ""
 }
