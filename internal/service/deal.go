@@ -149,14 +149,28 @@ func GetFavoriteDealHeaders(userId string) ([]model.DealHeader, error) {
 	return headers, nil
 }
 
+type dealDetailsResult struct {
+	model.DealDetails
+	DurationInHours int `db:"duration_in_hours"`
+	Start           time.Time
+}
+
 func GetDealDetails(dealId string) (model.DealDetails, error) {
-	var details model.DealDetails
-	err := persistence.DB.Get(&details, "select id, title, description from deals where id = $1", dealId)
+	var result dealDetailsResult
+	err := persistence.DB.Get(&result, "select id, title, description, start, duration_in_hours from deals where id = $1", dealId)
 	if err != nil {
 		return model.DealDetails{}, fmt.Errorf("can't get deal details of deal %s: %v", dealId, err)
 	}
 
-	return details, nil
+	startAndEndDate := CalculateStartAndEndAsHumanReadable(result.Start, result.DurationInHours)
+
+	return model.DealDetails{
+		ID:          result.ID,
+		Title:       result.Title,
+		Description: result.Description,
+		Start:       startAndEndDate.Start,
+		End:         startAndEndDate.End,
+	}, nil
 }
 
 func GetDealReport(dealId string, reporterId string) (model.DealReport, error) {
@@ -434,4 +448,16 @@ func FormatPriceWithDiscount(price float64, discountInPercent int) string {
 	priceWithDiscount := price * percent
 
 	return FormatPrice(priceWithDiscount)
+}
+
+type StartAndEndDate struct {
+	Start string
+	End   string
+}
+
+func CalculateStartAndEndAsHumanReadable(start time.Time, durationInHours int) StartAndEndDate {
+	return StartAndEndDate{
+		Start: start.Format("02.01.2006 um 15:04"),
+		End:   start.Add(time.Duration(durationInHours) * time.Hour).Format("02.01.2006 um 15:04"),
+	}
 }

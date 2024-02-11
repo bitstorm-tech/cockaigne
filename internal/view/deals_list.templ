@@ -74,15 +74,15 @@ templ DealDetailsFooter(dealDetails model.DealDetails, imageUrls []string, isDea
 		}
 	</div>
 	if isDealer {
-		@dealFooterDealer(likes)
+		@dealFooterDealer(likes, dealDetails.Start, dealDetails.End)
 	} else {
-		@dealFooterUser(dealDetails.ID.String())
+		@dealFooterUser(dealDetails.ID.String(), dealDetails.End)
 	}
 	<div id={ "report-modal-" + dealDetails.ID.String() }></div>
 }
 
-templ dealFooterUser(dealId string) {
-	<span class="py-4 text-xs">Endet am 1.1.2222</span>
+templ dealFooterUser(dealId, endDate string) {
+	<span class="py-4 text-xs">Endet am { endDate }</span>
 	<div class="flex h-6 justify-between">
 		<div hx-get={ "/deal-likes/" + dealId + "?toggle=false" } hx-target="this" hx-trigger="load once"></div>
 		<button
@@ -96,13 +96,13 @@ templ dealFooterUser(dealId string) {
 	</div>
 }
 
-templ dealFooterDealer(likes string) {
+templ dealFooterDealer(likes, startDate, endDate string) {
 	<div class="flex justify-between">
-		<span>Von: 01.01.2222</span>
+		<span>Von: { startDate }</span>
 		<div class="flex items-center gap-1">
 			<span>{ likes }</span>
 			<img src="/static/images/icons/like-outline.svg" alt="Likes" class="h-4"/>
 		</div>
-		<span>Bis: 12.12.2222</span>
+		<span>Bis: { endDate }</span>
 	</div>
 }

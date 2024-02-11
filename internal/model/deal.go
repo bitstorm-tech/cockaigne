@@ -154,6 +154,8 @@ type DealDetails struct {
 	ID          uuid.UUID
 	Title       string
 	Description string
+	Start       string
+	End         string
 }
 
 type DealReport struct {
