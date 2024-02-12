@@ -10,7 +10,7 @@
     "autoprefixer": "10.4.17",
     "browser-sync": "3.0.2",
     "concurrently": "8.2.2",
-    "daisyui": "4.6.2",
+    "daisyui": "4.6.3",
     "npm-check-updates": "16.14.15",
     "postcss": "8.4.35",
     "prettier": "3.2.5",
