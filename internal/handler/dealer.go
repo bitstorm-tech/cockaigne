@@ -117,7 +117,23 @@ func getOverviewPage(c echo.Context) error {
 		return redirect.Login(c)
 	}
 
-	return view.Render(view.DealsOverview(dealerId.String()), c)
+	freeDaysLeft, err := service.GetFreeDaysLeftFromSubscription(dealerId.String())
+	freeDaysLeftString := ""
+	if err != nil {
+		zap.L().Sugar().Error("can't get free days left from subscription: ", err)
+	}
+	freeDaysLeftString = fmt.Sprintf("%d", freeDaysLeft)
+	if freeDaysLeft < 0 {
+		freeDaysLeftString = "0"
+	}
+
+	periodEndDate, err := service.GetSubscriptionPeriodEndDate(dealerId.String())
+	if err != nil {
+		zap.L().Sugar().Error("can't get period end date from subscription: ", err)
+		periodEndDate = "1.1.3000"
+	}
+
+	return view.Render(view.DealsOverview(dealerId.String(), freeDaysLeftString, periodEndDate), c)
 }
 
 func getTemplatesPage(c echo.Context) error {

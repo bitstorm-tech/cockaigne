@@ -1,11 +1,17 @@
 package view
 
-templ DealsOverview(dealerId string) {
+templ DealsOverview(dealerId, freeDaysLeft, periodEndDate string) {
 	@BaseLayout() {
 		<div class="flex flex-col gap-8">
-			<div class="grid grid-cols-2 gap-3 p-3">
+			<div class="flex flex-col gap-4 p-3">
 				<a href="/deal/new" class="btn btn-warning">Deal erstellen</a>
-				<a href="/templates" class="btn btn-primary">Vorlagen</a>
+				<div class="grid grid-cols-2 gap-4">
+					<a href="/templates" class="btn btn-primary">Vorlagen</a>
+					<div class="flex flex-col justify-center">
+						<div class="text-right">{ freeDaysLeft } Deals verbleibend</div>
+						<div class="text-xs text-right">Verfügbar bis { periodEndDate }</div>
+					</div>
+				</div>
 			</div>
 			<div x-data="{selectedTab: 0}">
 				<div class="tabs tabs-bordered">
