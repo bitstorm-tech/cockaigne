@@ -147,7 +147,8 @@ type DealHeader struct {
 	DealerId   uuid.UUID `db:"dealer_id"`
 	Title      string
 	Username   string
-	CategoryId int `db:"category_id"`
+	CategoryId int       `db:"category_id"`
+	StartTime  time.Time `db:"start_time"`
 }
 
 type DealDetails struct {

@@ -130,7 +130,7 @@ func getOverviewPage(c echo.Context) error {
 	periodEndDate, err := service.GetSubscriptionPeriodEndDate(dealerId.String())
 	if err != nil {
 		zap.L().Sugar().Error("can't get period end date from subscription: ", err)
-		periodEndDate = "1.1.3000"
+		periodEndDate = "01.01.3000"
 	}
 
 	return view.Render(view.DealsOverview(dealerId.String(), freeDaysLeftString, periodEndDate), c)

@@ -111,12 +111,12 @@ func GetDealHeaders(state model.State, dealerId string) ([]model.DealHeader, err
 		return []model.DealHeader{}, fmt.Errorf("unknown deal state: %s", state)
 	}
 
-	statement := "select id, title, username, dealer_id, category_id from active_deals_view"
+	statement := "select id, title, username, dealer_id, category_id, start_time from active_deals_view"
 	switch state {
 	case model.Past:
-		statement = "select id, title, username, dealer_id, category_id from past_deals_view"
+		statement = "select id, title, username, dealer_id, category_id, start_time from past_deals_view"
 	case model.Future:
-		statement = "select id, title, username, dealer_id, category_id from future_deals_view"
+		statement = "select id, title, username, dealer_id, category_id, start_time from future_deals_view"
 	case model.Template:
 		statement = "select d.id, d.title, a.username, d.dealer_id, d.category_id from deals d join accounts a on a.id = d.dealer_id where template = true"
 	}
@@ -132,7 +132,33 @@ func GetDealHeaders(state model.State, dealerId string) ([]model.DealHeader, err
 		return []model.DealHeader{}, fmt.Errorf("can't get active deals: %v", err)
 	}
 
+	headers = rotateDealsByTime(headers)
+
 	return headers, nil
+}
+
+func rotateDealsByTime(deals []model.DealHeader) []model.DealHeader {
+	now := time.Now().Format("15:04")
+	// nowTime, _ := time.Parse("15:04", "8:48")
+	// now := nowTime.Format("15:04")
+
+	rotateIndex := 0
+	for i, deal := range deals {
+		dealStartTime := deal.StartTime.Format("15:04")
+		zap.L().Sugar().Infof("now, deal --- %s %s", now, dealStartTime)
+		if dealStartTime >= now {
+			rotateIndex = i - 1
+			break
+		}
+		rotateIndex = i
+	}
+
+	zap.L().Sugar().Info("rotateIndex: ", rotateIndex)
+	if rotateIndex >= 0 {
+		return append(deals[rotateIndex:], deals[:rotateIndex]...)
+	}
+
+	return append(deals[len(deals)-1:], deals[:len(deals)-1]...)
 }
 
 func GetFavoriteDealHeaders(userId string) ([]model.DealHeader, error) {
