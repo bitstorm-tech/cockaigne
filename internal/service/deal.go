@@ -106,9 +106,9 @@ func GetDealsFromView(state model.State, dealerId *string) ([]model.DealView, er
 	return deals, nil
 }
 
-func GetDealHeaders(state model.State, dealerId string) ([]model.DealHeader, error) {
+func GetDealHeaders(state model.State, dealerId string) (model.DealHeaders, error) {
 	if state != model.Future && state != model.Active && state != model.Past && state != model.Template {
-		return []model.DealHeader{}, fmt.Errorf("unknown deal state: %s", state)
+		return model.DealHeaders{}, fmt.Errorf("unknown deal state: %s", state)
 	}
 
 	statement := "select id, title, username, dealer_id, category_id, start_time from active_deals_view"
@@ -125,54 +125,28 @@ func GetDealHeaders(state model.State, dealerId string) ([]model.DealHeader, err
 		statement += fmt.Sprintf(" where dealer_id = '%s'", dealerId)
 	}
 
-	var headers []model.DealHeader
+	var headers model.DealHeaders
 	err := persistence.DB.Select(&headers, statement)
 
 	if err != nil {
-		return []model.DealHeader{}, fmt.Errorf("can't get active deals: %v", err)
+		return model.DealHeaders{}, fmt.Errorf("can't get active deals: %v", err)
 	}
 
-	headers = rotateDealsByTime(headers)
-
-	return headers, nil
+	return headers.RotateByTime(), nil
 }
 
-func rotateDealsByTime(deals []model.DealHeader) []model.DealHeader {
-	now := time.Now().Format("15:04")
-	// nowTime, _ := time.Parse("15:04", "8:48")
-	// now := nowTime.Format("15:04")
-
-	rotateIndex := 0
-	for i, deal := range deals {
-		dealStartTime := deal.StartTime.Format("15:04")
-		zap.L().Sugar().Infof("now, deal --- %s %s", now, dealStartTime)
-		if dealStartTime >= now {
-			rotateIndex = i - 1
-			break
-		}
-		rotateIndex = i
-	}
-
-	zap.L().Sugar().Info("rotateIndex: ", rotateIndex)
-	if rotateIndex >= 0 {
-		return append(deals[rotateIndex:], deals[:rotateIndex]...)
-	}
-
-	return append(deals[len(deals)-1:], deals[:len(deals)-1]...)
-}
-
-func GetFavoriteDealHeaders(userId string) ([]model.DealHeader, error) {
-	var headers []model.DealHeader
+func GetFavoriteDealHeaders(userId string) (model.DealHeaders, error) {
+	var headers model.DealHeaders
 	err := persistence.DB.Select(
 		&headers,
 		"select id, dealer_id, title, username, category_id from active_deals_view d join favorite_deals f on d.id = f.deal_id where f.user_id = $1",
 		userId,
 	)
 	if err != nil {
-		return []model.DealHeader{}, err
+		return model.DealHeaders{}, err
 	}
 
-	return headers, nil
+	return headers.RotateByTime(), nil
 }
 
 type dealDetailsResult struct {
@@ -364,19 +338,19 @@ func RemoveDealFavorite(dealId string, userId string) error {
 	return err
 }
 
-func GetFavoriteDealerDealHeaders(userId string) ([]model.DealHeader, error) {
-	var header []model.DealHeader
+func GetFavoriteDealerDealHeaders(userId string) (model.DealHeaders, error) {
+	var header model.DealHeaders
 
 	err := persistence.DB.Select(
 		&header,
-		"select id, d.dealer_id, title, username, category_id from active_deals_view d join favorite_dealers f on d.dealer_id = f.dealer_id where user_id = $1",
+		"select id, d.dealer_id, title, username, category_id from active_deals_view d join favorite_dealers f on d.dealer_id = f.dealer_id where user_id = $1 order by start_time",
 		userId,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	return header, nil
+	return header.RotateByTime(), nil
 }
 
 func GetTopDealHeaders(limit int) ([]model.DealHeader, error) {

@@ -151,6 +151,28 @@ type DealHeader struct {
 	StartTime  time.Time `db:"start_time"`
 }
 
+type DealHeaders []DealHeader
+
+func (deals DealHeaders) RotateByTime() DealHeaders {
+	now := time.Now().Format("15:04")
+
+	rotateIndex := 0
+	for i, deal := range deals {
+		dealStartTime := deal.StartTime.Format("15:04")
+		if dealStartTime >= now {
+			rotateIndex = i - 1
+			break
+		}
+		rotateIndex = i
+	}
+
+	if rotateIndex >= 0 {
+		return append(deals[rotateIndex:], deals[:rotateIndex]...)
+	}
+
+	return append(deals[len(deals)-1:], deals[:len(deals)-1]...)
+}
+
 type DealDetails struct {
 	ID          uuid.UUID
 	Title       string
