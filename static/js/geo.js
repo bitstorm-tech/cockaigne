@@ -26,3 +26,18 @@ async function getAddress(latitude, longitude) {
     return `${road} ${house_number}, ${postcode} ${city}`;
   }
 }
+
+const Location = {
+  _changeHandlers: [],
+  _value: [],
+  get location() {
+    return this._value;
+  },
+  set location(newLocation) {
+    this._value = newLocation;
+    this._changeHandlers.forEach(handler => handler(this._value));
+  },
+  addChangeHandler: function(handler) {
+    this._changeHandlers.push(handler);
+  }
+}

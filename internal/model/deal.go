@@ -36,6 +36,46 @@ func ToState(state string) State {
 	return Active
 }
 
+func GetColorById(id int) string {
+	switch id {
+	case 1: // Elektronik & Technik
+		return "#6898af"
+	case 2: // Unterhaltung & Gaming
+		return "#4774b2"
+	case 3: // Lebensmittel & Haushalt
+		return "#86b200"
+	case 4: // Fashion, Schmuck & Lifestyle
+		return "#b3396a"
+	case 5: // Beauty, Wellness & Gesundheit
+		return "#9059b3"
+	case 6: // Family & Kids
+		return "#02b0b2"
+	case 7: // Home & Living
+		return "#b2aba0"
+	case 8: // Baumarkt & Garten
+		return "#b28d4b"
+	case 9: // Auto, Fahhrad & Motorrad
+		return "#5c5e66"
+	case 10: // Gastronomie, Bars & Cafes
+		return "#b35a37"
+	case 11: // Kultur & Freizeit
+		return "#b3b100"
+	case 12: // Sport & Outdoor
+		return "#b22929"
+	case 13: // Reisen, Hotels & Übernachtungen
+		return "#3d484b"
+	case 14: // Dienstleistungen & Finanzen
+		return "#465c8e"
+	case 15: // Floristik
+		return "#60b262"
+	case 16: // Sonstiges
+		return "#b3b3b3"
+	}
+
+	zap.L().Sugar().Error("can't get color for deal with id: ", id)
+	return "#ff00ff"
+}
+
 type Deal struct {
 	ID              uuid.UUID
 	DealerId        uuid.UUID `db:"dealer_id"`

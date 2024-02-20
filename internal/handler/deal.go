@@ -341,6 +341,11 @@ func getDealList(c echo.Context) error {
 	return view.Render(view.DealsList(headers, hideName, user.IsDealer, true, false, canEdit), c)
 }
 
+type DealJson struct {
+	Location string
+	Color    string
+}
+
 func getDealsAsJson(c echo.Context) error {
 	// extent := c.Query("extent")
 	deals, err := service.GetDealsFromView(model.Active, nil)
@@ -349,7 +354,16 @@ func getDealsAsJson(c echo.Context) error {
 		return nil
 	}
 
-	return c.JSON(http.StatusOK, deals)
+	dealJson := []DealJson{}
+	for _, deal := range deals {
+		jsonEntry := DealJson{
+			Location: deal.Location,
+			Color:    model.GetColorById(deal.CategoryId),
+		}
+		dealJson = append(dealJson, jsonEntry)
+	}
+
+	return c.JSON(http.StatusOK, dealJson)
 }
 
 func getDealDetails(c echo.Context) error {

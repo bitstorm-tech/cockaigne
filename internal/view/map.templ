@@ -2,7 +2,7 @@ package view
 
 templ Map(searchRadius int, useLocationService bool, location string) {
 	@BaseLayout() {
-		<div x-data="locationData">
+		<div>
 			<div id="map" class="absolute bottom-10 left-0 right-0 top-12 z-0"></div>
 			<div class="absolute right-4 top-16 flex gap-2">
 				<button
@@ -19,85 +19,98 @@ templ Map(searchRadius int, useLocationService bool, location string) {
 				>
 					<img src="/static/images/icons/filter.svg" alt="Filter"/>
 				</button>
-				<button class="btn-primary flex w-12 items-center justify-center rounded-full p-3" @click="jumpToCurrentLocation()">
+				<button class="btn-primary flex w-12 items-center justify-center rounded-full p-3" onclick="jumpToCurrentLocation()">
 					<img src="/static/images/icons/current-location.svg" alt="Filter"/>
 				</button>
 			</div>
 			<div id="modal"></div>
-			<template x-if="determineLocation">
-				<div
-					class="absolute bottom-12 left-4 right-4 flex items-center justify-center gap-4 rounded-xl bg-success p-4 text-primary"
-				>
-					<span class="loading loading-ring loading-lg"></span>
-					<span>Ermittle aktuelle Position</span>
-				</div>
-			</template>
+			<div
+				id="search-address-indicator"
+				class="absolute bottom-12 left-4 right-4 flex items-center justify-center gap-4 rounded-xl bg-success p-4 text-primary"
+			>
+				<span class="loading loading-ring loading-lg"></span>
+				<span>Ermittle aktuelle Position</span>
+			</div>
 		</div>
-		<script>
-  const map = L.map("map").setView([48.137154, 11.576124], 13);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 20
-  }).addTo(map);
+		@mapData(searchRadius, useLocationService, location)
+	}
+}
+
+script mapData(searchRadius int, useLocationService bool, locationString string) {
+  Location.addChangeHandler(newLocation => {
+    if (newLocation.length == 2) {
+      drawCurrentPosition(newLocation, searchRadius);
+    }
+  });
+
+  const map = L.map("map");
+  Location.location = locationString.split(",").map((n) => Number(n)).reverse();
+  let address = "";
+  let determineLocation = false;
+
+  init();
 
   map.on("moveend", function () {
     const extend = map.getBounds().toBBoxString();
     updateDealsOnMap(extend);
   });
 
+  async function init() {
+    showElementById("search-address-indicator");
+    map.setView(location.length == 2 ? location : [48.137154, 11.576124], 15);
+    if (useLocationService) {
+      startLocationService({ target: { checked: true } });
+    } else if (location) {
+      address = await getAddress(location[0], location[1]);
+      hideElementById("search-address-indicator");
+    }
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 20
+    }).addTo(map);
+  }
+
   async function updateDealsOnMap(extent) {
     const res = await fetch("/api/deals?extent=" + extent);
     const deals = await res.json();
     for (const deal of deals) {
       const coordinates = deal.Location.split(",").reverse();
-      map;
-      L.marker(coordinates).addTo(map);
-      // L.circle(coordinates, {
-      //   color: "green",
-      //   fillColor: "#009900",
-      //   fillOpacity: 0.1,
-      //   radius: "{{ .searchRadius }}"
-      // }).addTo(map);
+      const color = deal.Color;
+      L.circle(coordinates, 5, { color, fillOpacity: 0.8 }).addTo(map);
     }
   }
 
-  document.addEventListener("alpine:init", () => {
-    Alpine.data("locationData", () => ({
-      address: "",
-      useLocationService: "{{ .useLocationService }}" === "true",
-      determineLocation: false,
-      location: "{{ .location }}".split(",").map((n) => Number(n)),
-      getCurrentPosition: function ($event) {
-        if ($event.target.checked) {
-          this.determineLocation = true;
-          this.address = "Suche aktuelle Position ...";
-          window.navigator.geolocation.getCurrentPosition(async (position) => {
-            this.location = [position.coords.latitude, position.coords.longitude];
-            map.setView(this.location);
-            this.address = await getAddress(position.coords.latitude, position.coords.longitude);
-            this.determineLocation = false;
-          });
-        }
-      },
-      searchAddress: async function () {
-        if (this.useLocationService) return;
-        this.determineLocation = true;
-        this.location = await getPosition(this.address);
-        map.setView(this.location);
-        this.determineLocation = false;
-      },
-      jumpToCurrentLocation: function () {
-        map.setView(this.location);
-      },
-      init: async function () {
-        if (this.useLocationService) {
-          this.getCurrentPosition({ target: { checked: true } });
-        } else {
-          map.setView(this.location.reverse());
-          this.address = await getAddress(this.location[0], this.location[1]);
-        }
-      }
-    }));
-  });
-</script>
-	}
+  function startLocationService($event) {
+    if ($event.target.checked) {
+      determineLocation = true;
+      address = "Suche aktuelle Position ...";
+      window.navigator.geolocation.getCurrentPosition(async (position) => {
+        Location.location = [position.coords.latitude, position.coords.longitude];
+        map.setView(Location.location);
+        address = await getAddress(position.coords.latitude, position.coords.longitude);
+        drawCurrentPosition(Location.location, searchRadius);
+        determineLocation = false;
+        hideElementById("search-address-indicator");
+      });
+    }
+  }
+
+  async function searchAddress() {
+    if (useLocationService) return;
+    determineLocation = true;
+    Location.location = await getPosition(address);
+    map.setView(location);
+    determineLocation = false;
+  }
+
+  window.jumpToCurrentLocation = function() {
+    map.setView(Location.location);
+  }
+
+  function drawCurrentPosition(center, radius) {
+    if (center.length != 2) {
+      return
+    }
+    L.marker(center).addTo(map);
+    L.circle(center, radius, { color: "teal", fillOpacity: 0.1 }).addTo(map);
+  }
 }

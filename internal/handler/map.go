@@ -34,6 +34,16 @@ func RegisterMapHandlers(e *echo.Echo) {
 	})
 
 	e.GET("/ui/map/location-modal", func(c echo.Context) error {
+		// userId, err := service.ParseUserId(c)
+		// if err != nil {
+		// 	return redirect.Login(c)
+		// }
+		//
+		// acc, err := service.GetAccount(userId.String())
+		// if err != nil {
+		// 	zap.L().Sugar().Error("can't get account: ", err)
+		//
+		// }
 		return view.Render(view.LocationModal(), c)
 	})
 }

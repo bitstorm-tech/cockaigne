@@ -14,12 +14,12 @@ templ LocationModal() {
 				</div>
 				<div class="form-control-horizontal">
 					<input
- 						id="use-location-service"
- 						class="checkbox"
- 						type="checkbox"
- 						name="use-location-service"
- 						@change="getCurrentPosition"
- 						x-model="useLocationService"
+						id="use-location-service"
+						class="checkbox"
+						type="checkbox"
+						name="use-location-service"
+						@change="getCurrentPosition"
+						x-model="useLocationService"
 					/>
 					<label for="use-location-service">Aktuellen Standort verwenden</label>
 				</div>
@@ -29,5 +29,9 @@ templ LocationModal() {
 				<button class="btn-primary" hx-delete="/ui/remove" hx-target="#modal">Abbrechen</button>
 			</div>
 		</form>
+		@locationModal()
 	}
+}
+
+script locationModal() {
 }
