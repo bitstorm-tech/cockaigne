@@ -40,6 +40,6 @@ type FavoriteCategory struct {
 }
 
 type UpdateFilterRequest struct {
-	SearchRadiusInMeters int
-	FavoriteCategoryIds  []int
+	SearchRadiusInMeters int   `form:"searchRadius"`
+	FavoriteCategoryIds  []int `form:"favoriteCategoryIds"`
 }

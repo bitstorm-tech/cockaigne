@@ -11,18 +11,18 @@ templ FilterModal(categories []model.Category, favoriteCategoryIds []int, search
 		<form hx-post="/api/accounts/filter" hx-target="#modal">
 			<div class="form-control pb-6" x-data={ fmt.Sprintf("{r: %d}", searchRadius) }>
 				<label for="radius" class="flex items-center gap-1" x-text="`Umkreis ${r * 2 / 1000} km`"></label>
-				<input id="radius" type="range" name="searchRadiusInMeters" min="500" max="25000" step="500" x-model="r"/>
+				<input id="radius" type="range" name="searchRadius" min="500" max="25000" step="500" x-model="r"/>
 			</div>
 			<div class="flex flex-col gap-2">
 				for _, category := range categories {
 					<div class="form-control-horizontal">
 						<input
- 							type="checkbox"
- 							id={ category.Name }
- 							class="checkbox"
- 							name="favoriteCategoryIds"
- 							value={ strconv.Itoa(category.ID) }
- 							checked?={ category.IsFavorite(favoriteCategoryIds) }
+							type="checkbox"
+							id={ category.Name }
+							class="checkbox"
+							name="favoriteCategoryIds"
+							value={ strconv.Itoa(category.ID) }
+							checked?={ category.IsFavorite(favoriteCategoryIds) }
 						/>
 						<label for={ category.Name }>{ category.Name }</label>
 					</div>

@@ -22,8 +22,8 @@ async function getAddress(latitude, longitude) {
       return;
     }
 
-    const { road, house_number, city, postcode } = address.address;
-    return `${road} ${house_number}, ${postcode} ${city}`;
+    const { road, house_number, city, town, village, postcode } = address.address;
+    return `${road} ${house_number}, ${postcode} ${city || town || village || ""}`;
   }
 }
 
