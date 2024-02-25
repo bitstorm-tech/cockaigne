@@ -29,7 +29,7 @@ templ Map(searchRadius int, useLocationService bool, location string) {
 				class="absolute bottom-12 left-4 right-4 flex items-center justify-center gap-4 rounded-xl bg-success p-4 text-primary"
 			>
 				<span class="loading loading-ring loading-lg"></span>
-				<span>Ermittle aktuelle Position</span>
+				<span>Ermittle aktuelle Position ...</span>
 			</div>
 		</div>
 		@mapData(searchRadius, useLocationService, location)
@@ -37,16 +37,16 @@ templ Map(searchRadius int, useLocationService bool, location string) {
 }
 
 script mapData(searchRadius int, useLocationService bool, locationString string) {
-  Location.addChangeHandler(newLocation => {
-    if (newLocation.length == 2) {
-      drawCurrentPosition(newLocation, searchRadius);
-    }
-  });
-
   const map = L.map("map");
-  Location.location = locationString.split(",").map((n) => Number(n)).reverse();
   let address = "";
   let determineLocation = false;
+
+  LocationService.addLocationChangeHandler(newLocation => {
+    map.setView(LocationService.location);
+    drawCurrentPosition(newLocation, searchRadius);
+    determineLocation = false;
+    hideElementById("search-address-indicator");
+  });
 
   init();
 
@@ -56,14 +56,19 @@ script mapData(searchRadius int, useLocationService bool, locationString string)
   });
 
   async function init() {
+    LocationService.setLocationFromString(locationString);
     showElementById("search-address-indicator");
-    map.setView(location.length == 2 ? location : [48.137154, 11.576124], 15);
+    map.setView(LocationService.location, 15);
+
     if (useLocationService) {
-      startLocationService({ target: { checked: true } });
+      determineLocation = true;
+      LocationService.startLocationWatcher();
+      address = "Suche aktuelle Position ...";
     } else if (location) {
       address = await getAddress(location[0], location[1]);
       hideElementById("search-address-indicator");
     }
+
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 20
     }).addTo(map);
@@ -79,37 +84,19 @@ script mapData(searchRadius int, useLocationService bool, locationString string)
     }
   }
 
-  function startLocationService($event) {
-    if ($event.target.checked) {
-      determineLocation = true;
-      address = "Suche aktuelle Position ...";
-      window.navigator.geolocation.getCurrentPosition(async (position) => {
-        Location.location = [position.coords.latitude, position.coords.longitude];
-        map.setView(Location.location);
-        address = await getAddress(position.coords.latitude, position.coords.longitude);
-        drawCurrentPosition(Location.location, searchRadius);
-        determineLocation = false;
-        hideElementById("search-address-indicator");
-      });
-    }
-  }
-
   async function searchAddress() {
     if (useLocationService) return;
     determineLocation = true;
-    Location.location = await getPosition(address);
+    LocationService.location = await getPosition(address);
     map.setView(location);
     determineLocation = false;
   }
 
   window.jumpToCurrentLocation = function() {
-    map.setView(Location.location);
+    map.setView(LocationService.location);
   }
 
   function drawCurrentPosition(center, radius) {
-    if (center.length != 2) {
-      return
-    }
     L.marker(center).addTo(map);
     L.circle(center, radius, { color: "teal", fillOpacity: 0.1 }).addTo(map);
   }

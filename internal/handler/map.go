@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/bitstorm-tech/cockaigne/internal/redirect"
 	"github.com/bitstorm-tech/cockaigne/internal/service"
 	"github.com/bitstorm-tech/cockaigne/internal/view"
 	"github.com/labstack/echo/v4"
@@ -34,16 +35,17 @@ func RegisterMapHandlers(e *echo.Echo) {
 	})
 
 	e.GET("/ui/map/location-modal", func(c echo.Context) error {
-		// userId, err := service.ParseUserId(c)
-		// if err != nil {
-		// 	return redirect.Login(c)
-		// }
-		//
-		// acc, err := service.GetAccount(userId.String())
-		// if err != nil {
-		// 	zap.L().Sugar().Error("can't get account: ", err)
-		//
-		// }
-		return view.Render(view.LocationModal(), c)
+		userId, err := service.ParseUserId(c)
+		if err != nil {
+			return redirect.Login(c)
+		}
+
+		acc, err := service.GetAccount(userId.String())
+		if err != nil {
+			zap.L().Sugar().Error("can't get account: ", err)
+			return view.RenderAlert("Momentan", c)
+		}
+
+		return view.Render(view.LocationModal(acc.UseLocationService), c)
 	})
 }

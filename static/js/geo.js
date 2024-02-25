@@ -27,17 +27,66 @@ async function getAddress(latitude, longitude) {
   }
 }
 
-const Location = {
-  _changeHandlers: [],
-  _value: [],
+const LocationService = {
+  _watcherId: -1,
+  _address: "",
+  _locationChangeHandlers: [],
+  _location: [48.137154, 11.576124], // initial position is Munich Marienplatz
+
   get location() {
-    return this._value;
+    return this._location;
   },
+
   set location(newLocation) {
-    this._value = newLocation;
-    this._changeHandlers.forEach(handler => handler(this._value));
+    this._location = newLocation;
+    this.searchAddress().then(() => this._locationChangeHandlers.forEach((handler) => handler(this._location, this._address)));
   },
-  addChangeHandler: function(handler) {
-    this._changeHandlers.push(handler);
+  
+  get address() {
+    return this._address;
+  },
+
+  setLocationFromString: function (locationString) {
+    if (locationString.length > 0) {
+      this.location = locationString
+        .split(",")
+        .map((n) => Number(n))
+        .reverse();
+    }
+  },
+
+  addLocationChangeHandler: function (handler) {
+    this._locationChangeHandlers.push(handler);
+    console.log("Number of locationChangeHandlers:", this._locationChangeHandlers.length);
+  },
+
+  startLocationWatcher: function () {
+    if (this._watcherId != -1) {
+      return;
+    }
+
+    console.log("Start location watcher");
+    this._watcherId = window.navigator.geolocation.watchPosition(
+      async (position) => {
+        this.location = [position.coords.latitude, position.coords.longitude];
+      },
+      (error) => {
+        console.error("Error while watching position:", error);
+      }
+    );
+  },
+
+  searchAddress: async function() {
+    if (this.location.length == 2) {
+      this._address = await getAddress(this.location[0], this.location[1]);
+    }
+  },
+
+  stopLocationWatcher: function () {
+    if (this._watcherId > -1) {
+      console.log("Stop location watcher");
+      window.navigator.geolocation.clearWatch(this._watcherId);
+      this._watcherId = -1;
+    }
   }
-}
+};
