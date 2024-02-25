@@ -38,6 +38,8 @@ templ Map(searchRadius int, useLocationService bool, location string) {
 
 script mapData(searchRadius int, useLocationService bool, locationString string) {
   const map = L.map("map");
+  const markerLayer = L.layerGroup();
+  markerLayer.addTo(map);
   let address = "";
   let determineLocation = false;
 
@@ -53,6 +55,11 @@ script mapData(searchRadius int, useLocationService bool, locationString string)
   map.on("moveend", function () {
     const extend = map.getBounds().toBBoxString();
     updateDealsOnMap(extend);
+  });
+
+  map.on("click", function (event) {
+    console.log("Click:", event);
+    LocationService.location = [event.latlng.lat, event.latlng.lng];
   });
 
   async function init() {
@@ -97,7 +104,8 @@ script mapData(searchRadius int, useLocationService bool, locationString string)
   }
 
   function drawCurrentPosition(center, radius) {
-    L.marker(center).addTo(map);
-    L.circle(center, radius, { color: "teal", fillOpacity: 0.1 }).addTo(map);
+    markerLayer.clearLayers();
+    L.marker(center).addTo(markerLayer);
+    L.circle(center, radius, { color: "teal", fillOpacity: 0.1 }).addTo(markerLayer);
   }
 }
