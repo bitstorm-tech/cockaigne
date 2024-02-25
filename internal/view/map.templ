@@ -39,7 +39,9 @@ templ Map(searchRadius int, useLocationService bool, location string) {
 script mapData(searchRadius int, useLocationService bool, locationString string) {
   const map = L.map("map");
   const markerLayer = L.layerGroup();
+  const dealLayer = L.layerGroup();
   markerLayer.addTo(map);
+  dealLayer.addTo(map);
   let address = "";
   let determineLocation = false;
 
@@ -58,7 +60,6 @@ script mapData(searchRadius int, useLocationService bool, locationString string)
   });
 
   map.on("click", function (event) {
-    console.log("Click:", event);
     LocationService.location = [event.latlng.lat, event.latlng.lng];
   });
 
@@ -84,10 +85,11 @@ script mapData(searchRadius int, useLocationService bool, locationString string)
   async function updateDealsOnMap(extent) {
     const res = await fetch("/api/deals?extent=" + extent);
     const deals = await res.json();
+    dealLayer.clearLayers();
     for (const deal of deals) {
       const coordinates = deal.Location.split(",").reverse();
       const color = deal.Color;
-      L.circle(coordinates, 5, { color, fillOpacity: 0.8 }).addTo(map);
+      L.circle(coordinates, 5, { color, fillOpacity: 0.8 }).addTo(dealLayer);
     }
   }
 
