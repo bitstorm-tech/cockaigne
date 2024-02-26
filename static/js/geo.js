@@ -90,3 +90,43 @@ const LocationService = {
     }
   }
 };
+
+const FilterService = {
+  _searchRadius: 500,
+  _selectedCategories: [],
+  _searchRadiusChangeListeners: [],
+  _selectedCategoriesChangeListeners: [],
+
+  get searchRadius() {
+    return this._searchRadius;
+  },
+
+  set searchRadius(newSearchRadius) {
+    this._searchRadius = newSearchRadius;
+    this._searchRadiusChangeListeners.forEach((handler) => handler(newSearchRadius));
+  },
+
+  get selectedCategories() {
+    return this._selectedCategories;
+  },
+
+  set selectedCategories(newSelectedCategories) {
+    this._selectedCategories = newSelectedCategories;
+    this._selectedCategoriesChangeListeners.forEach((handler) => handler(newSelectedCategories));
+  },
+
+  toggleSelectedCategory: function(category) {
+    const index = this._selectedCategories.indexOf(category);
+
+    if (index > -1) {
+      this._selectedCategories.splice(index, 1);
+    } else {
+      this._selectedCategories.push(category);
+    }
+  },
+
+  addSearchRadiusChangeListener: function(handler) {
+    this._searchRadiusChangeListeners.push(handler);
+  }
+};
+

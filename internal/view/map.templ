@@ -52,6 +52,10 @@ script mapData(searchRadius int, useLocationService bool, locationString string)
     hideElementById("search-address-indicator");
   });
 
+  FilterService.addSearchRadiusChangeListener(newRadius => {
+    drawCurrentPosition(LocationService.location, newRadius);
+  });
+
   init();
 
   map.on("moveend", function () {

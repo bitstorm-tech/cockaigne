@@ -2,16 +2,24 @@ package view
 
 import (
 	"github.com/bitstorm-tech/cockaigne/internal/model"
-	"fmt"
 	"strconv"
 )
 
 templ FilterModal(categories []model.Category, favoriteCategoryIds []int, searchRadius int) {
 	@Modal() {
 		<form hx-post="/api/accounts/filter" hx-target="#modal">
-			<div class="form-control pb-6" x-data={ fmt.Sprintf("{r: %d}", searchRadius) }>
-				<label for="radius" class="flex items-center gap-1" x-text="`Umkreis ${r * 2 / 1000} km`"></label>
-				<input id="radius" type="range" name="searchRadius" min="500" max="25000" step="500" x-model="r"/>
+			<div class="form-control pb-6">
+				<label id="radius-label" for="radius" class="flex items-center gap-1"></label>
+				<input
+					id="radius"
+					type="range"
+					name="searchRadius"
+					min="500"
+					max="25000"
+					step="500"
+					value={ strconv.Itoa(searchRadius) }
+					oninput="changeRadius(this)"
+				/>
 			</div>
 			<div class="flex flex-col gap-2">
 				for _, category := range categories {
@@ -23,6 +31,7 @@ templ FilterModal(categories []model.Category, favoriteCategoryIds []int, search
 							name="favoriteCategoryIds"
 							value={ strconv.Itoa(category.ID) }
 							checked?={ category.IsFavorite(favoriteCategoryIds) }
+							oninput="changeSelectedCategories(this)"
 						/>
 						<label for={ category.Name }>{ category.Name }</label>
 					</div>
@@ -33,5 +42,25 @@ templ FilterModal(categories []model.Category, favoriteCategoryIds []int, search
 				<button class="btn-primary" hx-delete="/ui/remove" hx-target="#modal">Abbrechen</button>
 			</div>
 		</form>
+		@filterScript(searchRadius, favoriteCategoryIds)
 	}
+}
+
+script filterScript(searchRadius int, selectedCategories []int) {
+  FilterService.searchRadius = searchRadius;
+  FilterService.selectedCategories  = selectedCategories;
+
+  const searchRadiusLabel = document.getElementById("radius-label");
+  searchRadiusLabel.textContent = `Umkreis ${searchRadius * 2 / 1000} km`
+
+  document.changeRadius = function(element) {
+    const newSearchRadius = +element.value;
+    FilterService.searchRadius = newSearchRadius;
+    searchRadiusLabel.textContent = `Umkreis ${newSearchRadius * 2 / 1000} km`
+  }
+
+  document.changeSelectedCategories = function(element) {
+    FilterService.toggleSelectedCategory(+element.value);
+    console.log("New selected categories:", FilterService.selectedCategories);
+  }
 }

@@ -352,16 +352,17 @@ func updateFilter(c echo.Context) error {
 	err := c.Bind(&updateFilterRequest)
 	if err != nil {
 		zap.L().Sugar().Error("can't parse filter update request: ", err)
+		return view.RenderAlert("Wir konnten deine Filtereinstellungen nicht speichern. Bitte versuche es später noch einmal.", c)
 	}
 
 	if err := service.UpdateSearchRadius(userId, updateFilterRequest.SearchRadiusInMeters); err != nil {
 		zap.L().Sugar().Error("can't update accounts search_radius_in_meters: ", err)
-		return view.RenderAlert("Fehler beim Verarbeiten der Filteränderung", c)
+		return view.RenderAlert("Wir konnten deine Filtereinstellungen nicht speichern. Bitte versuche es später noch einmal.", c)
 	}
 
 	if err := service.UpdateSelectedCategories(userId, updateFilterRequest.FavoriteCategoryIds); err != nil {
 		zap.L().Sugar().Error("can't update selected categories: ", err)
-		return view.RenderAlert("Fehler beim Verarbeiten der Filteränderung", c)
+		return view.RenderAlert("Wir konnten deine Filtereinstellungen nicht speichern. Bitte versuche es später noch einmal.", c)
 	}
 
 	return nil
