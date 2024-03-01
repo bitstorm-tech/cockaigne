@@ -181,12 +181,18 @@ func UpdateDefaultCategory(userId string, categoryId int) error {
 }
 
 func UpdateDealerAddress(dealerId string, street string, houseNumber string, city string, zip int32) error {
-	_, err := persistence.DB.Exec(
-		"update accounts set street = $1, house_number = $2, city = $3, zip = $4 where id = $5",
+	location, err := GetPositionFromAddress(city, int(zip), street, houseNumber)
+	if err != nil {
+		return err
+	}
+
+	_, err = persistence.DB.Exec(
+		"update accounts set street = $1, house_number = $2, city = $3, zip = $4, location = $5 where id = $6",
 		street,
 		houseNumber,
 		city,
 		zip,
+		location.ToWkt(),
 		dealerId,
 	)
 	return err
