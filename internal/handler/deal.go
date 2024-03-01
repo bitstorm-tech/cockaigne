@@ -347,8 +347,12 @@ type DealJson struct {
 }
 
 func getDealsAsJson(c echo.Context) error {
-	// extent := c.Query("extent")
-	deals, err := service.GetDealsFromView(model.Active, nil)
+	extent := c.QueryParam("extent")
+	boundingBoxFilter := service.BoundingBoxDealFilter{
+		BoundingBox: extent,
+	}
+
+	deals, err := service.GetDealsFromView(model.Active, boundingBoxFilter, nil)
 	if err != nil {
 		zap.L().Sugar().Error("can't get deals: ", err)
 		return nil

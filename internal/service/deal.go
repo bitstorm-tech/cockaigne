@@ -79,7 +79,30 @@ func GetDeal(id string) (model.Deal, error) {
 	return deal, nil
 }
 
-func GetDealsFromView(state model.State, dealerId *string) ([]model.DealView, error) {
+type SpartialDealFilter interface {
+	ToGeometry() (string, error)
+}
+
+type BoundingBoxDealFilter struct {
+	BoundingBox string
+}
+
+func (filter BoundingBoxDealFilter) ToGeometry() (string, error) {
+	if len(filter.BoundingBox) == 0 {
+		return "", fmt.Errorf("BoundingBoxDealFilter needs a valid bounding box")
+	}
+
+	coordinates := strings.Split(filter.BoundingBox, ",")
+	return fmt.Sprintf(
+		"ST_Envelope('LINESTRING(%s %s, %s %s)'::geography::geometry)",
+		coordinates[0],
+		coordinates[1],
+		coordinates[2],
+		coordinates[3],
+	), nil
+}
+
+func GetDealsFromView(state model.State, filter SpartialDealFilter, dealerId *string) ([]model.DealView, error) {
 	if state != model.Future && state != model.Active && state != model.Past {
 		return []model.DealView{}, fmt.Errorf("unknown deal state: %s", state)
 	}
@@ -95,6 +118,23 @@ func GetDealsFromView(state model.State, dealerId *string) ([]model.DealView, er
 	if dealerId != nil {
 		statement += fmt.Sprintf(" where dealer_id = '%s'", *dealerId)
 	}
+
+	if filter != nil {
+		if dealerId != nil {
+			statement += " and "
+		} else {
+			statement += " where "
+		}
+
+		geom, err := filter.ToGeometry()
+		if err != nil {
+			return []model.DealView{}, fmt.Errorf("can't convert filter to valid geometry: %+v", err)
+		}
+
+		statement += fmt.Sprintf("st_within(location, %s)", geom)
+	}
+
+	zap.L().Sugar().Info("statement: ", statement)
 
 	var deals []model.DealView
 	err := persistence.DB.Select(&deals, statement)
