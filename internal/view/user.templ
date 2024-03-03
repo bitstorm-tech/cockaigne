@@ -24,8 +24,8 @@ templ UserHeader(params UserHeaderParameters) {
 					<div class="flex gap-1">
 						<img src="/static/images/icons/location.svg" alt="Location" class="h-6"/>
 						<div class="flex flex-col text-xs">
-							<div>{ params.Street } { params.HouseNumber }</div>
-							<div>{ params.Zip } { params.City }</div>
+							<div id="street">{ params.Street } { params.HouseNumber }</div>
+							<div id="city">{ params.Zip } { params.City }</div>
 						</div>
 					</div>
 				</div>
@@ -62,7 +62,7 @@ templ FavoriteDealsCountBadge(count string) {
 	</div>
 }
 
-templ User(userHeaderParams UserHeaderParameters) {
+templ User(userHeaderParams UserHeaderParameters, useLocationService bool, location string) {
 	@BaseLayout() {
 		@UserHeader(userHeaderParams)
 		<div x-data="{selectedTab: 0}">
@@ -108,5 +108,28 @@ templ User(userHeaderParams UserHeaderParameters) {
 			</div>
 			<div id="content" class="pt-1"></div>
 		</div>
+		@userScript(useLocationService, location)
 	}
+}
+
+script userScript(useLocationService bool, location string) {
+  const streetLabel = document.getElementById("street");
+  const cityLabel = document.getElementById("city");
+  
+  LocationService.addChangeHandler((_, address) => setAddressLabels(address));
+
+  if (useLocationService) {
+    LocationService.startLocationWatcher();
+  } else if(location?.length > 0) {
+    const coordinates = locationStringToCoordinates(location);
+    getAddress(coordinates).then(address => setAddressLabels(address));
+  }
+
+  function setAddressLabels(address) {
+    if (address?.length == 0) return;
+
+    const addressTokens = address.split(",");
+    streetLabel.textContent = addressTokens[0];
+    cityLabel.textContent = addressTokens[1];
+  }
 }

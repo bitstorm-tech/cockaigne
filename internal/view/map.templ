@@ -45,7 +45,7 @@ script mapData(searchRadius int, useLocationService bool, locationString string)
   let address = "";
   let determineLocation = false;
 
-  LocationService.addLocationChangeHandler(newLocation => {
+  LocationService.addChangeHandler(newLocation => {
     map.setView(LocationService.location);
     drawCurrentPosition(newLocation, searchRadius);
     determineLocation = false;
@@ -77,7 +77,7 @@ script mapData(searchRadius int, useLocationService bool, locationString string)
       LocationService.startLocationWatcher();
       address = "Suche aktuelle Position ...";
     } else if (location) {
-      address = await getAddress(location[0], location[1]);
+      address = await getAddress(location);
       hideElementById("search-address-indicator");
     }
 
@@ -91,7 +91,7 @@ script mapData(searchRadius int, useLocationService bool, locationString string)
     const deals = await res.json();
     dealLayer.clearLayers();
     for (const deal of deals) {
-      const coordinates = deal.Location.split(",").reverse();
+      const coordinates = locationStringToCoordinates(deal.Location);
       const color = deal.Color;
       L.circle(coordinates, 5, { color, fillOpacity: 0.8 }).addTo(dealLayer);
     }

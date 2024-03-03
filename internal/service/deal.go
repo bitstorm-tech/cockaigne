@@ -134,8 +134,6 @@ func GetDealsFromView(state model.State, filter SpartialDealFilter, dealerId *st
 		statement += fmt.Sprintf("st_within(location, %s)", geom)
 	}
 
-	zap.L().Sugar().Info("statement: ", statement)
-
 	var deals []model.DealView
 	err := persistence.DB.Select(&deals, statement)
 

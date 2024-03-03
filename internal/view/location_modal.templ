@@ -53,7 +53,7 @@ script locationModal(useLocationService bool) {
     addressInput.value = LocationService.address;
   }
 
-  LocationService.addLocationChangeHandler((_, address) => {
+  LocationService.addChangeHandler((_, address) => {
     addressLabel.textContent = address;
     addressInput.value = address;
     hideElement(loadingIndicator)

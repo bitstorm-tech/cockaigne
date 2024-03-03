@@ -12,8 +12,8 @@ async function getPosition(address) {
   }
 }
 
-async function getAddress(latitude, longitude) {
-  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+async function getAddress(coordinates) {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coordinates[0]}&lon=${coordinates[1]}`;
   const response = await fetch(url);
 
   if (response.ok) {
@@ -25,6 +25,14 @@ async function getAddress(latitude, longitude) {
     const { road, house_number, city, town, village, postcode } = address.address;
     return `${road} ${house_number}, ${postcode} ${city || town || village || ""}`;
   }
+}
+
+function locationStringToCoordinates(location) {
+  if (location?.length == 0) {
+    return [];
+  }
+
+  return location.split(",").reverse();
 }
 
 const LocationService = {
@@ -55,7 +63,7 @@ const LocationService = {
     }
   },
 
-  addLocationChangeHandler: function (handler) {
+  addChangeHandler: function (handler) {
     this._locationChangeHandlers.push(handler);
     console.log("Number of locationChangeHandlers:", this._locationChangeHandlers.length);
   },
@@ -78,7 +86,7 @@ const LocationService = {
 
   searchAddress: async function() {
     if (this.location.length == 2) {
-      this._address = await getAddress(this.location[0], this.location[1]);
+      this._address = await getAddress(this.location);
     }
   },
 

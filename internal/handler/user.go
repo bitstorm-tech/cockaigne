@@ -67,11 +67,11 @@ func getUser(c echo.Context) error {
 	params := view.UserHeaderParameters{
 		ID:          acc.ID.String(),
 		Username:    acc.Username,
-		Street:      "Josef-Frankl-Str.",
-		HouseNumber: "31A",
-		Zip:         "80995",
-		City:        "München",
+		Street:      "Suche aktuelle Position ...",
+		HouseNumber: "",
+		Zip:         "",
+		City:        "",
 	}
 
-	return view.Render(view.User(params), c)
+	return view.Render(view.User(params, acc.UseLocationService, acc.Location.String), c)
 }
