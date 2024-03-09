@@ -8,7 +8,7 @@ async function getPosition(address) {
       return;
     }
 
-    return [+addresses[0].lat, +addresses[0].lon];
+    return { lat: +addresses[0].lat, lon: +addresses[0].lon };
   }
 }
 
