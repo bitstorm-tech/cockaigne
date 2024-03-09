@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 
+	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/redirect"
 	"github.com/bitstorm-tech/cockaigne/internal/service"
 	"github.com/bitstorm-tech/cockaigne/internal/view"
@@ -73,5 +74,10 @@ func getUser(c echo.Context) error {
 		City:        "",
 	}
 
-	return view.Render(view.User(params, acc.UseLocationService, acc.Location.String), c)
+	location, err := model.NewPointFromString(acc.Location.String)
+	if err != nil {
+		zap.L().Sugar().Errorf("can't create new point from account location (%s): %v", acc.Location.String, err)
+	}
+
+	return view.Render(view.User(params, acc.UseLocationService, location), c)
 }

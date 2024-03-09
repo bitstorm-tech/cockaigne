@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/redirect"
 	"github.com/bitstorm-tech/cockaigne/internal/service"
 	"github.com/bitstorm-tech/cockaigne/internal/view"
@@ -9,43 +10,54 @@ import (
 )
 
 func RegisterMapHandlers(e *echo.Echo) {
-	e.GET("/map", func(c echo.Context) error {
-		userId, _ := service.ParseUserId(c)
-		acc, err := service.GetAccount(userId.String())
-		if err != nil {
-			zap.L().Sugar().Errorf("can't get account: %v", err)
-		}
+	e.GET("/map", openMap)
+	e.GET("/ui/map/filter-modal", openFilterModal)
+	e.GET("/ui/map/location-modal", openLocationModal)
+}
 
-		return view.Render(view.Map(acc.SearchRadiusInMeters, acc.UseLocationService, acc.Location.String), c)
-	})
+func openMap(c echo.Context) error {
+	userId, _ := service.ParseUserId(c)
+	acc, err := service.GetAccount(userId.String())
+	if err != nil {
+		zap.L().Sugar().Errorf("can't get account: %v", err)
+		return nil
+	}
 
-	e.GET("/ui/map/filter-modal", func(c echo.Context) error {
-		userId, _ := service.ParseUserId(c)
+	location, err := model.NewPointFromString(acc.Location.String)
+	if err != nil {
+		zap.L().Sugar().Error("can't create new point from database location: ", err)
+		return nil
+	}
 
-		acc, err := service.GetAccount(userId.String())
+	return view.Render(view.Map(acc.SearchRadiusInMeters, acc.UseLocationService, location), c)
+}
 
-		if err != nil {
-			zap.L().Sugar().Errorf("can't get account: %v", err)
-		}
+func openFilterModal(c echo.Context) error {
+	userId, _ := service.ParseUserId(c)
 
-		categories := service.GetCategories()
-		favCategoryIds := service.GetFavoriteCategoryIds(userId)
+	acc, err := service.GetAccount(userId.String())
 
-		return view.Render(view.FilterModal(categories, favCategoryIds, acc.SearchRadiusInMeters), c)
-	})
+	if err != nil {
+		zap.L().Sugar().Errorf("can't get account: %v", err)
+	}
 
-	e.GET("/ui/map/location-modal", func(c echo.Context) error {
-		userId, err := service.ParseUserId(c)
-		if err != nil {
-			return redirect.Login(c)
-		}
+	categories := service.GetCategories()
+	favCategoryIds := service.GetFavoriteCategoryIds(userId)
 
-		acc, err := service.GetAccount(userId.String())
-		if err != nil {
-			zap.L().Sugar().Error("can't get account: ", err)
-			return view.RenderAlert("Momentan", c)
-		}
+	return view.Render(view.FilterModal(categories, favCategoryIds, acc.SearchRadiusInMeters), c)
+}
 
-		return view.Render(view.LocationModal(acc.UseLocationService), c)
-	})
+func openLocationModal(c echo.Context) error {
+	userId, err := service.ParseUserId(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	acc, err := service.GetAccount(userId.String())
+	if err != nil {
+		zap.L().Sugar().Error("can't get account: ", err)
+		return view.RenderAlert("Momentan", c)
+	}
+
+	return view.Render(view.LocationModal(acc.UseLocationService), c)
 }

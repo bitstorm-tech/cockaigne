@@ -31,9 +31,42 @@ func RegisterAccountHandlers(e *echo.Echo) {
 	e.POST("/activate", activateAccount)
 	e.POST("/password-change", changePassword)
 	e.POST("/api/accounts/filter", updateFilter)
+	e.POST("/api/accounts/location", updateLocation)
 	e.POST("/api/accounts/use-location-service", updateUseLocationService)
 	e.POST("/api/send-activation-email", sendActivationEmail)
 	e.POST("/api/send-email-change-email", sendEmailChangeEmail)
+}
+
+func updateLocation(c echo.Context) error {
+	userId, err := service.ParseUserId(c)
+	if err != nil {
+		return err
+	}
+
+	lon, err := strconv.ParseFloat(c.FormValue("lon"), 64)
+	if err != nil {
+		zap.L().Sugar().Error("can't parse longitude: ", err)
+		return err
+	}
+
+	lat, err := strconv.ParseFloat(c.FormValue("lat"), 64)
+	if err != nil {
+		zap.L().Sugar().Error("can't parse latitude: ", err)
+		return err
+	}
+
+	point := model.Point{
+		Lon: lon,
+		Lat: lat,
+	}
+
+	err = service.UpdateLocation(userId.String(), point)
+	if err != nil {
+		zap.L().Sugar().Error("can't update location: ", err)
+		return err
+	}
+
+	return nil
 }
 
 func changeEmail(c echo.Context) error {

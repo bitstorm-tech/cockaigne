@@ -342,7 +342,7 @@ func getDealList(c echo.Context) error {
 }
 
 type DealJson struct {
-	Location string
+	Location model.Point
 	Color    string
 }
 
@@ -360,8 +360,12 @@ func getDealsAsJson(c echo.Context) error {
 
 	dealJson := []DealJson{}
 	for _, deal := range deals {
+		location, err := model.NewPointFromString(deal.Location)
+		if err != nil {
+			zap.L().Sugar().Error("can't convert location string to model.Point: ", err)
+		}
 		jsonEntry := DealJson{
-			Location: deal.Location,
+			Location: location,
 			Color:    model.GetColorById(deal.CategoryId),
 		}
 		dealJson = append(dealJson, jsonEntry)

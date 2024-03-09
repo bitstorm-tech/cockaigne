@@ -13,7 +13,11 @@ async function getPosition(address) {
 }
 
 async function getAddress(coordinates) {
-  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coordinates[0]}&lon=${coordinates[1]}`;
+  if (!coordinates) {
+    throw new Error("coordinates is either null or length is not 2");
+  }
+
+  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coordinates.lat}&lon=${coordinates.lon}`;
   const response = await fetch(url);
 
   if (response.ok) {
@@ -23,44 +27,42 @@ async function getAddress(coordinates) {
     }
 
     const { road, house_number, city, town, village, postcode } = address.address;
-    return `${road} ${house_number}, ${postcode} ${city || town || village || ""}`;
+    return `${road} ${house_number || ""}, ${postcode || ""} ${city || town || village || ""}`;
   }
-}
-
-function locationStringToCoordinates(location) {
-  if (location?.length == 0) {
-    return [];
-  }
-
-  return location.split(",").reverse();
 }
 
 const LocationService = {
   _watcherId: -1,
   _address: "",
   _locationChangeHandlers: [],
-  _location: [48.137154, 11.576124], // initial position is Munich Marienplatz
+  _location: { lon: 48.137154, lat: 11.576124 }, // initial position is Munich Marienplatz
 
   get location() {
     return this._location;
   },
 
   set location(newLocation) {
+    if (!newLocation) {
+      throw new Error("Invalid newLocation");
+    }
+
     this._location = newLocation;
-    this.searchAddress().then(() => this._locationChangeHandlers.forEach((handler) => handler(this._location, this._address)));
-  },
-  
-  get address() {
-    return this._address;
+    console.log("New location:", newLocation);
+    this.searchAddress().then(() =>
+      this._locationChangeHandlers.forEach((handler) => handler(this._location, this._address))
+    );
+
+    const form = new FormData();
+    form.set("lon", newLocation.lon);
+    form.set("lat", newLocation.lat);
+    fetch("/api/accounts/location", {
+      method: "POST",
+      body: form
+    });
   },
 
-  setLocationFromString: function (locationString) {
-    if (locationString.length > 0) {
-      this.location = locationString
-        .split(",")
-        .map((n) => Number(n))
-        .reverse();
-    }
+  get address() {
+    return this._address;
   },
 
   addChangeHandler: function (handler) {
@@ -76,7 +78,7 @@ const LocationService = {
     console.log("Start location watcher");
     this._watcherId = window.navigator.geolocation.watchPosition(
       async (position) => {
-        this.location = [position.coords.latitude, position.coords.longitude];
+        this.location = { lat: position.coords.latitude, lon: position.coords.longitude };
       },
       (error) => {
         console.error("Error while watching position:", error);
@@ -84,10 +86,8 @@ const LocationService = {
     );
   },
 
-  searchAddress: async function() {
-    if (this.location.length == 2) {
-      this._address = await getAddress(this.location);
-    }
+  searchAddress: async function () {
+    this._address = await getAddress(this.location);
   },
 
   stopLocationWatcher: function () {
@@ -123,7 +123,7 @@ const FilterService = {
     this._selectedCategoriesChangeListeners.forEach((handler) => handler(newSelectedCategories));
   },
 
-  toggleSelectedCategory: function(category) {
+  toggleSelectedCategory: function (category) {
     const index = this._selectedCategories.indexOf(category);
 
     if (index > -1) {
@@ -133,8 +133,7 @@ const FilterService = {
     }
   },
 
-  addSearchRadiusChangeListener: function(handler) {
+  addSearchRadiusChangeListener: function (handler) {
     this._searchRadiusChangeListeners.push(handler);
   }
 };
-

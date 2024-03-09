@@ -1,6 +1,8 @@
 package view
 
-templ Map(searchRadius int, useLocationService bool, location string) {
+import "github.com/bitstorm-tech/cockaigne/internal/model"
+
+templ Map(searchRadius int, useLocationService bool, currentLocation model.Point) {
 	@BaseLayout() {
 		<div>
 			<div id="map" class="absolute bottom-10 left-0 right-0 top-12 z-0"></div>
@@ -32,11 +34,11 @@ templ Map(searchRadius int, useLocationService bool, location string) {
 				<span>Ermittle aktuelle Position ...</span>
 			</div>
 		</div>
-		@mapData(searchRadius, useLocationService, location)
+		@mapData(searchRadius, useLocationService, currentLocation)
 	}
 }
 
-script mapData(searchRadius int, useLocationService bool, locationString string) {
+script mapData(searchRadius int, useLocationService bool, currentLocation model.Point) {
   const map = L.map("map");
   const markerLayer = L.layerGroup();
   const dealLayer = L.layerGroup();
@@ -64,11 +66,14 @@ script mapData(searchRadius int, useLocationService bool, locationString string)
   });
 
   map.on("click", function (event) {
-    LocationService.location = [event.latlng.lat, event.latlng.lng];
+    LocationService.location = { lat: event.latlng.lat, lon: event.latlng.lng };
   });
 
   async function init() {
-    LocationService.setLocationFromString(locationString);
+		LocationService.location = { 
+			lon: currentLocation.Lon,
+			lat: currentLocation.Lat, 
+		};
     showElementById("search-address-indicator");
     map.setView(LocationService.location, 15);
 
@@ -76,8 +81,8 @@ script mapData(searchRadius int, useLocationService bool, locationString string)
       determineLocation = true;
       LocationService.startLocationWatcher();
       address = "Suche aktuelle Position ...";
-    } else if (location) {
-      address = await getAddress(location);
+    } else {
+      address = await getAddress(LocationService.location);
       hideElementById("search-address-indicator");
     }
 
@@ -91,7 +96,7 @@ script mapData(searchRadius int, useLocationService bool, locationString string)
     const deals = await res.json();
     dealLayer.clearLayers();
     for (const deal of deals) {
-      const coordinates = locationStringToCoordinates(deal.Location);
+      const coordinates = { lat: deal.Location.Lat, lon: deal.Location.Lon };
       const color = deal.Color;
       L.circle(coordinates, 5, { color, fillOpacity: 0.8 }).addTo(dealLayer);
     }

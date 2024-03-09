@@ -1,10 +1,33 @@
 package model
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
 
 type Point struct {
 	Lon float64
 	Lat float64
+}
+
+func NewPointFromString(pointString string) (Point, error) {
+	lonLat := strings.Split(pointString, ",")
+
+	lon, err := strconv.ParseFloat(lonLat[0], 64)
+	if err != nil {
+		return Point{}, err
+	}
+
+	lat, err := strconv.ParseFloat(lonLat[1], 64)
+	if err != nil {
+		return Point{}, err
+	}
+
+	return Point{
+		Lon: lon,
+		Lat: lat,
+	}, nil
 }
 
 func (p Point) ToWkt() string {

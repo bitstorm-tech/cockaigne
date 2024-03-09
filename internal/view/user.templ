@@ -1,5 +1,7 @@
 package view
 
+import "github.com/bitstorm-tech/cockaigne/internal/model"
+
 type UserHeaderParameters struct {
 	ID          string
 	Username    string
@@ -62,7 +64,7 @@ templ FavoriteDealsCountBadge(count string) {
 	</div>
 }
 
-templ User(userHeaderParams UserHeaderParameters, useLocationService bool, location string) {
+templ User(userHeaderParams UserHeaderParameters, useLocationService bool, currentLocation model.Point) {
 	@BaseLayout() {
 		@UserHeader(userHeaderParams)
 		<div x-data="{selectedTab: 0}">
@@ -108,22 +110,19 @@ templ User(userHeaderParams UserHeaderParameters, useLocationService bool, locat
 			</div>
 			<div id="content" class="pt-1"></div>
 		</div>
-		@userScript(useLocationService, location)
+		@userScript(useLocationService, currentLocation)
 	}
 }
 
-script userScript(useLocationService bool, location string) {
+script userScript(useLocationService bool, currentLocation model.Point) {
   const streetLabel = document.getElementById("street");
   const cityLabel = document.getElementById("city");
-  
+  getAddress({ lon: currentLocation.Lon, lat: currentLocation.Lat }).then(address => setAddressLabels(address));
   LocationService.addChangeHandler((_, address) => setAddressLabels(address));
 
   if (useLocationService) {
     LocationService.startLocationWatcher();
-  } else if(location?.length > 0) {
-    const coordinates = locationStringToCoordinates(location);
-    getAddress(coordinates).then(address => setAddressLabels(address));
-  }
+  } 
 
   function setAddressLabels(address) {
     if (address?.length == 0) return;

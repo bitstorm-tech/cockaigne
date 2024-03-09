@@ -48,12 +48,12 @@ func pointFromQuery(query string) (model.Point, error) {
 
 	lon, err := strconv.ParseFloat(results[0].Lon, 64)
 	if err != nil {
-		return model.Point{}, fmt.Errorf("error parsing lon: %v", err)
+		return model.Point{}, fmt.Errorf("error parsing longitude: %v", err)
 	}
 
 	lat, err := strconv.ParseFloat(results[0].Lat, 64)
 	if err != nil {
-		return model.Point{}, fmt.Errorf("error parsing lat: %v", err)
+		return model.Point{}, fmt.Errorf("error parsing latitude: %v", err)
 	}
 
 	return model.Point{
