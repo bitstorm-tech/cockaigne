@@ -5,13 +5,19 @@ templ LocationModal(useLocationService bool) {
 		<form hx-post="/api/accounts/use-location-service" hx-target="#modal">
 			<div class="flex flex-col gap-4">
 				<div id="address-input-form-control" class="form-control">
-					<label for="address">Adresse</label>
-					<input id="address" type="text" name="address" onkeydown="searchAddress(event)"/>
+					<label for="address-input">Adresse</label>
+					<input id="address-input" type="text" name="address" onkeydown="searchAddress(event)"/>
 					<button type="button" class="btn btn-sm btn-primary" onclick="searchAddress()">Addresse suchen</button>
 				</div>
 				<div class="flex items-center gap-2">
-					<span id="loading-indicator" class="loading loading-ring loading-lg"></span>
-					<span id="address-label">Adresse</span>
+					<div id="loading-indicator" class="flex justify-center items-center gap-2">
+						<span class="loading loading-ring loading-lg"></span>
+						<span>Suche aktuelle Position ...</span>
+					</div>
+					<div id="address-label-form-control" class="flex flex-col">
+						<span class="text-xs">Adresse</span>
+						<span id="address-label"></span>
+					</div>
 				</div>
 				<div class="form-control-horizontal">
 					<input
@@ -36,16 +42,17 @@ templ LocationModal(useLocationService bool) {
 
 script locationModal(useLocationService bool) {
   const addressLabel = document.getElementById("address-label");
-  const addressInput = document.getElementById("address");
+  const addressLabelFormControl = document.getElementById("address-label-form-control");
+  const addressInput = document.getElementById("address-input");
   const addressInputFormControl = document.getElementById("address-input-form-control");
   const loadingIndicator = document.getElementById("loading-indicator");
 
+	hideElement(loadingIndicator);
+
   if (useLocationService) {
     hideElement(addressInputFormControl);
-    hideElement(loadingIndicator);
   } else {
-    hideElement(addressLabel);
-    hideElement(loadingIndicator);
+    hideElement(addressLabelFormControl);
   }
 
   if (LocationService.address.length > 0) {
@@ -54,23 +61,29 @@ script locationModal(useLocationService bool) {
   }
 
   LocationService.addChangeHandler((_, address) => {
+    hideElement(loadingIndicator)
     addressLabel.textContent = address;
     addressInput.value = address;
-    hideElement(loadingIndicator)
+
+		if (useLocationService) {
+			showElement(addressLabelFormControl);
+		} else {
+			showElement(addressInputFormControl);
+		}
   });
 
   document.toggleCheckbox = function(element) {
-    if (element.checked) {
-      addressLabel.textContent = "Suche aktuelle Position ...";
+		useLocationService = element.checked;
+    if (useLocationService) {
       LocationService.startLocationWatcher();
       showElement(loadingIndicator);
-      showElement(addressLabel);
+      hideElement(addressLabelFormControl);
       hideElement(addressInputFormControl);
     } else {
       LocationService.stopLocationWatcher();
       showElement(addressInputFormControl);
+      hideElement(addressLabelFormControl);
       hideElement(loadingIndicator);
-      hideElement(addressLabel);
     }
   }
 
@@ -78,6 +91,7 @@ script locationModal(useLocationService bool) {
     if (event?.keyCode !== 13) return;
     event?.preventDefault();
 
+		showElement(loadingIndicator);
     const address = addressInput.value;
     const location = await getPosition(address);
     if (location) {

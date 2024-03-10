@@ -47,7 +47,6 @@ const LocationService = {
     }
 
     this._location = newLocation;
-    console.log("New location:", newLocation);
     this.searchAddress().then(() =>
       this._locationChangeHandlers.forEach((handler) => handler(this._location, this._address))
     );
