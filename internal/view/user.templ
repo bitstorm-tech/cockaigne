@@ -117,8 +117,12 @@ templ User(userHeaderParams UserHeaderParameters, useLocationService bool, curre
 script userScript(useLocationService bool, currentLocation model.Point) {
   const streetLabel = document.getElementById("street");
   const cityLabel = document.getElementById("city");
-  getAddress({ lon: currentLocation.Lon, lat: currentLocation.Lat }).then(address => setAddressLabels(address));
   LocationService.addChangeHandler((_, address) => setAddressLabels(address));
+
+	LocationService.location = {
+		lat: currentLocation.Lat,
+		lon: currentLocation.Lon
+	}
 
   if (useLocationService) {
     LocationService.startLocationWatcher();

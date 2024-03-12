@@ -51,6 +51,7 @@ templ Header(isAuthenticated bool, isDealer bool) {
 					@menuEntry("Einloggen", "/login", icon.Login())
 					@menuEntry("Registrieren", "/signup", icon.Registration())
 				}
+				<button onclick="LocationService.toggleLocationServiceSimulation()">Toggle Location Service Simulation</button>
 				<div class="flex gap-8 text-xs justify-around pt-8">
 					<a href="/imprint">Impressum</a>
 					<a href="/terms">AGB</a>
@@ -77,7 +78,7 @@ templ DealerMenu() {
 }
 
 templ menuEntry(text string, href string, icon templ.Component) {
-	<a class="flex justify-start items-center gap-4" href={ templ.SafeURL(href) } target={target(href)}>
+	<a class="flex justify-start items-center gap-4" href={ templ.SafeURL(href) } target={ target(href) }>
 		<div class="shrink h-6 w-6">
 			@icon
 		</div>
@@ -86,9 +87,9 @@ templ menuEntry(text string, href string, icon templ.Component) {
 }
 
 func target(href string) string {
-    if strings.Contains(href, "stripe") {
-        return "_blank"
-    }
+	if strings.Contains(href, "stripe") {
+		return "_blank"
+	}
 
-    return ""
+	return ""
 }

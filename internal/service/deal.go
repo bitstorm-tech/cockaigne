@@ -216,8 +216,6 @@ func GetDealHeaders(state model.State, filter *SpartialDealFilter, dealerId stri
 		statement += fmt.Sprintf("st_within(location, %s)", geom)
 	}
 
-	zap.L().Sugar().Info("STATEMENT: ", statement)
-
 	var headers model.DealHeaders
 	err := persistence.DB.Select(&headers, statement)
 

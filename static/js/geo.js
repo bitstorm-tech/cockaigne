@@ -35,7 +35,8 @@ const LocationService = {
   _watcherId: -1,
   _address: "",
   _locationChangeHandlers: [],
-  _location: { lon: 48.137154, lat: 11.576124 }, // initial position is Munich Marienplatz
+  _location: { lat: 48.137154, lon: 11.576124 }, // initial position is Munich Marienplatz
+  _testIntervalId: -1,
 
   get location() {
     return this._location;
@@ -64,12 +65,12 @@ const LocationService = {
     return this._address;
   },
 
-  addChangeHandler: function (handler) {
+  addChangeHandler(handler) {
     this._locationChangeHandlers.push(handler);
     console.log("Number of locationChangeHandlers:", this._locationChangeHandlers.length);
   },
 
-  startLocationWatcher: function () {
+  startLocationWatcher() {
     if (this._watcherId != -1) {
       return;
     }
@@ -85,15 +86,31 @@ const LocationService = {
     );
   },
 
-  searchAddress: async function () {
+  async searchAddress() {
     this._address = await getAddress(this.location);
   },
 
-  stopLocationWatcher: function () {
+  stopLocationWatcher() {
     if (this._watcherId > -1) {
       console.log("Stop location watcher");
       window.navigator.geolocation.clearWatch(this._watcherId);
       this._watcherId = -1;
+    }
+  },
+
+  toggleLocationServiceSimulation() {
+    if (this._testIntervalId > 0) {
+      console.log("Stop Location Service Simulation ...");
+      clearInterval(this._testIntervalId);
+      this._testIntervalId = -1;
+    } else {
+      console.log("Start Location Service Simulation ...");
+      this._testIntervalId = setInterval(() => {
+        this.location = {
+          lon: this._location.lon - 0.0001,
+          lat: this._location.lat + 0.0001
+        };
+      }, 2000);
     }
   }
 };
@@ -122,7 +139,7 @@ const FilterService = {
     this._selectedCategoriesChangeListeners.forEach((handler) => handler(newSelectedCategories));
   },
 
-  toggleSelectedCategory: function (category) {
+  toggleSelectedCategory(category) {
     const index = this._selectedCategories.indexOf(category);
 
     if (index > -1) {
@@ -132,7 +149,7 @@ const FilterService = {
     }
   },
 
-  addSearchRadiusChangeListener: function (handler) {
+  addSearchRadiusChangeListener(handler) {
     this._searchRadiusChangeListeners.push(handler);
   }
 };
