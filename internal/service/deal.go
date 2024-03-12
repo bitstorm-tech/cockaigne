@@ -87,6 +87,11 @@ type BoundingBoxDealFilter struct {
 	BoundingBox string
 }
 
+type RadiusDealFilter struct {
+	Point  string
+	Radius int
+}
+
 func (filter BoundingBoxDealFilter) ToGeometry() (string, error) {
 	if len(filter.BoundingBox) == 0 {
 		return "", fmt.Errorf("BoundingBoxDealFilter needs a valid bounding box")
@@ -94,12 +99,45 @@ func (filter BoundingBoxDealFilter) ToGeometry() (string, error) {
 
 	coordinates := strings.Split(filter.BoundingBox, ",")
 	return fmt.Sprintf(
-		"ST_Envelope('LINESTRING(%s %s, %s %s)'::geography::geometry)",
+		"ST_MakeEnvelope(%s, %s, %s, %s, 4326)",
 		coordinates[0],
 		coordinates[1],
 		coordinates[2],
 		coordinates[3],
 	), nil
+}
+
+func (filter RadiusDealFilter) ToGeometry() (string, error) {
+	if len(filter.Point) == 0 || filter.Radius == 0 {
+		return "", fmt.Errorf("RadiusDealFilter needs a valid point and raidus")
+	}
+
+	return fmt.Sprintf("ST_Buffer(ST_MakePoint(%s)::geography, %d)::geometry", filter.Point, filter.Radius), nil
+}
+
+func CreateSpartialDealFilter(userId string) (SpartialDealFilter, error) {
+	account, err := GetAccount(userId)
+	if err != nil {
+		return nil, err
+	}
+
+	if !account.Location.Valid {
+		return nil, fmt.Errorf("can't create SpartialDealFilter -> account has no location")
+	}
+
+	if account.SearchRadiusInMeters == 0 {
+		return nil, fmt.Errorf("can't create SpartialDealFilter -> account has no search radius")
+	}
+
+	point := account.Location.String
+	radius := account.SearchRadiusInMeters
+
+	filter := RadiusDealFilter{
+		Point:  point,
+		Radius: radius,
+	}
+
+	return filter, nil
 }
 
 func GetDealsFromView(state model.State, filter SpartialDealFilter, dealerId *string) ([]model.DealView, error) {
@@ -144,7 +182,7 @@ func GetDealsFromView(state model.State, filter SpartialDealFilter, dealerId *st
 	return deals, nil
 }
 
-func GetDealHeaders(state model.State, dealerId string) (model.DealHeaders, error) {
+func GetDealHeaders(state model.State, filter *SpartialDealFilter, dealerId string) (model.DealHeaders, error) {
 	if state != model.Future && state != model.Active && state != model.Past && state != model.Template {
 		return model.DealHeaders{}, fmt.Errorf("unknown deal state: %s", state)
 	}
@@ -162,6 +200,23 @@ func GetDealHeaders(state model.State, dealerId string) (model.DealHeaders, erro
 	if len(dealerId) > 0 {
 		statement += fmt.Sprintf(" where dealer_id = '%s'", dealerId)
 	}
+
+	if filter != nil {
+		if len(dealerId) > 0 {
+			statement += " and "
+		} else {
+			statement += " where "
+		}
+
+		geom, err := (*filter).ToGeometry()
+		if err != nil {
+			return model.DealHeaders{}, fmt.Errorf("can't convert filter to valid geometry: %+v", err)
+		}
+
+		statement += fmt.Sprintf("st_within(location, %s)", geom)
+	}
+
+	zap.L().Sugar().Info("STATEMENT: ", statement)
 
 	var headers model.DealHeaders
 	err := persistence.DB.Select(&headers, statement)

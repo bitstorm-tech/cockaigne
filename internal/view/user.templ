@@ -70,7 +70,7 @@ templ User(userHeaderParams UserHeaderParameters, useLocationService bool, curre
 		<div x-data="{selectedTab: 0}">
 			<div class="tabs tabs-bordered" x-cloak>
 				<div
-					hx-get="/deals/active"
+					hx-get="/deals/active?filter=true"
 					hx-target="#content"
 					hx-trigger="click, load"
 					class="tab"
