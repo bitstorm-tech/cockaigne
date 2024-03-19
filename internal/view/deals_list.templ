@@ -56,7 +56,30 @@ templ DealsList(dealHeaders []model.DealHeader, hideName bool, isDealer bool, sh
 			</div>
 		}
 	</div>
+	<div id="new-deals-button" hx-swap="outerHTML"></div>
 	<div id="image-zoom-modal"></div>
+	@dealListScript(dealHeaders)
+}
+
+script dealListScript(dealHeaders []model.DealHeader) {
+	const dealIds = dealHeaders.map(header => header.ID).join(",");
+	LocationService.addChangeHandler(() => {
+		htmx.ajax("POST", "/show-new-deals-button", {
+			target: "#new-deals-button", 
+			values: { dealIds }
+		})
+	});
+}
+
+templ NewDealsButton() {
+	<button
+		class="absolute bottom-12 left-2 right-2"
+		hx-get="/deals/active?filter=true"
+		hx-target="#content"
+		hx-trigger="click"
+	>
+		Neue Deals in deiner Umgebung verfügbar!
+	</button>
 }
 
 templ DealDetailsFooter(dealDetails model.DealDetails, imageUrls []string, isDealer bool, likes string) {

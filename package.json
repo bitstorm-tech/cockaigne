@@ -11,8 +11,8 @@
     "browser-sync": "3.0.2",
     "concurrently": "8.2.2",
     "daisyui": "4.7.3",
-    "npm-check-updates": "16.14.15",
-    "postcss": "8.4.35",
+    "npm-check-updates": "16.14.17",
+    "postcss": "8.4.37",
     "prettier": "3.2.5",
     "prettier-plugin-tailwindcss": "0.5.12",
     "tailwindcss": "3.4.1"

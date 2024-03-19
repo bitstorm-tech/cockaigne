@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/redirect"
@@ -16,6 +17,29 @@ func RegisterUserHandlers(e *echo.Echo) {
 	e.GET("/deals-count-badge", getDealsCountBadge)
 	e.GET("/favorite-deals-count-badge", getFavoriteDealsCountBadge)
 	e.GET("/favorite-dealers-count-badge", getFavoriteDealersCountBadge)
+	e.POST("/show-new-deals-button", showNewDealsButton)
+}
+
+func showNewDealsButton(c echo.Context) error {
+	userId, err := service.ParseUserId(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	dealIdsString := c.FormValue("dealIds")
+	dealIds := strings.Split(dealIdsString, ",")
+	newDealsAvailable, err := service.NewDealsAvailable(userId.String(), dealIds)
+	if err != nil {
+		zap.L().Sugar().Error("can't check if new deals are available: ", err)
+		return nil
+	}
+
+	if newDealsAvailable {
+		// c.Response().Header().Add("HX-Retarget", "#new-deals-button")
+		return view.Render(view.NewDealsButton(), c)
+	}
+
+	return nil
 }
 
 func getDealsCountBadge(c echo.Context) error {

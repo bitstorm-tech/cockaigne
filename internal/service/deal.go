@@ -11,6 +11,7 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 )
 
@@ -169,7 +170,7 @@ func GetDealsFromView(state model.State, filter SpartialDealFilter, dealerId *st
 			return []model.DealView{}, fmt.Errorf("can't convert filter to valid geometry: %+v", err)
 		}
 
-		statement += fmt.Sprintf("st_within(location, %s)", geom)
+		statement += fmt.Sprintf("ST_Within(location, %s)", geom)
 	}
 
 	var deals []model.DealView
@@ -513,4 +514,36 @@ func CalculateStartAndEndAsHumanReadable(start time.Time, durationInHours int) S
 		Start: start.Format("02.01.2006 um 15:04"),
 		End:   start.Add(time.Duration(durationInHours) * time.Hour).Format("02.01.2006 um 15:04"),
 	}
+}
+
+func NewDealsAvailable(userId string, oldDealIds []string) (bool, error) {
+	filter, err := CreateSpartialDealFilter(userId)
+	if err != nil {
+		return false, err
+	}
+
+	searchRadiusFilterGeometry, err := filter.ToGeometry()
+	if err != nil {
+		return false, err
+	}
+
+	query := fmt.Sprintf(
+		"select count(*) from active_deals_view where st_within(location, %s) and id not in (?)",
+		searchRadiusFilterGeometry,
+	)
+
+	query, params, err := sqlx.In(query, oldDealIds)
+	if err != nil {
+		return false, err
+	}
+
+	query = persistence.DB.Rebind(query)
+
+	var newDealsAvailable int
+	err = persistence.DB.Get(&newDealsAvailable, query, params...)
+	if err != nil {
+		return false, err
+	}
+
+	return newDealsAvailable > 0, nil
 }

@@ -107,10 +107,10 @@ const LocationService = {
       console.log("Start Location Service Simulation ...");
       this._testIntervalId = setInterval(() => {
         this.location = {
-          lon: this._location.lon - 0.0001,
-          lat: this._location.lat + 0.0001
+          lon: this._location.lon + 0.0001,
+          lat: this._location.lat - 0.0001
         };
-      }, 2000);
+      }, 1000);
     }
   }
 };
