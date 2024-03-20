@@ -26,6 +26,27 @@ templ Signup() {
 					<input id="password-repeat" type="password" name="passwordRepeat"/>
 				</div>
 			</div>
+			<div class="flex flex-col gap-4" x-show="!isDealer">
+				<div class="form-control">
+					<label for="age">Alter</label>
+					<div id="age" class="join grid grid-cols-6 w-full">
+						<input class="join-item btn btn-sm" type="radio" value="1" name="age" aria-label="bis 18" checked/>
+						<input class="join-item btn btn-sm" type="radio" value="2" name="age" aria-label="19 - 29"/>
+						<input class="join-item btn btn-sm" type="radio" value="3" name="age" aria-label="30 - 39"/>
+						<input class="join-item btn btn-sm" type="radio" value="4" name="age" aria-label="40 - 49"/>
+						<input class="join-item btn btn-sm" type="radio" value="5" name="age" aria-label="50 - 59"/>
+						<input class="join-item btn btn-sm" type="radio" value="6" name="age" aria-label="60+"/>
+					</div>
+				</div>
+				<div class="form-control">
+					<label for="gender">Geschlecht</label>
+					<div id="gender" class="join grid grid-cols-3 w-full">
+						<input class="join-item btn btn-sm" type="radio" value="f" name="gender" aria-label="Frau" checked/>
+						<input class="join-item btn btn-sm" type="radio" value="m" name="gender" aria-label="Mann"/>
+						<input class="join-item btn btn-sm" type="radio" value="-" name="gender" aria-label="Egal"/>
+					</div>
+				</div>
+			</div>
 			<div class="flex flex-col gap-4" x-show="isDealer">
 				<div class="form-control">
 					<label for="category-select">Branche</label>
