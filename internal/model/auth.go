@@ -8,18 +8,21 @@ import (
 )
 
 type CreateAccountRequest struct {
-	Username       string
-	Password       string
-	PasswordRepeat string
-	Email          string
-	IsDealer       bool
-	Street         string
-	HouseNumber    string
-	City           string
-	ZipCode        string
-	Phone          string
-	TaxId          string
-	Category       int32
+	Username       string `form:"username"`
+	Password       string `form:"password"`
+	PasswordRepeat string `form:"passwordRepeat"`
+	Email          string `form:"email"`
+	IsDealer       bool   `form:"isDealer"`
+	Street         string `form:"street"`
+	HouseNumber    string `form:"houseNumber"`
+	City           string `form:"city"`
+	ZipCode        string `form:"zipCode"`
+	Phone          string `form:"phone"`
+	TaxId          string `form:"taxId"`
+	Category       int32  `form:"category"`
+	Age            string `form:"age"`
+	Gender         string `form:"gender"`
+	Agb            bool   `form:"agb"`
 }
 
 func (c CreateAccountRequest) ToAccount(passwordHash string) Account {

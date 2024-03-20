@@ -72,6 +72,10 @@ func signup(c echo.Context) error {
 		return view.RenderAlert("Bitte eine gültige E-Mail angeben", c)
 	}
 
+	if !request.Agb {
+		return view.RenderAlert("Bitte AGB und Datenschutzbedingungen lesen und akzeptieren", c)
+	}
+
 	zap.L().Sugar().Debug("new account: ", request.Email)
 
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
