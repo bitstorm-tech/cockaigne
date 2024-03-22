@@ -10,8 +10,9 @@ func RegisterUiHandlers(e *echo.Echo) {
 	e.GET("/ui/header", func(c echo.Context) error {
 		isAuthenticated := service.IsAuthenticated(c)
 		isDealer := service.IsDealer(c)
+		isBasicUser := service.IsBasicUser(c)
 
-		return view.Render(view.Header(isAuthenticated, isDealer), c)
+		return view.Render(view.Header(isAuthenticated, isDealer, isBasicUser), c)
 	})
 
 	e.GET("/ui/footer", func(c echo.Context) error {

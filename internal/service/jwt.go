@@ -13,14 +13,16 @@ import (
 var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 type User struct {
-	ID       uuid.UUID
-	IsDealer bool
+	ID          uuid.UUID
+	IsDealer    bool
+	IsBasicUser bool
 }
 
-func CreateJwtToken(id uuid.UUID, isDealer bool) string {
+func CreateJwtToken(id uuid.UUID, isDealer bool, isBasicUser bool) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
-		"sub":      id,
-		"isDealer": isDealer,
+		"sub":         id,
+		"isDealer":    isDealer,
+		"isBasicUser": isBasicUser,
 	})
 
 	signedString, err := token.SignedString(jwtSecret)
@@ -59,8 +61,9 @@ func ParseUser(c echo.Context) (User, error) {
 	}
 
 	return User{
-		ID:       id,
-		IsDealer: claims["isDealer"].(bool),
+		ID:          id,
+		IsDealer:    claims["isDealer"].(bool),
+		IsBasicUser: claims["isBasicUser"].(bool),
 	}, nil
 }
 
@@ -90,4 +93,13 @@ func IsDealer(c echo.Context) bool {
 	}
 
 	return token["isDealer"].(bool)
+}
+
+func IsBasicUser(c echo.Context) bool {
+	token, err := ParseJwtToken(c)
+	if err != nil {
+		return false
+	}
+
+	return token["isBasicUser"].(bool)
 }

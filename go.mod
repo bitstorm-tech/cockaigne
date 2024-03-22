@@ -5,16 +5,16 @@ go 1.21
 require (
 	github.com/a-h/templ v0.2.639
 	github.com/aws/aws-sdk-go-v2 v1.26.0
-	github.com/aws/aws-sdk-go-v2/config v1.27.8
-	github.com/aws/aws-sdk-go-v2/credentials v1.17.8
+	github.com/aws/aws-sdk-go-v2/config v1.27.9
+	github.com/aws/aws-sdk-go-v2/credentials v1.17.9
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.53.0
-	github.com/getbrevo/brevo-go v1.0.1
+	github.com/getbrevo/brevo-go v1.0.2
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/lib/pq v1.10.9
-	github.com/stripe/stripe-go/v76 v76.21.0
+	github.com/stripe/stripe-go/v76 v76.22.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.21.0
 )
@@ -22,7 +22,7 @@ require (
 require (
 	github.com/antihax/optional v1.0.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.1 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.15.4 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.0 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.4 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.4 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.0 // indirect

@@ -10,6 +10,7 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/service"
 	"github.com/bitstorm-tech/cockaigne/internal/view"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 
@@ -29,7 +30,7 @@ func RegisterAuthHandlers(e *echo.Echo) {
 	e.GET("/logout", logout)
 	e.POST("/api/signup", signup)
 	e.POST("/api/login", login)
-
+	e.POST("/api/basic-login", loginAsBasicUser)
 }
 
 func completeSignup(c echo.Context) error {
@@ -146,7 +147,7 @@ func login(c echo.Context) error {
 		c.Response().Header().Add("HX-Location", "/user")
 	}
 
-	jwtString := service.CreateJwtToken(acc.ID, acc.IsDealer)
+	jwtString := service.CreateJwtToken(acc.ID, acc.IsDealer, false)
 	cookie := http.Cookie{
 		Name:     "jwt",
 		Value:    jwtString,
@@ -155,6 +156,22 @@ func login(c echo.Context) error {
 		Expires:  time.Now().Add(7 * 24 * time.Hour),
 	}
 	c.SetCookie(&cookie)
+
+	return nil
+}
+
+func loginAsBasicUser(c echo.Context) error {
+	jwtString := service.CreateJwtToken(uuid.Nil, false, true)
+	cookie := http.Cookie{
+		Name:     "jwt",
+		Value:    jwtString,
+		HttpOnly: true,
+		Path:     "/",
+		Expires:  time.Now().Add(7 * 24 * time.Hour),
+	}
+	c.SetCookie(&cookie)
+
+	c.Response().Header().Add("HX-Location", "/user")
 
 	return nil
 }

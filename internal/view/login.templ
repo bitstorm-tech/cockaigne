@@ -13,7 +13,9 @@ templ Login() {
 				<input id="password" type="password" name="password"/>
 			</div>
 			<button>Einloggen</button>
-			<button class="btn btn-primary btn-sm">Weiter als Basic User</button>
+			<button class="btn btn-primary btn-sm" type="button" hx-post="/api/basic-login">
+				Weiter als Basic User
+			</button>
 			<div class="pt-10 text-sm text-center">
 				<a href="/signup">Registrieren</a>
 				<span>/</span>

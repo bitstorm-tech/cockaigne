@@ -3,11 +3,20 @@ package view
 import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
 import "strings"
 
-templ Header(isAuthenticated bool, isDealer bool) {
+templ Header(isAuthenticated bool, isDealer bool, isBasicUser bool) {
 	<nav id="header" class="h-12 border-b border-b-white border-opacity-25" x-data="{showMenu: false}">
 		<div class="px-4 sm:px-6 lg:px-8">
 			<div class="flex h-12 items-center justify-between">
-				<a href="/"><img class="h-7" src="/static/images/logo-text.svg" alt="Logo"/></a>
+				<div class="flex gap-2">
+					<a href="/"><img class="h-7" src="/static/images/logo-text.svg" alt="Logo"/></a>
+					<div class="self-end badge badge-neutral p-3">
+						if isBasicUser {
+							Basic
+						} else {
+							Pro
+						}
+					</div>
+				</div>
 				<div class="hidden gap-6 md:flex">
 					if isAuthenticated {
 						<a class="menu-item" href="/settings">Einstellungen</a>
