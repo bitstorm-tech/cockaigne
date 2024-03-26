@@ -21,7 +21,7 @@ func RegisterUserHandlers(e *echo.Echo) {
 }
 
 func showNewDealsButton(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	user, err := service.ParseUser(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -33,7 +33,7 @@ func showNewDealsButton(c echo.Context) error {
 		dealIds = strings.Split(dealIdsString, ",")
 	}
 
-	newDealsAvailable, err := service.NewDealsAvailable(userId.String(), dealIds)
+	newDealsAvailable, err := service.NewDealsAvailable(user.ID.String(), dealIds, user.IsBasicUser)
 	if err != nil {
 		zap.L().Sugar().Error("can't check if new deals are available: ", err)
 		return nil
@@ -89,7 +89,7 @@ func getUser(c echo.Context) error {
 	}
 
 	if user.IsBasicUser {
-		filter := service.GetBasicUserFilter(user.ID)
+		filter := service.GetBasicUserFilter(user.ID.String())
 		return view.Render(view.User(user.ID.String(), "Basic", false, true, filter.Location), c)
 	}
 

@@ -174,7 +174,7 @@ func loginAsBasicUser(c echo.Context) error {
 
 	c.Response().Header().Add("HX-Location", "/user")
 
-	service.NewBasicUser(userId)
+	service.NewBasicUser(userId.String())
 
 	return nil
 }
@@ -189,7 +189,7 @@ func logout(c echo.Context) error {
 	c.SetCookie(&cookie)
 
 	if user.IsBasicUser {
-		service.DeleteBasicUser(user.ID)
+		service.DeleteBasicUser(user.ID.String())
 	}
 
 	return c.Redirect(http.StatusTemporaryRedirect, "/login")

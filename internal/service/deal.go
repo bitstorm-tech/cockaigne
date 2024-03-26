@@ -512,10 +512,21 @@ func CalculateStartAndEndAsHumanReadable(start time.Time, durationInHours int) S
 	}
 }
 
-func NewDealsAvailable(userId string, oldDealIds []string) (bool, error) {
-	filter, err := CreateSpatialDealFilter(userId)
-	if err != nil {
-		return false, err
+func NewDealsAvailable(userId string, oldDealIds []string, isBasicUser bool) (bool, error) {
+	var filter SpatialDealFilter
+	var err error
+
+	if isBasicUser {
+		basicUserFilter := GetBasicUserFilter(userId)
+		filter = RadiusDealFilter{
+			Point:  basicUserFilter.Location,
+			Radius: basicUserFilter.SearchRadiusInMeters,
+		}
+	} else {
+		filter, err = CreateSpatialDealFilter(userId)
+		if err != nil {
+			return false, err
+		}
 	}
 
 	searchRadiusFilterGeometry, err := filter.ToGeometry()

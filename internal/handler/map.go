@@ -22,7 +22,7 @@ func openMap(c echo.Context) error {
 	}
 
 	if user.IsBasicUser {
-		filter := service.GetBasicUserFilter(user.ID)
+		filter := service.GetBasicUserFilter(user.ID.String())
 		return view.Render(view.Map(filter.SearchRadiusInMeters, filter.UseLocationService, filter.Location), c)
 	}
 
@@ -63,7 +63,7 @@ func openLocationModal(c echo.Context) error {
 	useLocationService := false
 
 	if user.IsBasicUser {
-		useLocationService = service.GetBasicUserFilter(user.ID).UseLocationService
+		useLocationService = service.GetBasicUserFilter(user.ID.String()).UseLocationService
 	} else {
 		acc, err := service.GetAccount(user.ID.String())
 		if err != nil {

@@ -61,7 +61,7 @@ func updateLocation(c echo.Context) error {
 	}
 
 	if user.IsBasicUser {
-		service.GetBasicUserFilter(user.ID).Location = point
+		service.GetBasicUserFilter(user.ID.String()).Location = point
 		return nil
 	}
 
@@ -348,7 +348,7 @@ func getProfileImageSettings(c echo.Context) error {
 func getUserCommonsSettings(c echo.Context) error {
 	userId, err := service.ParseUserId(c)
 	if err != nil {
-		c.Redirect(http.StatusTemporaryRedirect, "/login")
+		return redirect.Login(c)
 	}
 
 	acc, err := service.GetAccount(userId.String())

@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/bitstorm-tech/cockaigne/internal/model"
-	"github.com/google/uuid"
 )
 
 type BasicUserFilter struct {
@@ -14,9 +13,9 @@ type BasicUserFilter struct {
 
 // TODO refactore this to a more robust solution
 // This solution is very dangerous -> attackers could flood this map (login as basic user is not restricted yet) -> OOM
-var basicUserFilters = map[uuid.UUID]*BasicUserFilter{}
+var basicUserFilters = map[string]*BasicUserFilter{}
 
-func NewBasicUser(id uuid.UUID) {
+func NewBasicUser(id string) {
 	basicUserFilters[id] = &BasicUserFilter{
 		Location:             model.PointCenterOfGermany,
 		SearchRadiusInMeters: 500,
@@ -24,7 +23,7 @@ func NewBasicUser(id uuid.UUID) {
 	}
 }
 
-func GetBasicUserFilter(id uuid.UUID) *BasicUserFilter {
+func GetBasicUserFilter(id string) *BasicUserFilter {
 	filter, ok := basicUserFilters[id]
 
 	if ok {
@@ -40,6 +39,6 @@ func GetBasicUserFilter(id uuid.UUID) *BasicUserFilter {
 	}
 }
 
-func DeleteBasicUser(id uuid.UUID) {
+func DeleteBasicUser(id string) {
 	delete(basicUserFilters, id)
 }

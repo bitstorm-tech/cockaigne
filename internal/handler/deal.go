@@ -342,7 +342,7 @@ func getDealList(c echo.Context) error {
 	}
 
 	if doFilter && user.IsBasicUser {
-		basicUserFilter := service.GetBasicUserFilter(user.ID)
+		basicUserFilter := service.GetBasicUserFilter(user.ID.String())
 		f := service.RadiusDealFilter{
 			Point:  basicUserFilter.Location,
 			Radius: basicUserFilter.SearchRadiusInMeters,
