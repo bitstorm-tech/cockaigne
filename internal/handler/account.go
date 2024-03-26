@@ -383,22 +383,32 @@ func getProfileImage(c echo.Context) error {
 }
 
 func updateFilter(c echo.Context) error {
-	userId, _ := service.ParseUserId(c)
+	user, err := service.ParseUser(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
 
 	updateFilterRequest := model.UpdateFilterRequest{}
 
-	err := c.Bind(&updateFilterRequest)
+	err = c.Bind(&updateFilterRequest)
 	if err != nil {
 		zap.L().Sugar().Error("can't parse filter update request: ", err)
 		return view.RenderAlert("Wir konnten deine Filtereinstellungen nicht speichern. Bitte versuche es später noch einmal.", c)
 	}
 
-	if err := service.UpdateSearchRadius(userId, updateFilterRequest.SearchRadiusInMeters); err != nil {
+	if user.IsBasicUser {
+		basicUserFilter := service.GetBasicUserFilter(user.ID.String())
+		basicUserFilter.SearchRadiusInMeters = updateFilterRequest.SearchRadiusInMeters
+		basicUserFilter.SelectedCategories = updateFilterRequest.FavoriteCategoryIds
+		return nil
+	}
+
+	if err := service.UpdateSearchRadius(user.ID, updateFilterRequest.SearchRadiusInMeters); err != nil {
 		zap.L().Sugar().Error("can't update accounts search_radius_in_meters: ", err)
 		return view.RenderAlert("Wir konnten deine Filtereinstellungen nicht speichern. Bitte versuche es später noch einmal.", c)
 	}
 
-	if err := service.UpdateSelectedCategories(userId, updateFilterRequest.FavoriteCategoryIds); err != nil {
+	if err := service.UpdateSelectedCategories(user.ID, updateFilterRequest.FavoriteCategoryIds); err != nil {
 		zap.L().Sugar().Error("can't update selected categories: ", err)
 		return view.RenderAlert("Wir konnten deine Filtereinstellungen nicht speichern. Bitte versuche es später noch einmal.", c)
 	}

@@ -8,7 +8,7 @@ type BasicUserFilter struct {
 	Location             model.Point
 	SearchRadiusInMeters int
 	UseLocationService   bool
-	SelectedCategories   []model.Category
+	SelectedCategories   []int
 }
 
 // TODO refactore this to a more robust solution

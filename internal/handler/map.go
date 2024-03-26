@@ -40,16 +40,25 @@ func openMap(c echo.Context) error {
 }
 
 func openFilterModal(c echo.Context) error {
-	userId, _ := service.ParseUserId(c)
-
-	acc, err := service.GetAccount(userId.String())
-
+	user, err := service.ParseUser(c)
 	if err != nil {
-		zap.L().Sugar().Errorf("can't get account: %v", err)
+		return redirect.Login(c)
 	}
 
 	categories := service.GetCategories()
-	favCategoryIds := service.GetFavoriteCategoryIds(userId)
+
+	if user.IsBasicUser {
+		basicUserFilter := service.GetBasicUserFilter(user.ID.String())
+		return view.Render(view.FilterModal(categories, basicUserFilter.SelectedCategories, basicUserFilter.SearchRadiusInMeters), c)
+	}
+
+	acc, err := service.GetAccount(user.ID.String())
+	if err != nil {
+		zap.L().Sugar().Errorf("can't get account: %v", err)
+		return view.RenderAlert("Leider können die Filter gerade nicht geladen werden, bitte versuche es später noch einmal.", c)
+	}
+
+	favCategoryIds := service.GetFavoriteCategoryIds(user.ID)
 
 	return view.Render(view.FilterModal(categories, favCategoryIds, acc.SearchRadiusInMeters), c)
 }
