@@ -161,28 +161,36 @@ func login(c echo.Context) error {
 }
 
 func loginAsBasicUser(c echo.Context) error {
-	jwtString := service.CreateJwtToken(uuid.Nil, false, true)
+	userId := uuid.New()
+	jwtString := service.CreateJwtToken(userId, false, true)
 	cookie := http.Cookie{
 		Name:     "jwt",
 		Value:    jwtString,
 		HttpOnly: true,
 		Path:     "/",
-		Expires:  time.Now().Add(7 * 24 * time.Hour),
+		Expires:  time.Now().Add(365 * 24 * time.Hour),
 	}
 	c.SetCookie(&cookie)
 
 	c.Response().Header().Add("HX-Location", "/user")
 
+	service.NewBasicUser(userId)
+
 	return nil
 }
 
 func logout(c echo.Context) error {
+	user, _ := service.ParseUser(c)
 	cookie := http.Cookie{
 		Name:     "jwt",
 		Value:    "",
 		HttpOnly: true,
 	}
 	c.SetCookie(&cookie)
+
+	if user.IsBasicUser {
+		service.DeleteBasicUser(user.ID)
+	}
 
 	return c.Redirect(http.StatusTemporaryRedirect, "/login")
 }

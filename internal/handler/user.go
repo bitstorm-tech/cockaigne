@@ -35,7 +35,6 @@ func showNewDealsButton(c echo.Context) error {
 	}
 
 	if newDealsAvailable {
-		// c.Response().Header().Add("HX-Retarget", "#new-deals-button")
 		return view.Render(view.NewDealsButton(), c)
 	}
 
@@ -79,23 +78,19 @@ func getFavoriteDealsCountBadge(c echo.Context) error {
 }
 
 func getUser(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	user, err := service.ParseUser(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
 
-	acc, err := service.GetAccount(userId.String())
-	if err != nil {
-		zap.L().Sugar().Error("can't get account: ", err)
+	if user.IsBasicUser {
+		filter := service.GetBasicUserFilter(user.ID)
+		return view.Render(view.User(user.ID.String(), "Basic", false, true, filter.Location), c)
 	}
 
-	params := view.UserHeaderParameters{
-		ID:          acc.ID.String(),
-		Username:    acc.Username,
-		Street:      "Suche aktuelle Position ...",
-		HouseNumber: "",
-		Zip:         "",
-		City:        "",
+	acc, err := service.GetAccount(user.ID.String())
+	if err != nil {
+		zap.L().Sugar().Error("can't get account: ", err)
 	}
 
 	location, err := model.NewPointFromString(acc.Location.String)
@@ -103,5 +98,5 @@ func getUser(c echo.Context) error {
 		zap.L().Sugar().Errorf("can't create new point from account location (%s): %v", acc.Location.String, err)
 	}
 
-	return view.Render(view.User(params, acc.UseLocationService, location), c)
+	return view.Render(view.User(acc.ID.String(), acc.Username, acc.UseLocationService, false, location), c)
 }

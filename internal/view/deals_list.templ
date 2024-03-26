@@ -65,7 +65,7 @@ script dealListScript(dealHeaders []model.DealHeader) {
 	const dealIds = dealHeaders.map(header => header.ID).join(",");
 	LocationService.addChangeHandler(() => {
 		htmx.ajax("POST", "/show-new-deals-button", {
-			target: "#new-deals-button", 
+			target: "#new-deals-button",
 			values: { dealIds }
 		})
 	});

@@ -2,71 +2,9 @@ package view
 
 import "github.com/bitstorm-tech/cockaigne/internal/model"
 
-type UserHeaderParameters struct {
-	ID          string
-	Username    string
-	Street      string
-	HouseNumber string
-	Zip         string
-	City        string
-}
-
-templ UserHeader(params UserHeaderParameters) {
-	<div class="flex h-52 justify-between">
-		<div class="flex w-full justify-between">
-			<div class="m-4 flex flex-col gap-4">
-				<div class="flex gap-2 fill-current text-xs text-[#69828c]">
-					<div hx-get="/deals-count-badge" hx-trigger="load" hx-target="this"></div>
-					<div hx-get="/favorite-dealers-count-badge" hx-trigger="load" hx-target="this"></div>
-					<div hx-get="/favorite-deals-count-badge" hx-trigger="load, updateFavDealsCountBadge from:body" hx-target="this"></div>
-				</div>
-				<div class="text-2xl">{ params.Username }</div>
-				<div class="flex flex-col gap-2 text-sm">
-					<div class="font-extrabold">Dein Standort</div>
-					<div class="flex gap-1">
-						<img src="/static/images/icons/location.svg" alt="Location" class="h-6"/>
-						<div class="flex flex-col text-xs">
-							<div id="street">{ params.Street } { params.HouseNumber }</div>
-							<div id="city">{ params.Zip } { params.City }</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="-mt-6 mr-16 flex flex-col">
-				<div class="avatar z-40 cursor-pointer">
-					<div class="h-24 w-24 rounded-full bg-base-100 ring-2 ring-[#556368]">
-						<div hx-get={ "/profile-image/" + params.ID } hx-target="this" hx-trigger="load once" hx-swap="outerHTML"></div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-}
-
-templ DealsCountBadge(count string) {
-	<div class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]">
-		<img src="/static/images/icons/deals.svg" alt="Deals" class="h-3 w-auto"/>
-		{ count }
-	</div>
-}
-
-templ FavoriteDealerCountBadge(count string) {
-	<div class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]">
-		<img src="/static/images/icons/heart.svg" alt="Deals" class="h-3 w-auto"/>
-		{ count }
-	</div>
-}
-
-templ FavoriteDealsCountBadge(count string) {
-	<div class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]">
-		<img src="/static/images/icons/bookmark.svg" alt="Deals" class="h-3 w-auto"/>
-		{ count }
-	</div>
-}
-
-templ User(userHeaderParams UserHeaderParameters, useLocationService bool, currentLocation model.Point) {
+templ User(userId string, username string, useLocationService bool, isBasicUser bool, currentLocation model.Point) {
 	@BaseLayout() {
-		@UserHeader(userHeaderParams)
+		@UserHeader(userId, username)
 		<div x-data="{selectedTab: 0}">
 			<div class="tabs tabs-bordered" x-cloak>
 				<div
@@ -110,23 +48,23 @@ templ User(userHeaderParams UserHeaderParameters, useLocationService bool, curre
 			</div>
 			<div id="content" class="pt-1"></div>
 		</div>
-		@userScript(useLocationService, currentLocation)
+		@userScript(useLocationService, currentLocation, isBasicUser)
 	}
 }
 
-script userScript(useLocationService bool, currentLocation model.Point) {
+script userScript(useLocationService bool, currentLocation model.Point, isBasicUser bool) {
   const streetLabel = document.getElementById("street");
   const cityLabel = document.getElementById("city");
   LocationService.addChangeHandler((_, address) => setAddressLabels(address));
 
-	LocationService.location = {
-		lat: currentLocation.Lat,
-		lon: currentLocation.Lon
-	}
+  LocationService.location = {
+    lat: currentLocation.Lat,
+	lon: currentLocation.Lon
+  }
 
   if (useLocationService) {
     LocationService.startLocationWatcher();
-  } 
+  }
 
   function setAddressLabels(address) {
     if (address?.length == 0) return;
@@ -135,4 +73,57 @@ script userScript(useLocationService bool, currentLocation model.Point) {
     streetLabel.textContent = addressTokens[0];
     cityLabel.textContent = addressTokens[1];
   }
+}
+
+templ UserHeader(userId string, username string) {
+	<div class="flex h-52 justify-between">
+		<div class="flex w-full justify-between">
+			<div class="m-4 flex flex-col gap-4">
+				<div class="flex gap-2 fill-current text-xs text-[#69828c]">
+					<div hx-get="/deals-count-badge" hx-trigger="load" hx-target="this"></div>
+					<div hx-get="/favorite-dealers-count-badge" hx-trigger="load" hx-target="this"></div>
+					<div hx-get="/favorite-deals-count-badge" hx-trigger="load, updateFavDealsCountBadge from:body" hx-target="this"></div>
+				</div>
+				<div class="text-2xl">{ username }</div>
+				<div class="flex flex-col gap-2 text-sm">
+					<div class="font-extrabold">Dein Standort</div>
+					<div class="flex gap-1">
+						<img src="/static/images/icons/location.svg" alt="Location" class="h-6"/>
+						<div class="flex flex-col text-xs">
+							<div id="street">"Suche aktuelle Position ..."</div>
+							<div id="city"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="-mt-6 mr-16 flex flex-col">
+				<div class="avatar z-40 cursor-pointer">
+					<div class="h-24 w-24 rounded-full bg-base-100 ring-2 ring-[#556368]">
+						<div hx-get={ "/profile-image/" + userId } hx-target="this" hx-trigger="load once" hx-swap="outerHTML"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+templ DealsCountBadge(count string) {
+	<div class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]">
+		<img src="/static/images/icons/deals.svg" alt="Deals" class="h-3 w-auto"/>
+		{ count }
+	</div>
+}
+
+templ FavoriteDealerCountBadge(count string) {
+	<div class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]">
+		<img src="/static/images/icons/heart.svg" alt="Deals" class="h-3 w-auto"/>
+		{ count }
+	</div>
+}
+
+templ FavoriteDealsCountBadge(count string) {
+	<div class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]">
+		<img src="/static/images/icons/bookmark.svg" alt="Deals" class="h-3 w-auto"/>
+		{ count }
+	</div>
 }

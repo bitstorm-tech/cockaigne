@@ -34,11 +34,11 @@ templ Map(searchRadius int, useLocationService bool, currentLocation model.Point
 				<span>Ermittle aktuelle Position ...</span>
 			</div>
 		</div>
-		@mapData(searchRadius, useLocationService, currentLocation)
+		@mapScript(searchRadius, useLocationService, currentLocation)
 	}
 }
 
-script mapData(searchRadius int, useLocationService bool, currentLocation model.Point) {
+script mapScript(searchRadius int, useLocationService bool, currentLocation model.Point) {
   const map = L.map("map");
   const markerLayer = L.layerGroup();
   const dealLayer = L.layerGroup();
@@ -58,7 +58,28 @@ script mapData(searchRadius int, useLocationService bool, currentLocation model.
     drawCurrentPosition(LocationService.location, newRadius);
   });
 
-  init();
+  LocationService.location = { 
+    lon: currentLocation.Lon,
+    lat: currentLocation.Lat, 
+  };
+
+  showElementById("search-address-indicator");
+  map.setView(LocationService.location, 15);
+
+  if (useLocationService) {
+    determineLocation = true;
+    LocationService.startLocationWatcher();
+    address = "Suche aktuelle Position ...";
+  } else {
+    getAddress(LocationService.location).then(adr => {
+      address = adr
+      hideElementById("search-address-indicator");
+    });
+  }
+
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 20
+  }).addTo(map);
 
   map.on("moveend", function () {
     const extend = map.getBounds().toBBoxString();
@@ -68,28 +89,6 @@ script mapData(searchRadius int, useLocationService bool, currentLocation model.
   map.on("click", function (event) {
     LocationService.location = { lat: event.latlng.lat, lon: event.latlng.lng };
   });
-
-  async function init() {
-		LocationService.location = { 
-			lon: currentLocation.Lon,
-			lat: currentLocation.Lat, 
-		};
-    showElementById("search-address-indicator");
-    map.setView(LocationService.location, 15);
-
-    if (useLocationService) {
-      determineLocation = true;
-      LocationService.startLocationWatcher();
-      address = "Suche aktuelle Position ...";
-    } else {
-      address = await getAddress(LocationService.location);
-      hideElementById("search-address-indicator");
-    }
-
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 20
-    }).addTo(map);
-  }
 
   async function updateDealsOnMap(extent) {
     const res = await fetch("/api/deals?extent=" + extent);

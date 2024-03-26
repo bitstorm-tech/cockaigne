@@ -38,7 +38,7 @@ func RegisterAccountHandlers(e *echo.Echo) {
 }
 
 func updateLocation(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	user, err := service.ParseUser(c)
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,12 @@ func updateLocation(c echo.Context) error {
 		Lat: lat,
 	}
 
-	err = service.UpdateLocation(userId.String(), point)
+	if user.IsBasicUser {
+		service.GetBasicUserFilter(user.ID).Location = point
+		return nil
+	}
+
+	err = service.UpdateLocation(user.ID.String(), point)
 	if err != nil {
 		zap.L().Sugar().Error("can't update location: ", err)
 		return err

@@ -330,17 +330,27 @@ func getDealList(c echo.Context) error {
 	dealerId := c.QueryParam("dealer_id")
 	doFilter := c.QueryParam("filter") == "true"
 
-	var filter *service.SpartialDealFilter
-	if doFilter {
+	var filter service.SpartialDealFilter
+
+	if doFilter && !user.IsBasicUser {
 		f, err := service.CreateSpartialDealFilter(user.ID.String())
 		if err != nil {
 			zap.L().Sugar().Error("can't create SpartialDealfilter: ", err)
 		} else {
-			filter = &f
+			filter = f
 		}
 	}
 
-	headers, err := service.GetDealHeaders(state, filter, dealerId)
+	if doFilter && user.IsBasicUser {
+		basicUserFilter := service.GetBasicUserFilter(user.ID)
+		f := service.RadiusDealFilter{
+			Point:  fmt.Sprintf("%f,%f", basicUserFilter.Location.Lat, basicUserFilter.Location.Lon),
+			Radius: basicUserFilter.SearchRadiusInMeters,
+		}
+		filter = f
+	}
+
+	headers, err := service.GetDealHeaders(state, &filter, dealerId)
 	if err != nil {
 		zap.L().Sugar().Error("can't get deal headers: ", err)
 		return view.RenderAlert(err.Error(), c)

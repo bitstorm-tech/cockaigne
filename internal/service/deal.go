@@ -217,7 +217,7 @@ func GetDealHeaders(state model.State, filter *SpartialDealFilter, dealerId stri
 		statement += fmt.Sprintf("st_within(location, %s)", geom)
 	}
 
-	var headers model.DealHeaders
+	headers := model.DealHeaders{}
 	err := persistence.DB.Select(&headers, statement)
 
 	if err != nil {

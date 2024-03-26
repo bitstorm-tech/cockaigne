@@ -11,6 +11,11 @@ type Point struct {
 	Lat float64
 }
 
+var PointCenterOfGermany = Point{
+	Lon: 10.447683,
+	Lat: 51.163361,
+}
+
 func NewPointFromString(pointString string) (Point, error) {
 	lonLat := strings.Split(pointString, ",")
 

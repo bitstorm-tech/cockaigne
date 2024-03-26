@@ -59,7 +59,6 @@ func GetAccount(userId string) (model.Account, error) {
 		userId,
 	)
 	if err != nil {
-		zap.L().Sugar().Errorf("can't get account: %v", err)
 		return model.Account{}, err
 	}
 

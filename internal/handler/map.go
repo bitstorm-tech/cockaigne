@@ -16,17 +16,24 @@ func RegisterMapHandlers(e *echo.Echo) {
 }
 
 func openMap(c echo.Context) error {
-	userId, _ := service.ParseUserId(c)
-	acc, err := service.GetAccount(userId.String())
+	user, err := service.ParseUser(c)
 	if err != nil {
-		zap.L().Sugar().Errorf("can't get account: %v", err)
-		return nil
+		return redirect.Login(c)
+	}
+
+	if user.IsBasicUser {
+		filter := service.GetBasicUserFilter(user.ID)
+		return view.Render(view.Map(filter.SearchRadiusInMeters, filter.UseLocationService, filter.Location), c)
+	}
+
+	acc, err := service.GetAccount(user.ID.String())
+	if err != nil {
+		zap.L().Sugar().Error("can't get account: ", err)
 	}
 
 	location, err := model.NewPointFromString(acc.Location.String)
 	if err != nil {
 		zap.L().Sugar().Error("can't create new point from database location: ", err)
-		return nil
 	}
 
 	return view.Render(view.Map(acc.SearchRadiusInMeters, acc.UseLocationService, location), c)
@@ -48,16 +55,23 @@ func openFilterModal(c echo.Context) error {
 }
 
 func openLocationModal(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	user, err := service.ParseUser(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
 
-	acc, err := service.GetAccount(userId.String())
-	if err != nil {
-		zap.L().Sugar().Error("can't get account: ", err)
-		return view.RenderAlert("Momentan", c)
+	useLocationService := false
+
+	if user.IsBasicUser {
+		useLocationService = service.GetBasicUserFilter(user.ID).UseLocationService
+	} else {
+		acc, err := service.GetAccount(user.ID.String())
+		if err != nil {
+			zap.L().Sugar().Error("can't get account: ", err)
+			return view.RenderAlert("Leider ist uns ein Fehler unterlaufen, bitte versuche es später noch einmal.", c)
+		}
+		useLocationService = acc.UseLocationService
 	}
 
-	return view.Render(view.LocationModal(acc.UseLocationService), c)
+	return view.Render(view.LocationModal(useLocationService), c)
 }
