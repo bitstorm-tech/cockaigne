@@ -407,13 +407,19 @@ func updateFilter(c echo.Context) error {
 }
 
 func updateUseLocationService(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	user, err := service.ParseUser(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
 
 	useLocationService := c.FormValue("use-location-service") == "on"
-	err = service.UpdateUseLocationService(userId.String(), useLocationService)
+
+	if user.IsBasicUser {
+		service.GetBasicUserFilter(user.ID.String()).UseLocationService = useLocationService
+		return nil
+	}
+
+	err = service.UpdateUseLocationService(user.ID.String(), useLocationService)
 	if err != nil {
 		zap.L().Sugar().Error("can't save use location service: ", err)
 		return view.RenderAlert("Kann Einstellung leider nicht speichern, bitte später nochmal versuchen.", c)
@@ -426,7 +432,7 @@ func updateUseLocationService(c echo.Context) error {
 			zap.L().Sugar().Errorf("can't find position from address (%s): %v", address, err)
 			return view.RenderAlert("Ungültige Adresse, bitte geben Sie eine genauere Adresse an.", c)
 		}
-		err = service.UpdateLocation(userId.String(), point)
+		err = service.UpdateLocation(user.ID.String(), point)
 		if err != nil {
 			zap.L().Sugar().Errorf("can't update location (%s): %v", address, err)
 			return view.RenderAlert("Kann Einstellung leider nicht speichern, bitte später nochmal versuchen.", c)
