@@ -80,7 +80,7 @@ func GetDeal(id string) (model.Deal, error) {
 	return deal, nil
 }
 
-type SpartialDealFilter interface {
+type SpatialDealFilter interface {
 	ToGeometry() (string, error)
 }
 
@@ -89,7 +89,7 @@ type BoundingBoxDealFilter struct {
 }
 
 type RadiusDealFilter struct {
-	Point  string
+	Point  model.Point
 	Radius int
 }
 
@@ -109,28 +109,34 @@ func (filter BoundingBoxDealFilter) ToGeometry() (string, error) {
 }
 
 func (filter RadiusDealFilter) ToGeometry() (string, error) {
-	if len(filter.Point) == 0 || filter.Radius == 0 {
+	if filter.Point.Lat == 0.0 || filter.Point.Lon == 0.0 || filter.Radius == 0 {
 		return "", fmt.Errorf("RadiusDealFilter needs a valid point and raidus")
 	}
 
-	return fmt.Sprintf("ST_Buffer(ST_MakePoint(%s)::geography, %d)::geometry", filter.Point, filter.Radius), nil
+	pointString := fmt.Sprintf("%f,%f", filter.Point.Lon, filter.Point.Lat)
+
+	return fmt.Sprintf("ST_Buffer(ST_MakePoint(%s)::geography, %d)::geometry", pointString, filter.Radius), nil
 }
 
-func CreateSpartialDealFilter(userId string) (SpartialDealFilter, error) {
+func CreateSpatialDealFilter(userId string) (SpatialDealFilter, error) {
 	account, err := GetAccount(userId)
 	if err != nil {
 		return nil, err
 	}
 
 	if !account.Location.Valid {
-		return nil, fmt.Errorf("can't create SpartialDealFilter -> account has no location")
+		return nil, fmt.Errorf("can't create SpatialDealFilter -> account has no location")
 	}
 
 	if account.SearchRadiusInMeters == 0 {
-		return nil, fmt.Errorf("can't create SpartialDealFilter -> account has no search radius")
+		return nil, fmt.Errorf("can't create SpatialDealFilter -> account has no search radius")
 	}
 
-	point := account.Location.String
+	point, err := model.NewPointFromString(account.Location.String)
+	if err != nil {
+		return nil, err
+	}
+
 	radius := account.SearchRadiusInMeters
 
 	filter := RadiusDealFilter{
@@ -141,7 +147,7 @@ func CreateSpartialDealFilter(userId string) (SpartialDealFilter, error) {
 	return filter, nil
 }
 
-func GetDealsFromView(state model.State, filter SpartialDealFilter, dealerId *string) ([]model.DealView, error) {
+func GetDealsFromView(state model.State, filter SpatialDealFilter, dealerId *string) ([]model.DealView, error) {
 	if state != model.Future && state != model.Active && state != model.Past {
 		return []model.DealView{}, fmt.Errorf("unknown deal state: %s", state)
 	}
@@ -183,7 +189,7 @@ func GetDealsFromView(state model.State, filter SpartialDealFilter, dealerId *st
 	return deals, nil
 }
 
-func GetDealHeaders(state model.State, filter *SpartialDealFilter, dealerId string) (model.DealHeaders, error) {
+func GetDealHeaders(state model.State, filter *SpatialDealFilter, dealerId string) (model.DealHeaders, error) {
 	if state != model.Future && state != model.Active && state != model.Past && state != model.Template {
 		return model.DealHeaders{}, fmt.Errorf("unknown deal state: %s", state)
 	}
@@ -385,16 +391,6 @@ func ToggleFavorite(dealId string, userId string) bool {
 	return !isFavorite
 }
 
-func GetTemplateHeaders(dealerId string) ([]model.Deal, error) {
-	var templates []model.Deal
-	err := persistence.DB.Select(&templates, "select * from deals where template = true and dealer_id = $1", dealerId)
-	if err != nil {
-		return []model.Deal{}, fmt.Errorf("can't get templates: %v", err)
-	}
-
-	return templates, nil
-}
-
 func UploadDealImage(image *multipart.FileHeader, dealId string, prefix string) error {
 	tokens := strings.Split(image.Filename, ".")
 	fileExtension := tokens[len(tokens)-1]
@@ -517,7 +513,7 @@ func CalculateStartAndEndAsHumanReadable(start time.Time, durationInHours int) S
 }
 
 func NewDealsAvailable(userId string, oldDealIds []string) (bool, error) {
-	filter, err := CreateSpartialDealFilter(userId)
+	filter, err := CreateSpatialDealFilter(userId)
 	if err != nil {
 		return false, err
 	}
@@ -527,16 +523,18 @@ func NewDealsAvailable(userId string, oldDealIds []string) (bool, error) {
 		return false, err
 	}
 
-	query := fmt.Sprintf(
-		"select count(*) from active_deals_view where st_within(location, %s) and id not in (?)",
-		searchRadiusFilterGeometry,
-	)
+	query := "select count(*) from active_deals_view where st_within(location, %s)"
 
-	query, params, err := sqlx.In(query, oldDealIds)
-	if err != nil {
-		return false, err
+	var params []interface{}
+	if len(oldDealIds) > 0 {
+		query += " and id not in (?)"
+		query, params, err = sqlx.In(query, oldDealIds)
+		if err != nil {
+			return false, err
+		}
 	}
 
+	query = fmt.Sprintf(query, searchRadiusFilterGeometry)
 	query = persistence.DB.Rebind(query)
 
 	var newDealsAvailable int

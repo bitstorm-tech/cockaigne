@@ -330,12 +330,12 @@ func getDealList(c echo.Context) error {
 	dealerId := c.QueryParam("dealer_id")
 	doFilter := c.QueryParam("filter") == "true"
 
-	var filter service.SpartialDealFilter
+	var filter service.SpatialDealFilter
 
 	if doFilter && !user.IsBasicUser {
-		f, err := service.CreateSpartialDealFilter(user.ID.String())
+		f, err := service.CreateSpatialDealFilter(user.ID.String())
 		if err != nil {
-			zap.L().Sugar().Error("can't create SpartialDealfilter: ", err)
+			zap.L().Sugar().Error("can't create SpatialDealfilter: ", err)
 		} else {
 			filter = f
 		}
@@ -344,7 +344,7 @@ func getDealList(c echo.Context) error {
 	if doFilter && user.IsBasicUser {
 		basicUserFilter := service.GetBasicUserFilter(user.ID)
 		f := service.RadiusDealFilter{
-			Point:  fmt.Sprintf("%f,%f", basicUserFilter.Location.Lat, basicUserFilter.Location.Lon),
+			Point:  basicUserFilter.Location,
 			Radius: basicUserFilter.SearchRadiusInMeters,
 		}
 		filter = f

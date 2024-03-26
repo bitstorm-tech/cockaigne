@@ -27,7 +27,12 @@ func showNewDealsButton(c echo.Context) error {
 	}
 
 	dealIdsString := c.FormValue("dealIds")
-	dealIds := strings.Split(dealIdsString, ",")
+	dealIds := []string{}
+
+	if len(dealIdsString) > 0 {
+		dealIds = strings.Split(dealIdsString, ",")
+	}
+
 	newDealsAvailable, err := service.NewDealsAvailable(userId.String(), dealIds)
 	if err != nil {
 		zap.L().Sugar().Error("can't check if new deals are available: ", err)
