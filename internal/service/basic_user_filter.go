@@ -11,7 +11,7 @@ type BasicUserFilter struct {
 	SelectedCategories   []int
 }
 
-// TODO refactore this to a more robust solution
+// TODO refactor this to a more robust solution
 // This solution is very dangerous -> attackers could flood this map (login as basic user is not restricted yet) -> OOM
 var basicUserFilters = map[string]*BasicUserFilter{}
 

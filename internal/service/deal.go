@@ -147,40 +147,36 @@ func CreateSpatialDealFilter(userId string) (SpatialDealFilter, error) {
 	return filter, nil
 }
 
-func GetDealsFromView(state model.State, filter SpatialDealFilter, dealerId *string) ([]model.DealView, error) {
+func GetDealsFromView(state model.State, filter SpatialDealFilter, user *User, dealerId *string) ([]model.DealView, error) {
 	if state != model.Future && state != model.Active && state != model.Past {
 		return []model.DealView{}, fmt.Errorf("unknown deal state: %s", state)
 	}
 
-	statement := "select *, public.st_x(location) || ',' || public.st_y(location) as location from active_deals_view"
+	query := "select *, public.st_x(location) || ',' || public.st_y(location) as location from active_deals_view"
 	switch state {
 	case model.Past:
-		statement = "select *, public.st_x(location) || ',' || public.st_y(location) as location from past_deals_view"
+		query = "select *, public.st_x(location) || ',' || public.st_y(location) as location from past_deals_view"
 	case model.Future:
-		statement = "select *, public.st_x(location) || ',' || public.st_y(location) as location from future_deals_view"
+		query = "select *, public.st_x(location) || ',' || public.st_y(location) as location from future_deals_view"
 	}
 
 	if dealerId != nil {
-		statement += fmt.Sprintf(" where dealer_id = '%s'", *dealerId)
+		query += fmt.Sprintf(" where dealer_id = '%s'", *dealerId)
+	}
+
+	if user != nil {
+		addCategoryIdFilter(user, &query)
 	}
 
 	if filter != nil {
-		if dealerId != nil {
-			statement += " and "
-		} else {
-			statement += " where "
-		}
-
-		geom, err := filter.ToGeometry()
+		err := addSpatialFilterToQuery(filter, &query)
 		if err != nil {
-			return []model.DealView{}, fmt.Errorf("can't convert filter to valid geometry: %+v", err)
+			zap.L().Sugar().Error("can't add spatial filter to query: ", err)
 		}
-
-		statement += fmt.Sprintf("ST_Within(location, %s)", geom)
 	}
 
 	var deals []model.DealView
-	err := persistence.DB.Select(&deals, statement)
+	err := persistence.DB.Select(&deals, query)
 
 	if err != nil {
 		return []model.DealView{}, fmt.Errorf("can't get active deals: %v", err)
@@ -189,42 +185,81 @@ func GetDealsFromView(state model.State, filter SpatialDealFilter, dealerId *str
 	return deals, nil
 }
 
+func addCategoryIdFilter(user *User, query *string) {
+	var selectedCategoryIds []int
+
+	if user.IsBasicUser {
+		basicUserFilter := GetBasicUserFilter(user.ID.String())
+		selectedCategoryIds = basicUserFilter.SelectedCategories
+	} else {
+		selectedCategoryIds = GetFavoriteCategoryIds(user.ID)
+	}
+
+	if len(selectedCategoryIds) == 0 {
+		return
+	}
+
+	if strings.Contains(*query, "where") {
+		*query += " and "
+	} else {
+		*query += " where "
+	}
+
+	categoryArrayString := ""
+	for index, id := range selectedCategoryIds {
+		if index > 0 {
+			categoryArrayString += ","
+		}
+		categoryArrayString += fmt.Sprintf("%d", id)
+	}
+
+	*query += fmt.Sprintf("category_id = any(array[%s])", categoryArrayString)
+}
+
+func addSpatialFilterToQuery(filter SpatialDealFilter, query *string) error {
+	geom, err := filter.ToGeometry()
+	if err != nil {
+		return err
+	}
+
+	if strings.Contains(*query, "where") {
+		*query += " and "
+	} else {
+		*query += " where "
+	}
+
+	*query += fmt.Sprintf("ST_Within(location, %s)", geom)
+	return nil
+}
+
 func GetDealHeaders(state model.State, filter *SpatialDealFilter, dealerId string) (model.DealHeaders, error) {
 	if state != model.Future && state != model.Active && state != model.Past && state != model.Template {
 		return model.DealHeaders{}, fmt.Errorf("unknown deal state: %s", state)
 	}
 
-	statement := "select id, title, username, dealer_id, category_id, start_time from active_deals_view"
+	query := "select id, title, username, dealer_id, category_id, start_time from active_deals_view"
 	switch state {
 	case model.Past:
-		statement = "select id, title, username, dealer_id, category_id, start_time from past_deals_view"
+		query = "select id, title, username, dealer_id, category_id, start_time from past_deals_view"
 	case model.Future:
-		statement = "select id, title, username, dealer_id, category_id, start_time from future_deals_view"
+		query = "select id, title, username, dealer_id, category_id, start_time from future_deals_view"
 	case model.Template:
-		statement = "select d.id, d.title, a.username, d.dealer_id, d.category_id from deals d join accounts a on a.id = d.dealer_id where template = true"
+		query = "select d.id, d.title, a.username, d.dealer_id, d.category_id from deals d join accounts a on a.id = d.dealer_id where template = true"
 	}
 
 	if len(dealerId) > 0 {
-		statement += fmt.Sprintf(" where dealer_id = '%s'", dealerId)
+		query += fmt.Sprintf(" where dealer_id = '%s'", dealerId)
 	}
 
 	if filter != nil {
-		if len(dealerId) > 0 {
-			statement += " and "
-		} else {
-			statement += " where "
-		}
-
-		geom, err := (*filter).ToGeometry()
+		err := addSpatialFilterToQuery(*filter, &query)
 		if err != nil {
-			return model.DealHeaders{}, fmt.Errorf("can't convert filter to valid geometry: %+v", err)
+			zap.L().Sugar().Error("can't add spatial filter to query: ", err)
 		}
-
-		statement += fmt.Sprintf("st_within(location, %s)", geom)
 	}
 
 	headers := model.DealHeaders{}
-	err := persistence.DB.Select(&headers, statement)
+	err := persistence.DB.Select(&headers, query)
 
 	if err != nil {
 		return model.DealHeaders{}, fmt.Errorf("can't get active deals: %v", err)
