@@ -328,29 +328,8 @@ func getDealList(c echo.Context) error {
 
 	state := model.ToState(c.Param("state"))
 	dealerId := c.QueryParam("dealer_id")
-	doFilter := c.QueryParam("filter") == "true"
 
-	var filter service.SpatialDealFilter
-
-	if doFilter && !user.IsBasicUser {
-		f, err := service.CreateSpatialDealFilter(user.ID.String())
-		if err != nil {
-			zap.L().Sugar().Error("can't create SpatialDealfilter: ", err)
-		} else {
-			filter = f
-		}
-	}
-
-	if doFilter && user.IsBasicUser {
-		basicUserFilter := service.GetBasicUserFilter(user.ID.String())
-		f := service.RadiusDealFilter{
-			Point:  basicUserFilter.Location,
-			Radius: basicUserFilter.SearchRadiusInMeters,
-		}
-		filter = f
-	}
-
-	headers, err := service.GetDealHeaders(state, &filter, dealerId)
+	headers, err := service.GetDealHeaders(state, &user, dealerId)
 	if err != nil {
 		zap.L().Sugar().Error("can't get deal headers: ", err)
 		return view.RenderAlert(err.Error(), c)

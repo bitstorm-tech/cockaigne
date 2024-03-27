@@ -42,3 +42,11 @@ func GetBasicUserFilter(id string) *BasicUserFilter {
 func DeleteBasicUser(id string) {
 	delete(basicUserFilters, id)
 }
+
+func GetBasicUserSpatialFilter(id string) SpatialDealFilter {
+	basicUserFilter := GetBasicUserFilter(id)
+	return RadiusDealFilter{
+		Radius: basicUserFilter.SearchRadiusInMeters,
+		Point:  basicUserFilter.Location,
+	}
+}

@@ -165,11 +165,11 @@ func GetDealsFromView(state model.State, filter SpatialDealFilter, user *User, d
 	}
 
 	if user != nil {
-		addCategoryIdFilter(user, &query)
+		addCategoryIdFilter(*user, &query)
 	}
 
 	if filter != nil {
-		err := addSpatialFilterToQuery(filter, &query)
+		err := addSpatialFilterToQuery(*user, &query)
 		if err != nil {
 			zap.L().Sugar().Error("can't add spatial filter to query: ", err)
 		}
@@ -185,7 +185,7 @@ func GetDealsFromView(state model.State, filter SpatialDealFilter, user *User, d
 	return deals, nil
 }
 
-func addCategoryIdFilter(user *User, query *string) {
+func addCategoryIdFilter(user User, query *string) {
 	var selectedCategoryIds []int
 
 	if user.IsBasicUser {
@@ -216,7 +216,18 @@ func addCategoryIdFilter(user *User, query *string) {
 	*query += fmt.Sprintf("category_id = any(array[%s])", categoryArrayString)
 }
 
-func addSpatialFilterToQuery(filter SpatialDealFilter, query *string) error {
+func addSpatialFilterToQuery(user User, query *string) error {
+	var filter SpatialDealFilter
+	var err error
+	if user.IsBasicUser {
+		filter = GetBasicUserSpatialFilter(user.ID.String())
+	} else {
+		filter, err = CreateSpatialDealFilter(user.ID.String())
+		if err != nil {
+			zap.L().Sugar().Error("can't create SpatialDealFilter: ", err)
+		}
+	}
+
 	geom, err := filter.ToGeometry()
 	if err != nil {
 		return err
@@ -232,7 +243,7 @@ func addSpatialFilterToQuery(filter SpatialDealFilter, query *string) error {
 	return nil
 }
 
-func GetDealHeaders(state model.State, filter *SpatialDealFilter, dealerId string) (model.DealHeaders, error) {
+func GetDealHeaders(state model.State, user *User, dealerId string) (model.DealHeaders, error) {
 	if state != model.Future && state != model.Active && state != model.Past && state != model.Template {
 		return model.DealHeaders{}, fmt.Errorf("unknown deal state: %s", state)
 	}
@@ -251,11 +262,13 @@ func GetDealHeaders(state model.State, filter *SpatialDealFilter, dealerId strin
 		query += fmt.Sprintf(" where dealer_id = '%s'", dealerId)
 	}
 
-	if filter != nil {
-		err := addSpatialFilterToQuery(*filter, &query)
+	if len(dealerId) == 0 && user != nil {
+		err := addSpatialFilterToQuery(*user, &query)
 		if err != nil {
 			zap.L().Sugar().Error("can't add spatial filter to query: ", err)
 		}
+
+		addCategoryIdFilter(*user, &query)
 	}
 
 	headers := model.DealHeaders{}
