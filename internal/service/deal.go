@@ -186,34 +186,29 @@ func GetDealsFromView(state model.State, filter SpatialDealFilter, user *User, d
 }
 
 func addCategoryIdFilter(user User, query *string) {
-	var selectedCategoryIds []int
+	var favoriteCategoryIds []int
 
 	if user.IsBasicUser {
 		basicUserFilter := GetBasicUserFilter(user.ID.String())
-		selectedCategoryIds = basicUserFilter.SelectedCategories
+		favoriteCategoryIds = basicUserFilter.SelectedCategories
 	} else {
-		selectedCategoryIds = GetFavoriteCategoryIds(user.ID)
+		favoriteCategoryIds = GetFavoriteCategoryIds(user.ID)
 	}
 
-	if len(selectedCategoryIds) == 0 {
+	if len(favoriteCategoryIds) == 0 {
 		return
 	}
 
-	if strings.Contains(*query, "where") {
+	if strings.Contains(strings.ToLower(*query), "where") {
 		*query += " and "
 	} else {
 		*query += " where "
 	}
 
-	categoryArrayString := ""
-	for index, id := range selectedCategoryIds {
-		if index > 0 {
-			categoryArrayString += ","
-		}
-		categoryArrayString += fmt.Sprintf("%d", id)
-	}
+	categoryIdsString := fmt.Sprintf("%v", favoriteCategoryIds)
+	categoryIdsString = strings.Replace(categoryIdsString, " ", ",", -1)
 
-	*query += fmt.Sprintf("category_id = any(array[%s])", categoryArrayString)
+	*query += fmt.Sprintf("category_id = any(array%s)", categoryIdsString)
 }
 
 func addSpatialFilterToQuery(user User, query *string) error {
@@ -233,7 +228,7 @@ func addSpatialFilterToQuery(user User, query *string) error {
 		return err
 	}
 
-	if strings.Contains(*query, "where") {
+	if strings.Contains(strings.ToLower(*query), "where") {
 		*query += " and "
 	} else {
 		*query += " where "
@@ -560,18 +555,17 @@ func CalculateStartAndEndAsHumanReadable(start time.Time, durationInHours int) S
 	}
 }
 
-func NewDealsAvailable(userId string, oldDealIds []string, isBasicUser bool) (bool, error) {
+func NewDealsAvailable(user User, oldDealIds []string) (bool, error) {
 	var filter SpatialDealFilter
+	var favoriteCategoryIds []int
 	var err error
 
-	if isBasicUser {
-		basicUserFilter := GetBasicUserFilter(userId)
-		filter = RadiusDealFilter{
-			Point:  basicUserFilter.Location,
-			Radius: basicUserFilter.SearchRadiusInMeters,
-		}
+	if user.IsBasicUser {
+		filter = GetBasicUserSpatialFilter(user.ID.String())
+		favoriteCategoryIds = GetBasicUserFilter(user.ID.String()).SelectedCategories
 	} else {
-		filter, err = CreateSpatialDealFilter(userId)
+		favoriteCategoryIds = GetFavoriteCategoryIds(user.ID)
+		filter, err = CreateSpatialDealFilter(user.ID.String())
 		if err != nil {
 			return false, err
 		}
@@ -582,7 +576,7 @@ func NewDealsAvailable(userId string, oldDealIds []string, isBasicUser bool) (bo
 		return false, err
 	}
 
-	query := "select count(*) from active_deals_view where st_within(location, %s)"
+	query := fmt.Sprintf("select count(*) from active_deals_view where st_within(location, %s)", searchRadiusFilterGeometry)
 
 	var params []interface{}
 	if len(oldDealIds) > 0 {
@@ -593,7 +587,12 @@ func NewDealsAvailable(userId string, oldDealIds []string, isBasicUser bool) (bo
 		}
 	}
 
-	query = fmt.Sprintf(query, searchRadiusFilterGeometry)
+	if len(favoriteCategoryIds) > 0 {
+		categoryIdsString := fmt.Sprintf("%v", favoriteCategoryIds)
+		categoryIdsString = strings.Replace(categoryIdsString, " ", ",", -1)
+		query += fmt.Sprintf(" and category_id = any(array%s)", categoryIdsString)
+	}
+
 	query = persistence.DB.Rebind(query)
 
 	var newDealsAvailable int
