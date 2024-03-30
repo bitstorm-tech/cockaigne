@@ -1,14 +1,17 @@
-install_templ:
+install/templ:
 	go install github.com/a-h/templ/cmd/templ@latest
 
-generate_templ:
+generate/templ:
 	templ generate
 
-build: install_templ generate_templ
+build: install/templ generate/templ
 	go build -tags netgo -ldflags '-s -w' -o app cmd/main.go
 
-build_admin: install_templ generate_templ
+build/admin: install/templ generate/templ
 	go build -tags netgo -ldflags '-s -w' -o app cmd/admin/main.go
 
 dev:
-	bunx tailwindcss --watch -m -i ./tailwind.css -o ./static/app.css & air
+	air& bunx tailwindcss --watch -m -i ./tailwind.css -o ./static/app.css
+
+dev/kill:
+	pkill -f cockaigne/tmp/main

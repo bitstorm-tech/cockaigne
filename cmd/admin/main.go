@@ -32,5 +32,4 @@ func main() {
 	hostAndPort := host + ":" + port
 
 	logger.Fatal(e.Start(hostAndPort).Error())
-
 }
