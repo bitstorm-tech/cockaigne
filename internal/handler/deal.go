@@ -413,32 +413,42 @@ func getDealDetails(c echo.Context) error {
 }
 
 func toggleDealLike(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	user, err := service.ParseUser(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
+
 	dealId := c.Param("id")
 	doToggle := c.QueryParam("toggle") != "false"
 	likes := 0
+
+	if doToggle && user.IsBasicUser {
+		return view.RenderInfo("Diese Funktion steht nur PRO-Mitglieder zur Verfügung.", c)
+	}
+
 	if doToggle {
-		likes = service.ToggleLikes(dealId, userId.String())
+		likes = service.ToggleLikes(dealId, user.ID.String())
 	} else {
 		likes = service.GetDealLikes(dealId)
 	}
 
-	isLiked := service.IsDealLiked(dealId, userId.String())
+	isLiked := service.IsDealLiked(dealId, user.ID.String())
 
 	return view.Render(view.Likes(dealId, isLiked, strconv.Itoa(likes)), c)
 }
 
 func getReportModal(c echo.Context) error {
-	dealId := c.Param("id")
-	reporterId, err := service.ParseUserId(c)
+	user, err := service.ParseUser(c)
 	if err != nil {
 		return view.RenderAlert("Nur angemeldete User können einen Deal melden", c)
 	}
 
-	report, err := service.GetDealReport(dealId, reporterId.String())
+	if user.IsBasicUser {
+		return view.RenderInfo("Diese Funktion steht nur PRO-Mitglieder zur Verfügung.", c)
+	}
+
+	dealId := c.Param("id")
+	report, err := service.GetDealReport(dealId, user.ID.String())
 	if err != nil {
 		zap.L().Sugar().Error("can't get deal report reason: ", err)
 	}
@@ -478,9 +488,14 @@ func getDealFavoriteButton(c echo.Context) error {
 }
 
 func toggleFavorite(c echo.Context) error {
-	userId, _ := service.ParseUserId(c)
+	user, _ := service.ParseUser(c)
 	dealId := c.Param("id")
-	isFavorite := service.ToggleFavorite(dealId, userId.String())
+
+	if user.IsBasicUser {
+		return view.RenderInfo("Diese Funktion steht nur PRO-Mitglieder zur Verfügung.", c)
+	}
+
+	isFavorite := service.ToggleFavorite(dealId, user.ID.String())
 
 	c.Response().Header().Add("HX-Trigger", "updateFavDealsCountBadge")
 

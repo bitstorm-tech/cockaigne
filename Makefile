@@ -1,17 +1,17 @@
-install/templ:
+install_templ:
 	go install github.com/a-h/templ/cmd/templ@latest
 
-generate/templ:
+generate_templ:
 	templ generate
 
-build: install/templ generate/templ
+build: install_templ generate_templ
 	go build -tags netgo -ldflags '-s -w' -o app cmd/main.go
 
-build/admin: install/templ generate/templ
+build_admin: install_templ generate_templ
 	go build -tags netgo -ldflags '-s -w' -o app cmd/admin/main.go
 
-dev: dev/kill
+dev: dev_kill
 	air& bunx tailwindcss --watch -m -i ./tailwind.css -o ./static/app.css
 
-dev/kill:
+dev_kill:
 	pkill -f cockaigne/tmp/main || echo "Server was not running ..."

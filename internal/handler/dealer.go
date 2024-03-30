@@ -47,14 +47,18 @@ func getDealerHeaderFavoriteButton(c echo.Context) error {
 }
 
 func toggleDealerFavorite(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	user, err := service.ParseUser(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
 
+	if user.IsBasicUser {
+		return view.RenderInfo("Diese Funktion steht nur PRO-Mitglieder zur Verfügung.", c)
+	}
+
 	dealerId := c.Param("dealerId")
 
-	isFavorite, err := service.ToggleDealerFavorite(dealerId, userId.String())
+	isFavorite, err := service.ToggleDealerFavorite(dealerId, user.ID.String())
 	if err != nil {
 		zap.L().Sugar().Error("can't toggle dealer favorite: ", err)
 		return view.RenderAlert("Kann favorisierte Dealer momentan nicht speichern, bitte versuche es später nochmal.", c)
@@ -207,28 +211,28 @@ func deleteDealerImage(c echo.Context) error {
 
 func getDealerRatings(c echo.Context) error {
 	dealerId := c.Param("dealerId")
-	userId, err := service.ParseUserId(c)
+	user, err := service.ParseUser(c)
 	if err != nil {
 		zap.L().Sugar().Error("can't get userId: ", err)
 	}
 
-	ratings, err := service.GetDealerRatings(dealerId, userId.String())
+	ratings, err := service.GetDealerRatings(dealerId, user.ID.String())
 	if err != nil {
 		zap.L().Sugar().Errorf("can't get dealer ratings for dealer %s: %+v", dealerId, err)
 	}
 
-	isOwner := dealerId == userId.String()
-	alreadyRated := service.AlreadyRated(dealerId, userId.String())
+	isOwner := dealerId == user.ID.String()
+	alreadyRated := service.AlreadyRated(dealerId, user.ID.String())
 	stars := 0
 
 	for _, rating := range ratings {
 		stars += rating.Stars
-		rating.CanEdit = rating.UserId == userId
+		rating.CanEdit = rating.UserId == user.ID
 	}
 
 	averageRating := float64(stars) / float64(len(ratings))
 
-	return view.Render(view.DealerRatingList(ratings, dealerId, alreadyRated, isOwner, averageRating), c)
+	return view.Render(view.DealerRatingList(ratings, dealerId, alreadyRated, isOwner, user.IsBasicUser, averageRating), c)
 }
 
 func getRatingModal(c echo.Context) error {
