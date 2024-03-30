@@ -1,15 +1,9 @@
 {
   "scripts": {
-    "air": "air",
-    "tailwind": "tailwindcss --watch -m -i ./tailwind.css -o ./static/app.css",
-    "browser-sync": "browser-sync start --files 'views/**/*.html, ./**/*.css' --proxy 'localhost:3000' --port 3001",
-    "dev": "concurrently \"bun:air\" \"bun:tailwind\"",
     "ncu": "ncu -u && bun i"
   },
   "devDependencies": {
     "autoprefixer": "10.4.19",
-    "browser-sync": "3.0.2",
-    "concurrently": "8.2.2",
     "daisyui": "4.9.0",
     "npm-check-updates": "16.14.18",
     "postcss": "8.4.38",
