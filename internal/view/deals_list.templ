@@ -3,57 +3,43 @@ package view
 import "github.com/bitstorm-tech/cockaigne/internal/model"
 import "fmt"
 import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
+import "github.com/bitstorm-tech/cockaigne/internal/service"
 
-templ DealsList(dealHeaders []model.DealHeader, hideName bool, isDealer bool, showFavoriteToggle bool, removeFavorite bool, canEdit bool) {
+type DealListType int
+
+const (
+	DealListUserDeals DealListType = iota
+	DealListUserFavoriteDeals
+	DealListUserFavoriteDealerDeals
+	DealListTopDeals
+	DealListDealer
+)
+
+templ DealsList(listType DealListType, user service.User, dealHeaders []model.DealHeader, hideName bool, showFavoriteToggle bool, removeFavorite bool, canEdit bool) {
 	<div class="flex flex-col gap-2" x-data="{openDetailsId: ''}">
-		for _, header := range dealHeaders {
-			<div id={ "deal-" + header.ID.String() }>
-				if !hideName {
-					<div class="flex items-center justify-between bg-[#232b2e] px-2 py-0.5">
-						<a href={ templ.URL("/dealer/" + header.DealerId.String()) } class="flex items-center text-sm text-[#b2b2b2]">
-							{ header.Username }
-						</a>
-						<a href={ templ.URL("/dealer/" + header.DealerId.String()) } class="pr-1">
-							<img src="/static/images/icons/double-arrow.svg" alt="Zum Dealer springen" class="h-3"/>
-						</a>
-					</div>
-				}
-				<div
-					class="flex cursor-pointer items-center justify-between bg-[#2c363a] p-2 pr-3"
-					@click={ fmt.Sprintf("openDetailsId = openDetailsId === '%[1]s' ? '' : '%[1]s'", header.ID) }
-				>
-					<div class="flex items-center gap-2">
-						@icon.DealIcon(header.CategoryId)
-						<span>{ header.Title }</span>
-					</div>
-					if canEdit {
-						<a class="clean" @click.stop="" href={ templ.SafeURL("/deal/" + header.ID.String()) }>
-							<img src="/static/images/icons/cog.svg" alt="Deal Einstellungen" class="h-5"/>
-						</a>
-					} else if showFavoriteToggle && !isDealer {
-						if removeFavorite {
-							@DealFavoriteRemoveButton(header.ID.String())
-						} else {
-							<div
-								hx-get={ "/deal-favorite-button/" + header.ID.String() }
-								hx-trigger="load once"
-								hx-target="this"
-								hx-swap="outerHTML"
-							></div>
-						}
-					}
-				</div>
-				<div
-					class="flex flex-col justify-between bg-[#323e42] p-2"
-					hx-get={ "/deal-details/" + header.ID.String() }
-					hx-target={ "#details-footer-" + header.ID.String() }
-					hx-trigger="load once"
-					hx-swap="outerHTML"
-					x-show={ fmt.Sprintf("openDetailsId === '%s'", header.ID) }
-				>
-					<div id={ "details-footer-" + header.ID.String() }></div>
-				</div>
+		if user.IsBasicUser && (listType == DealListUserFavoriteDealerDeals || listType == DealListUserFavoriteDeals || listType == DealListTopDeals) {
+			<div class="flex flex-col p-4 text-center gap-8">
+				<span>
+					<a href="/signup" class="link">Registriere dich kostenlos</a>
+					um dir alle deine favorisierten Dealer zu speichern,
+					dir deine ganz persönliche Liste an heißen Deals zusammenzustellen
+					oder dir die Top-Deals in deiner Nähe anzusehen! 🤩
+				</span>
+				<span>
+					<a href="/basic-vs-pro" class="link">Schau dir hier</a>
+					die Vorteile der Pro-Mitgliedschaft an! 🚀
+				</span>
 			</div>
+		} else {
+			if len(dealHeaders) == 0 {
+				<div class="flex flex-col p-4 text-center gap-8">
+					<span>Aktuell gibt es leider keine Deals in deiner Nähe 😞</span>
+					<span>Passe entweder den Filter oder Standort <a href="/map" class="link">in der Karte</a> an!</span>
+				</div>
+			}
+			for _, header := range dealHeaders {
+				@dealHeader(user, header, hideName, showFavoriteToggle, removeFavorite, canEdit)
+			}
 		}
 	</div>
 	<div id="new-deals-button" hx-swap="outerHTML"></div>
@@ -61,8 +47,58 @@ templ DealsList(dealHeaders []model.DealHeader, hideName bool, isDealer bool, sh
 	@dealListScript(dealHeaders)
 }
 
+templ dealHeader(user service.User, header model.DealHeader, hideName bool, showFavoriteToggle bool, removeFavorite bool, canEdit bool) {
+	<div id={ "deal-" + header.ID.String() }>
+		if !hideName {
+			<div class="flex items-center justify-between bg-[#232b2e] px-2 py-0.5">
+				<a href={ templ.URL("/dealer/" + header.DealerId.String()) } class="flex items-center text-sm text-[#b2b2b2]">
+					{ header.Username }
+				</a>
+				<a href={ templ.URL("/dealer/" + header.DealerId.String()) } class="pr-1">
+					<img src="/static/images/icons/double-arrow.svg" alt="Zum Dealer springen" class="h-3"/>
+				</a>
+			</div>
+		}
+		<div
+			class="flex cursor-pointer items-center justify-between bg-[#2c363a] p-2 pr-3"
+			@click={ fmt.Sprintf("openDetailsId = openDetailsId === '%[1]s' ? '' : '%[1]s'", header.ID) }
+		>
+			<div class="flex items-center gap-2">
+				@icon.DealIcon(header.CategoryId)
+				<span>{ header.Title }</span>
+			</div>
+			if canEdit {
+				<a class="clean" @click.stop="" href={ templ.SafeURL("/deal/" + header.ID.String()) }>
+					<img src="/static/images/icons/cog.svg" alt="Deal Einstellungen" class="h-5"/>
+				</a>
+			} else if showFavoriteToggle && !user.IsDealer {
+				if removeFavorite {
+					@DealFavoriteRemoveButton(header.ID.String())
+				} else {
+					<div
+						hx-get={ "/deal-favorite-button/" + header.ID.String() }
+						hx-trigger="load once"
+						hx-target="this"
+						hx-swap="outerHTML"
+					></div>
+				}
+			}
+		</div>
+		<div
+			class="flex flex-col justify-between bg-[#323e42] p-2"
+			hx-get={ "/deal-details/" + header.ID.String() }
+			hx-target={ "#details-footer-" + header.ID.String() }
+			hx-trigger="load once"
+			hx-swap="outerHTML"
+			x-show={ fmt.Sprintf("openDetailsId === '%s'", header.ID) }
+		>
+			<div id={ "details-footer-" + header.ID.String() }></div>
+		</div>
+	</div>
+}
+
 script dealListScript(dealHeaders []model.DealHeader) {
-	const dealIds = dealHeaders.map(header => header.ID).join(",");
+	const dealIds = dealHeaders ? dealHeaders.map(header => header.ID).join(",") : [];
 	LocationService.addChangeHandler(() => {
 		htmx.ajax("POST", "/show-new-deals-button", {
 			target: "#new-deals-button",

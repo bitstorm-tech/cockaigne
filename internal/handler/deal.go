@@ -187,6 +187,11 @@ func createDiscountModalParams(dealerId string, timesAndDates DealTimesAndDates)
 }
 
 func getTopDealsList(c echo.Context) error {
+	user, err := service.ParseUser(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
 	limitString := c.Param("limit")
 	limit, err := strconv.Atoi(limitString)
 	if err != nil {
@@ -204,7 +209,7 @@ func getTopDealsList(c echo.Context) error {
 		return view.RenderAlert("Kann momentan die top Deals nicht laden. Bitte versuche es später nochmal.", c)
 	}
 
-	return view.Render(view.DealsList(header, false, false, true, false, false), c)
+	return view.Render(view.DealsList(view.DealListTopDeals, user, header, false, true, false, false), c)
 }
 
 func openTopDealsPage(c echo.Context) error {
@@ -212,33 +217,33 @@ func openTopDealsPage(c echo.Context) error {
 }
 
 func getFavoriteDealerDeals(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	user, err := service.ParseUser(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
 
-	headers, err := service.GetFavoriteDealerDealHeaders(userId.String())
+	headers, err := service.GetFavoriteDealerDealHeaders(user.ID.String())
 	if err != nil {
 		zap.L().Sugar().Error("can't get favorite dealer deals: ", err)
 		return view.RenderAlert("Kann favorisierte Dealer Deals nicht laden, bitte später nochmal versuchen.", c)
 	}
 
-	return view.Render(view.DealsList(headers, false, false, false, false, false), c)
+	return view.Render(view.DealsList(view.DealListUserFavoriteDealerDeals, user, headers, false, false, false, false), c)
 }
 
 func getFavoriteDeals(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	user, err := service.ParseUser(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
 
-	headers, err := service.GetFavoriteDealHeaders(userId.String())
+	headers, err := service.GetFavoriteDealHeaders(user.ID.String())
 	if err != nil {
 		zap.L().Sugar().Error("can't get favorite deal headers: ", err)
 		return view.RenderAlert("Kann favorisierte Deals aktuell nicht laden, bitte später nochmal versuchen.", c)
 	}
 
-	return view.Render(view.DealsList(headers, false, false, true, true, false), c)
+	return view.Render(view.DealsList(view.DealListUserFavoriteDeals, user, headers, false, true, true, false), c)
 }
 
 func openDealCreatePage(c echo.Context) error {
@@ -338,7 +343,12 @@ func getDealList(c echo.Context) error {
 	hideName := c.QueryParam("hide_name") == "true"
 	canEdit := c.QueryParam("can_edit") == "true"
 
-	return view.Render(view.DealsList(headers, hideName, user.IsDealer, true, false, canEdit), c)
+	dealListType := view.DealListUserDeals
+	if len(dealerId) > 0 {
+		dealListType = view.DealListDealer
+	}
+
+	return view.Render(view.DealsList(dealListType, user, headers, hideName, true, false, canEdit), c)
 }
 
 type DealJson struct {
