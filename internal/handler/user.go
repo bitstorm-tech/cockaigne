@@ -14,7 +14,6 @@ import (
 
 func RegisterUserHandlers(e *echo.Echo) {
 	e.GET("/user", getUser)
-	e.GET("/deals-count-badge", getDealsCountBadge)
 	e.GET("/favorite-deals-count-badge", getFavoriteDealsCountBadge)
 	e.GET("/favorite-dealers-count-badge", getFavoriteDealersCountBadge)
 	e.POST("/show-new-deals-button", showNewDealsButton)
@@ -44,10 +43,6 @@ func showNewDealsButton(c echo.Context) error {
 	}
 
 	return nil
-}
-
-func getDealsCountBadge(c echo.Context) error {
-	return view.Render(view.DealsCountBadge("1"), c)
 }
 
 func getFavoriteDealersCountBadge(c echo.Context) error {

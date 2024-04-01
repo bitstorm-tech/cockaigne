@@ -44,6 +44,7 @@ templ DealsList(listType DealListType, user service.User, dealHeaders []model.De
 	</div>
 	<div id="new-deals-button" hx-swap="outerHTML"></div>
 	<div id="image-zoom-modal"></div>
+	@DealsCountBadge(len(dealHeaders))
 	@dealListScript(dealHeaders)
 }
 

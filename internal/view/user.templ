@@ -1,6 +1,7 @@
 package view
 
 import "github.com/bitstorm-tech/cockaigne/internal/model"
+import "fmt"
 
 templ User(userId string, username string, useLocationService bool, isBasicUser bool, currentLocation model.Point) {
 	@BaseLayout() {
@@ -59,7 +60,7 @@ script userScript(useLocationService bool, currentLocation model.Point, isBasicU
 
   LocationService.location = {
     lat: currentLocation.Lat,
-	lon: currentLocation.Lon
+		lon: currentLocation.Lon
   }
 
   if (useLocationService) {
@@ -80,7 +81,7 @@ templ UserHeader(userId string, username string) {
 		<div class="flex w-full justify-between">
 			<div class="m-4 flex flex-col gap-4">
 				<div class="flex gap-2 fill-current text-xs text-[#69828c]">
-					<div hx-get="/deals-count-badge" hx-trigger="load" hx-target="this"></div>
+					<div id="deals-count-badge"></div>
 					<div hx-get="/favorite-dealers-count-badge" hx-trigger="load" hx-target="this"></div>
 					<div hx-get="/favorite-deals-count-badge" hx-trigger="load, updateFavDealsCountBadge from:body" hx-target="this"></div>
 				</div>
@@ -107,10 +108,10 @@ templ UserHeader(userId string, username string) {
 	</div>
 }
 
-templ DealsCountBadge(count string) {
-	<div class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]">
+templ DealsCountBadge(count int) {
+	<div id="deals-count-badge" class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]" hx-swap-oob="true">
 		<img src="/static/images/icons/deals.svg" alt="Deals" class="h-3 w-auto"/>
-		{ count }
+		{ fmt.Sprintf("%d", count) }
 	</div>
 }
 
