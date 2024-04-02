@@ -413,6 +413,12 @@ func updateFilter(c echo.Context) error {
 		return view.RenderAlert("Wir konnten deine Filtereinstellungen nicht speichern. Bitte versuche es später noch einmal.", c)
 	}
 
+	redirectAfterSave := c.QueryParam("redirect-after-save")
+
+	if len(redirectAfterSave) > 0 {
+		c.Response().Header().Set("HX-Redirect", redirectAfterSave)
+	}
+
 	return nil
 }
 

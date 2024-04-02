@@ -5,9 +5,9 @@ import (
 	"strconv"
 )
 
-templ FilterModal(categories []model.Category, favoriteCategoryIds []int, searchRadius int) {
+templ FilterModal(categories []model.Category, favoriteCategoryIds []int, searchRadius int, redirectAfterSave string) {
 	@Modal() {
-		<form hx-post="/api/accounts/filter" hx-target="#modal">
+		<form hx-post={ "/api/accounts/filter?redirect-after-save=" + redirectAfterSave } hx-target="#modal">
 			<div class="form-control pb-6">
 				<label id="radius-label" for="radius" class="flex items-center gap-1"></label>
 				<input
@@ -61,6 +61,5 @@ script filterScript(searchRadius int, selectedCategories []int) {
 
   document.changeSelectedCategories = function(element) {
     FilterService.toggleSelectedCategory(+element.value);
-    console.log("New selected categories:", FilterService.selectedCategories);
   }
 }

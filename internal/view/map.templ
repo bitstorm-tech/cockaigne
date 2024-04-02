@@ -16,13 +16,13 @@ templ Map(searchRadius int, useLocationService bool, currentLocation model.Point
 				</button>
 				<button
 					class="btn-primary flex w-12 items-center justify-center rounded-full p-3"
-					hx-get="/ui/map/filter-modal"
+					hx-get="/ui/map/filter-modal?redirect-after-save=/map"
 					hx-target="#modal"
 				>
 					<img src="/static/images/icons/filter.svg" alt="Filter"/>
 				</button>
 				<button class="btn-primary flex w-12 items-center justify-center rounded-full p-3" onclick="jumpToCurrentLocation()">
-					<img src="/static/images/icons/current-location.svg" alt="Filter"/>
+					<img src="/static/images/icons/current-location.svg" alt="Jump to current location"/>
 				</button>
 			</div>
 			<div id="modal"></div>

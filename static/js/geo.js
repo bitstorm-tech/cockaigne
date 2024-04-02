@@ -135,8 +135,10 @@ const FilterService = {
   },
 
   set selectedCategories(newSelectedCategories) {
-    this._selectedCategories = newSelectedCategories;
-    this._selectedCategoriesChangeListeners.forEach((handler) => handler(newSelectedCategories));
+    if (newSelectedCategories) {
+      this._selectedCategories = newSelectedCategories;
+      this._selectedCategoriesChangeListeners.forEach((handler) => handler(newSelectedCategories));
+    }
   },
 
   toggleSelectedCategory(category) {
