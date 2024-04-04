@@ -7,9 +7,9 @@ templ Header(isAuthenticated bool, isDealer bool, isBasicUser bool) {
 	<nav id="header" class="h-12 border-b border-b-white border-opacity-25" x-data="{showMenu: false}">
 		<div class="px-4 sm:px-6 lg:px-8">
 			<div class="flex h-12 items-center justify-between">
-				<div class="flex gap-2">
+				<div class="flex gap-4">
 					<a href="/"><img class="h-7" src="/static/images/logo-text.svg" alt="Logo"/></a>
-					<div class="self-end badge badge-neutral p-3">
+					<div class="self-end badge badge-neutral text-xs">
 						if isBasicUser {
 							BASIC
 						} else {
