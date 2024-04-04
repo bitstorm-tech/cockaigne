@@ -12,7 +12,7 @@ type CreateAccountRequest struct {
 	Password       string `form:"password"`
 	PasswordRepeat string `form:"passwordRepeat"`
 	Email          string `form:"email"`
-	IsDealer       bool   `form:"isDealer"`
+	IsDealer       string `form:"isDealer"`
 	Street         string `form:"street"`
 	HouseNumber    string `form:"houseNumber"`
 	City           string `form:"city"`
@@ -22,13 +22,14 @@ type CreateAccountRequest struct {
 	Category       int32  `form:"category"`
 	Age            string `form:"age"`
 	Gender         string `form:"gender"`
-	Agb            bool   `form:"agb"`
+	Agb            string `form:"agb"`
 }
 
 func (c CreateAccountRequest) ToAccount(passwordHash string) Account {
 	zipCode := 0
+	isDealer := c.IsDealer == "on"
 
-	if c.IsDealer {
+	if isDealer {
 		var err error
 		zipCode, err = strconv.Atoi(c.ZipCode)
 
@@ -41,7 +42,7 @@ func (c CreateAccountRequest) ToAccount(passwordHash string) Account {
 		Username:        c.Username,
 		Password:        passwordHash,
 		Email:           c.Email,
-		IsDealer:        c.IsDealer,
+		IsDealer:        isDealer,
 		Street:          sql.NullString{String: c.Street},
 		HouseNumber:     sql.NullString{String: c.HouseNumber},
 		City:            sql.NullString{String: c.City},

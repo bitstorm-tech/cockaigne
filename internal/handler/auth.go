@@ -73,7 +73,7 @@ func signup(c echo.Context) error {
 		return view.RenderAlert("Bitte eine gültige E-Mail angeben", c)
 	}
 
-	if !request.Agb {
+	if request.Agb != "on" {
 		return view.RenderAlert("Bitte AGB und Datenschutzbedingungen lesen und akzeptieren", c)
 	}
 
