@@ -29,10 +29,10 @@ func ConnectToDb() {
 		pgSchema,
 	)
 
-	connectionString += " password=" + pgPassword
+	connectionStringWithPassword := connectionString + " password=" + pgPassword
 
 	var err error
-	DB, err = sqlx.Connect("postgres", connectionString)
+	DB, err = sqlx.Connect("postgres", connectionStringWithPassword)
 	if err != nil {
 		zap.L().Sugar().Panic("Can't open database connection: ", err)
 	}
