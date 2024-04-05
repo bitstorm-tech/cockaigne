@@ -34,8 +34,8 @@ func subscribe(c echo.Context) error {
 		return view.RenderAlert("Momentan können keine Abonemants abgeschlossen werden. Bitte versuche es später nochmal.", c)
 	}
 
-	domain := service.BuildDomain(c)
-	checkoutSession, err := service.CreateStripeCheckoutSession(plan.StripePriceId, domain)
+	baseUrl := service.GetBaseUrl(c)
+	checkoutSession, err := service.CreateStripeCheckoutSession(plan.StripePriceId, baseUrl)
 	if err != nil {
 		zap.L().Sugar().Error("can't create stripe checkout session: ", err)
 		return view.RenderAlert("Momentan können keine Abonemants abgeschlossen werden. Bitte versuche es später nochmal.", c)

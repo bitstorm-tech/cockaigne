@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bitstorm-tech/cockaigne/internal/redirect"
+
 	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/service"
 	"github.com/bitstorm-tech/cockaigne/internal/view"
@@ -105,12 +107,18 @@ func signup(c echo.Context) error {
 	}
 
 	if err != nil {
-		return view.RenderAlert(err.Error(), c)
+		zap.L().Sugar().Error("can't save account: ", err)
+		return view.RenderAlert("Leider können momentan keine neuen Accounts angelegt werden, bitte versuche es später noch einmal.", c)
 	}
 
-	c.Set("HX-Location", "/login")
+	baseUrl := service.GetBaseUrl(c)
+	err = service.SendAccountActivationMail(request.Email, baseUrl)
+	if err != nil {
+		zap.L().Sugar().Error("can't send account activation email: ", err)
+		return view.RenderAlert("", c)
+	}
 
-	return nil
+	return redirect.To("/signup-complete", c)
 }
 
 func login(c echo.Context) error {

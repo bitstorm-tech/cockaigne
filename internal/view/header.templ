@@ -9,13 +9,15 @@ templ Header(isAuthenticated bool, isDealer bool, isBasicUser bool) {
 			<div class="flex h-12 items-center justify-between">
 				<div class="flex gap-4">
 					<a href="/"><img class="h-7" src="/static/images/logo-text.svg" alt="Logo"/></a>
-					<div class="self-end badge badge-neutral text-xs">
-						if isBasicUser {
-							BASIC
-						} else {
-							PRO
-						}
-					</div>
+					if isAuthenticated && !isDealer {
+						<div class="self-end badge badge-neutral text-xs">
+							if isBasicUser {
+								BASIC
+							} else {
+								PRO
+							}
+						</div>
+					}
 				</div>
 				<div class="hidden gap-6 md:flex">
 					if isAuthenticated {

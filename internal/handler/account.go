@@ -96,7 +96,7 @@ func sendEmailChangeEmail(c echo.Context) error {
 		return redirect.Login(c)
 	}
 
-	baseUrl := service.BuildDomain(c)
+	baseUrl := service.GetBaseUrl(c)
 	newEmail := c.FormValue("email")
 	if len(newEmail) == 0 {
 		return view.RenderAlert("Bitte eine gültige E-Mail angeben.", c)
@@ -154,7 +154,7 @@ func sendPasswordChangeEmail(c echo.Context) error {
 		return view.RenderAlert("Bitte E-Mail Adresse angeben.", c)
 	}
 
-	baseUrl := service.BuildDomain(c)
+	baseUrl := service.GetBaseUrl(c)
 	err = service.PreparePasswordChange(email, accountIdString, baseUrl)
 	if err != nil {
 		zap.L().Sugar().Error("can't change password: ", err)
@@ -166,9 +166,9 @@ func sendPasswordChangeEmail(c echo.Context) error {
 
 func sendActivationEmail(c echo.Context) error {
 	email := c.FormValue("email")
-	domain := service.BuildDomain(c)
+	baseUrl := service.GetBaseUrl(c)
 
-	err := service.SendAccountActivationMail(email, domain)
+	err := service.SendAccountActivationMail(email, baseUrl)
 	if err != nil {
 		zap.L().Sugar().Error("can't send account activation email: ", err)
 		return view.RenderAlert("Momentan können keine Aktivierungs-Emails versendet werden. Bitte versuche es später nochmal.", c)

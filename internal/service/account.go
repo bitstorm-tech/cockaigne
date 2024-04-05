@@ -117,12 +117,13 @@ func SaveDealer(acc model.Account) error {
 
 func SaveUser(acc model.Account) error {
 	_, err := persistence.DB.Exec(
-		"insert into accounts (email, password, username, age, gender, is_dealer) values ($1, $2, $3, $4, $5, false)",
+		"insert into accounts (email, password, username, age, gender, location, is_dealer) values ($1, $2, $3, $4, $5, $6, false)",
 		acc.Email,
 		acc.Password,
 		acc.Username,
 		acc.Age.Int32,
 		acc.Gender.String,
+		model.PointCenterOfGermany.ToWkt(),
 	)
 
 	return err
