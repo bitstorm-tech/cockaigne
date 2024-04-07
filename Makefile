@@ -15,3 +15,6 @@ dev: dev_kill
 
 dev_kill:
 	pkill -f cockaigne/tmp/main || echo "Server was not running ..."
+
+stripe_dev:
+	stripe listen --forward-to localhost:3000/api/stripe/webhook
