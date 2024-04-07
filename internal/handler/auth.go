@@ -115,7 +115,7 @@ func signup(c echo.Context) error {
 	err = service.SendAccountActivationMail(request.Email, baseUrl)
 	if err != nil {
 		zap.L().Sugar().Error("can't send account activation email: ", err)
-		return view.RenderAlert("", c)
+		return view.RenderAlert("Leider können momentan keine neuen Accounts angelegt werden, bitte versuche es später noch einmal.", c)
 	}
 
 	return redirect.To("/signup-complete", c)

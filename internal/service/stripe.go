@@ -20,7 +20,7 @@ func CreateStripeCheckoutSession(priceId string, domain string) (*stripe.Checkou
 			},
 		},
 		Mode:       stripe.String(string(stripe.CheckoutSessionModeSubscription)),
-		SuccessURL: stripe.String(domain + "/subscripe-success"),
+		SuccessURL: stripe.String(domain + "/subscribe-success"),
 		CancelURL:  stripe.String(domain + "/pricing"),
 	}
 

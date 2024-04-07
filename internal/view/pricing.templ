@@ -27,7 +27,7 @@ templ Pricing(hasActiveSubscription bool, activeVouchers []string) {
 					<ul>
 						<li class="list-disc">
 							<div class="flex items-baseline gap-2">
-								Zahle pro Tagesdeal  
+								Zahle pro Tagesdeal
 								<div class="text-xs">(24 Std. Laufzeit)</div>
 							</div>
 						</li>
@@ -108,7 +108,7 @@ templ planCard(title string, price string, hasActiveSubscription bool, planId st
 				if hasActiveSubscription {
 					<span>Du hast bereits ein aktives Abo!</span>
 				} else {
-					<button hx-post={ "/subscripe/" + planId }>Abo abschließen</button>
+					<button hx-post={ "/subscribe/" + planId }>Abo abschließen</button>
 				}
 			</div>
 		</div>

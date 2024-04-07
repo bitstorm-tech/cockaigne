@@ -12,7 +12,7 @@ import (
 
 func RegisterSubscriptionHandler(e *echo.Echo) {
 	e.POST("/subscribe/:planId", subscribe)
-	e.GET("/subscribe-success", subscripeSuccess)
+	e.GET("/subscribe-success", subscribeSuccess)
 }
 
 func subscribe(c echo.Context) error {
@@ -52,6 +52,6 @@ func subscribe(c echo.Context) error {
 	return nil
 }
 
-func subscripeSuccess(c echo.Context) error {
-	return view.Render(view.SubscripeSuccess(), c)
+func subscribeSuccess(c echo.Context) error {
+	return view.Render(view.SubscribeSuccess(), c)
 }
