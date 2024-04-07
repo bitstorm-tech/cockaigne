@@ -1,6 +1,8 @@
 package service
 
 import (
+	"github.com/bitstorm-tech/cockaigne/internal/model"
+	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"os"
 
 	"github.com/stripe/stripe-go/v76"
@@ -11,7 +13,7 @@ func init() {
 	stripe.Key = os.Getenv("STRIPE_PRIVATE_API_KEY")
 }
 
-func CreateStripeCheckoutSession(priceId string, domain string) (*stripe.CheckoutSession, error) {
+func CreateStripeCheckoutSession(priceId string, domain string, accountId string) (*stripe.CheckoutSession, error) {
 	params := &stripe.CheckoutSessionParams{
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
@@ -21,7 +23,7 @@ func CreateStripeCheckoutSession(priceId string, domain string) (*stripe.Checkou
 		},
 		Mode:       stripe.String(string(stripe.CheckoutSessionModeSubscription)),
 		SuccessURL: stripe.String(domain + "/subscribe-success"),
-		CancelURL:  stripe.String(domain + "/pricing"),
+		CancelURL:  stripe.String(domain + "/subscribe-cancel/" + accountId),
 	}
 
 	s, err := session.New(params)
@@ -30,4 +32,13 @@ func CreateStripeCheckoutSession(priceId string, domain string) (*stripe.Checkou
 	}
 
 	return s, nil
+}
+
+func DeleteNotActivatedSubscription(accountId string) error {
+	_, err := persistence.DB.Exec(
+		"delete from subscriptions where account_id = $1 and state = $2",
+		accountId,
+		model.SubWaitingForActivation,
+	)
+	return err
 }
