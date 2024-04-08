@@ -147,36 +147,22 @@ func CreateSpatialDealFilter(userId string) (SpatialDealFilter, error) {
 	return filter, nil
 }
 
-func GetDealsFromView(state model.State, filter SpatialDealFilter, user *User, dealerId *string) ([]model.DealView, error) {
-	if state != model.Future && state != model.Active && state != model.Past {
-		return []model.DealView{}, fmt.Errorf("unknown deal state: %s", state)
-	}
-
+func GetActiveDeals(filter SpatialDealFilter, user User) ([]model.DealView, error) {
 	query := "select *, public.st_x(location) || ',' || public.st_y(location) as location from active_deals_view"
-	switch state {
-	case model.Past:
-		query = "select *, public.st_x(location) || ',' || public.st_y(location) as location from past_deals_view"
-	case model.Future:
-		query = "select *, public.st_x(location) || ',' || public.st_y(location) as location from future_deals_view"
+
+	geom, err := filter.ToGeometry()
+	if err != nil {
+		return []model.DealView{}, err
 	}
 
-	if dealerId != nil {
-		query += fmt.Sprintf(" where dealer_id = '%s'", *dealerId)
-	}
+	query += fmt.Sprintf(" where ST_Within(location, %s)", geom)
 
-	if user != nil {
-		addCategoryIdFilter(*user, &query)
-	}
+	addCategoryIdFilter(user, &query)
 
-	if filter != nil {
-		err := addSpatialFilterToQuery(*user, &query)
-		if err != nil {
-			zap.L().Sugar().Error("can't add spatial filter to query: ", err)
-		}
-	}
+	zap.L().Sugar().Info("QUERY: ", query)
 
 	var deals []model.DealView
-	err := persistence.DB.Select(&deals, query)
+	err = persistence.DB.Select(&deals, query)
 
 	if err != nil {
 		return []model.DealView{}, fmt.Errorf("can't get active deals: %v", err)

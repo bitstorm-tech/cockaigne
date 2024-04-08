@@ -367,13 +367,13 @@ func getDealsAsJson(c echo.Context) error {
 		BoundingBox: extent,
 	}
 
-	deals, err := service.GetDealsFromView(model.Active, boundingBoxFilter, &user, nil)
+	deals, err := service.GetActiveDeals(boundingBoxFilter, user)
 	if err != nil {
 		zap.L().Sugar().Error("can't get deals: ", err)
 		return nil
 	}
 
-	dealJson := []DealJson{}
+	var dealJson []DealJson
 	for _, deal := range deals {
 		location, err := model.NewPointFromString(deal.Location)
 		if err != nil {
