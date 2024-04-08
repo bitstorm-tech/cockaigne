@@ -248,6 +248,10 @@ func getRatingModal(c echo.Context) error {
 		return view.RenderAlert("Kann Bewertung momentan nicht ändern, bitte später noch einmal versuchen.", c)
 	}
 
+	if rating.Stars < 1 {
+		rating.Stars = 5
+	}
+
 	canEdit := err == nil
 	rating.DealerId, err = uuid.Parse(dealerId)
 	if err != nil {
