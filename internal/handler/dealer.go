@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"net/http"
 	"strconv"
 	"strings"
@@ -248,6 +249,11 @@ func getRatingModal(c echo.Context) error {
 	}
 
 	canEdit := err == nil
+	rating.DealerId, err = uuid.Parse(dealerId)
+	if err != nil {
+		zap.L().Sugar().Errorf("can't create uuid from string (%s): %v", dealerId, err)
+		return view.RenderAlert("Momentan können keine Bewertungen abgegeben werden, bitte versuche es später noch einmal.", c)
+	}
 
 	return view.Render(view.DealerRatingModal(rating, canEdit), c)
 }
