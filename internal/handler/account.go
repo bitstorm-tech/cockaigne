@@ -31,10 +31,56 @@ func RegisterAccountHandlers(e *echo.Echo) {
 	e.POST("/activate", activateAccount)
 	e.POST("/password-change", changePassword)
 	e.POST("/api/accounts/filter", updateFilter)
+	e.POST("/api/accounts/filter/select-all", selectAllCategories)
+	e.POST("/api/accounts/filter/deselect-all", deselectAllCategories)
 	e.POST("/api/accounts/location", updateLocation)
 	e.POST("/api/accounts/use-location-service", updateUseLocationService)
 	e.POST("/api/send-activation-email", sendActivationEmail)
 	e.POST("/api/send-email-change-email", sendEmailChangeEmail)
+}
+
+func selectAllCategories(c echo.Context) error {
+	user, err := service.ParseUser(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	categories := service.GetCategories()
+	var allCategoryIds []int
+	for _, c := range categories {
+		allCategoryIds = append(allCategoryIds, c.ID)
+	}
+
+	if user.IsBasicUser {
+		service.GetBasicUserFilter(user.ID.String()).SelectedCategories = allCategoryIds
+	} else {
+		err = service.UpdateSelectedCategories(user.ID, allCategoryIds)
+		if err != nil {
+			zap.L().Sugar().Error("can't update favorite categories: ", err)
+		}
+	}
+
+	return view.Render(view.CategoryList(categories, allCategoryIds), c)
+}
+
+func deselectAllCategories(c echo.Context) error {
+	user, err := service.ParseUser(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	categories := service.GetCategories()
+
+	if user.IsBasicUser {
+		service.GetBasicUserFilter(user.ID.String()).SelectedCategories = []int{}
+	} else {
+		err = service.UpdateSelectedCategories(user.ID, []int{})
+		if err != nil {
+			zap.L().Sugar().Error("can't update favorite categories: ", err)
+		}
+	}
+
+	return view.Render(view.CategoryList(categories, []int{}), c)
 }
 
 func updateLocation(c echo.Context) error {

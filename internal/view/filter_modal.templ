@@ -21,21 +21,27 @@ templ FilterModal(categories []model.Category, favoriteCategoryIds []int, search
 					oninput="changeRadius(this)"
 				/>
 			</div>
-			<div class="flex flex-col gap-2">
-				for _, category := range categories {
-					<div class="form-control-horizontal">
-						<input
-							type="checkbox"
-							id={ category.Name }
-							class="checkbox"
-							name="favoriteCategoryIds"
-							value={ strconv.Itoa(category.ID) }
-							checked?={ category.IsFavorite(favoriteCategoryIds) }
-							oninput="changeSelectedCategories(this)"
-						/>
-						<label for={ category.Name }>{ category.Name }</label>
-					</div>
-				}
+			<hr/>
+			<div class="grid grid-cols-2 py-4 gap-2">
+				<button
+					type="button"
+					class="btn-sm"
+					hx-post="/api/accounts/filter/select-all"
+					hx-target="#category-list"
+				>
+					Alles auswählen
+				</button>
+				<button
+					type="button"
+					class="btn-sm"
+					hx-post="/api/accounts/filter/deselect-all"
+					hx-target="#category-list"
+				>
+					Alles abwählen
+				</button>
+			</div>
+			<div id="category-list" class="flex flex-col gap-2">
+				@CategoryList(categories, favoriteCategoryIds)
 			</div>
 			<div class="modal-action">
 				<button>Speichern</button>
@@ -43,6 +49,23 @@ templ FilterModal(categories []model.Category, favoriteCategoryIds []int, search
 			</div>
 		</form>
 		@filterScript(searchRadius, favoriteCategoryIds)
+	}
+}
+
+templ CategoryList(categories []model.Category, favoriteCategoryIds []int) {
+	for _, category := range categories {
+		<div class="form-control-horizontal">
+			<input
+				type="checkbox"
+				id={ category.Name }
+				class="checkbox"
+				name="favoriteCategoryIds"
+				value={ strconv.Itoa(category.ID) }
+				checked?={ category.IsFavorite(favoriteCategoryIds) }
+				oninput="changeSelectedCategories(this)"
+			/>
+			<label for={ category.Name }>{ category.Name }</label>
+		</div>
 	}
 }
 
