@@ -1,6 +1,7 @@
 package view
 
 import "github.com/bitstorm-tech/cockaigne/internal/model"
+import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
 import "fmt"
 
 templ User(userId string, username string, useLocationService bool, isBasicUser bool, currentLocation model.Point) {
@@ -118,21 +119,31 @@ templ UserHeader(userId string, username string) {
 
 templ DealsCountBadge(count int) {
 	<div id="deals-count-badge" class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]" hx-swap-oob="true">
-		<img src="/static/images/icons/deals.svg" alt="Deals" class="h-3 w-auto"/>
+		<div class="h-3 w-3">
+			@icon.Deals()
+		</div>
 		{ fmt.Sprintf("%d", count) }
 	</div>
 }
 
 templ FavoriteDealerCountBadge(count string) {
 	<div class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]">
-		<img src="/static/images/icons/heart.svg" alt="Deals" class="h-3 w-auto"/>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 141.73228 141.73228" class="h-3 w-auto">
+			<path
+				d="M128.53366,22.61016c-15.92291-15.02877-41.741-15.02877-57.6639,0h0c-15.92182-15.02877-41.74951-15.02877-57.67351,0a36.9691,36.9691,0,0,0,0,54.41653l55.739,52.60127a2.8078,2.8078,0,0,0,3.85411.00009l55.74434-52.60136h0A36.96412,36.96412,0,0,0,128.53366,22.61016Z"
+			></path>
+		</svg>
 		{ count }
 	</div>
 }
 
 templ FavoriteDealsCountBadge(count string) {
 	<div class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]">
-		<img src="/static/images/icons/bookmark.svg" alt="Deals" class="h-3 w-auto"/>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 93.22094 127.76471" class="h-3 w-auto">
+			<path
+				d="M85.067,124.316,47.22038,96.59777l-37.853,27.726c-1.06242,1.29917-2.92485.41171-2.92485-1.39371V3.04033H87.99823V122.91922C87.99823,124.72858,86.13174,125.618,85.067,124.316Z"
+			></path>
+		</svg>
 		{ count }
 	</div>
 }
