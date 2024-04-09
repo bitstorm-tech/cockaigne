@@ -126,7 +126,7 @@ templ DealDetailsFooter(dealDetails model.DealDetails, imageUrls []string, isDea
 			<img
 				src={ url }
 				alt="Deal image"
-				class="h-24 w-full object-cover"
+				class="h-24 w-full object-cover cursor-pointer"
 				hx-get={ fmt.Sprintf("/deal-image-zoom-modal/%s?index=%d", dealDetails.ID.String(), i) }
 				hx-target="#image-zoom-modal"
 				hx-swap="innerHTML"

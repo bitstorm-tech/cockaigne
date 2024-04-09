@@ -12,11 +12,11 @@ templ DealFavoriteToggleButton(id string, isFavorite bool) {
 
 templ DealFavoriteRemoveButton(id string) {
 	<button
- 		class="clean"
- 		@click.stop
- 		hx-target={ "#deal-" + id }
- 		hx-swap="outerHTML"
- 		hx-delete={ "/deal-favorite-remove/" + id }
+		class="clean"
+		@click.stop
+		hx-target={ "#deal-" + id }
+		hx-swap="outerHTML"
+		hx-delete={ "/deal-favorite-remove/" + id }
 	>
 		<img src="/static/images/icons/bookmark.svg" alt="Remove favorite deal" class="h-6"/>
 	</button>

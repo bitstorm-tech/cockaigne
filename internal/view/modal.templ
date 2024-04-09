@@ -3,6 +3,14 @@ package view
 templ Modal() {
 	<div id="modal" class="modal modal-open backdrop-blur-sm">
 		<div class="modal-box">
+			<button
+				class="btn btn-sm btn-primary btn-circle absolute right-2 top-2"
+				hx-delete="/ui/remove"
+				hx-target="closest #modal"
+				hx-swap="outerHTML"
+			>
+				✕
+			</button>
 			{ children... }
 		</div>
 	</div>

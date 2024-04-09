@@ -5,9 +5,9 @@ templ VoucherCreate() {
 		<div class="flex flex-col p-6">
 			<h1>Gutschein erstellen</h1>
 			<form
- 				hx-post="/admin-voucher"
- 				class="flex flex-col gap-4"
- 				x-data="{discount: 25, start: new Date().toISOString().split('T')[0], end: new Date().toISOString().split('T')[0]}"
+				hx-post="/admin-voucher"
+				class="flex flex-col gap-4"
+				x-data="{discount: 25, start: new Date().toISOString().split('T')[0], end: new Date().toISOString().split('T')[0]}"
 			>
 				<div class="form-control">
 					<label for="code" class="select-none pl-2 text-xs">Gutschein-Code</label>

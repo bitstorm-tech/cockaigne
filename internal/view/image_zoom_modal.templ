@@ -23,11 +23,8 @@ templ ImageZoomModal(imageUrls []string, startIndex int) {
 				}
 			</div>
 			<div class="flex items-center justify-between">
-				<button class="btn-circle" @click="previousIndex()">&lt;</button>
-				<button class="btn-outline btn-sm" hx-delete="/ui/remove" hx-target="closest #modal" hx-swap="outerHTML">
-					Schließen
-				</button>
-				<button class="btn-circle" @click="nextIndex()">&gt;</button>
+				<button class="btn-circle btn-primary" @click="previousIndex()">&lt;</button>
+				<button class="btn-circle btn-primary" @click="nextIndex()">&gt;</button>
 			</div>
 		</div>
 	}

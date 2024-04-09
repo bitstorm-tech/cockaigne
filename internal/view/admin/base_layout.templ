@@ -60,10 +60,10 @@ templ Header() {
 		// Mobile menu
 		//---------------
 		<div
- 			class="absolute right-2 top-10 z-50 select-none rounded-md border-2 border-[#232b2e] bg-dark md:hidden"
- 			x-transition.duration.300ms
- 			x-show="showMenu"
- 			@click.outside="showMenu = false"
+			class="absolute right-2 top-10 z-50 select-none rounded-md border-2 border-[#232b2e] bg-dark md:hidden"
+			x-transition.duration.300ms
+			x-show="showMenu"
+			@click.outside="showMenu = false"
 		>
 			<div class="flex flex-col gap-5 p-6 sm:px-3 ">
 				<a class="flex justify-start items-center gap-4" href="/admin-vouchers">Gutscheine</a>
