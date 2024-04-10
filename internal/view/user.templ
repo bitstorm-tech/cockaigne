@@ -98,18 +98,18 @@ templ UserHeader(userId string, username string) {
 					</div>
 				</div>
 			</div>
-			<div class="flex flex-col gap-10">
+			<div class="flex flex-col gap-8">
 				<div class="avatar z-40 cursor-pointer -mt-6 mr-16">
 					<div class="h-24 w-24 rounded-full bg-base-100 ring-2 ring-[#556368]">
 						<div hx-get={ "/profile-image/" + userId } hx-target="this" hx-trigger="load once" hx-swap="outerHTML"></div>
 					</div>
 				</div>
 				<button
-					class="btn-primary flex w-20 justify-start rounded-r-none rounded-l-full self-end p-1"
+					class="btn-primary flex w-20 justify-start rounded-r-none rounded-l-full self-end px-0"
 					hx-get="/ui/map/filter-modal?redirect-after-save=/user"
 					hx-target="#modal"
 				>
-					<img src="/static/images/icons/filter.svg" alt="Filter" class="w-auto h-10 border border-white rounded-full p-1"/>
+					<img src="/static/images/icons/filter.svg" alt="Filter" class="w-auto h-12 border border-white rounded-full p-1"/>
 				</button>
 			</div>
 		</div>
