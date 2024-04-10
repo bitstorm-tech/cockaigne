@@ -16,20 +16,18 @@ templ Signup() {
 				<label for="username">Benutzername</label>
 				<input id="username" type="text" name="username"/>
 			</div>
-			<div class="grid grid-cols-2 gap-2">
-				<div class="form-control">
-					<label for="password">Passwort</label>
-					<input id="password" type="password" name="password"/>
-				</div>
-				<div class="form-control">
-					<label for="password-repeat">Passwort wiederholen</label>
-					<input id="password-repeat" type="password" name="passwordRepeat"/>
-				</div>
-			</div>
+            <div class="form-control">
+                <label for="password">Passwort</label>
+                <input id="password" type="password" name="password"/>
+            </div>
+            <div class="form-control">
+                <label for="password-repeat">Passwort wiederholen</label>
+                <input id="password-repeat" type="password" name="passwordRepeat"/>
+            </div>
 			<div class="flex flex-col gap-4" x-show="!isDealer">
 				<div class="form-control">
 					<label for="age">Alter</label>
-					<div id="age" class="join grid grid-cols-6 w-full">
+					<div id="age" class="join grid grid-cols-3 grid-rows-2 w-full">
 						<input class="join-item btn btn-sm" type="radio" value="1" name="age" aria-label="bis 18" checked/>
 						<input class="join-item btn btn-sm" type="radio" value="2" name="age" aria-label="19 - 29"/>
 						<input class="join-item btn btn-sm" type="radio" value="3" name="age" aria-label="30 - 39"/>
@@ -84,7 +82,7 @@ templ Signup() {
 			<div class="form-control-horizontal pt-10">
 				<input id="agb" type="checkbox" class="checkbox" name="agb"/>
 				<label for="agb" class="cursor-pointer">
-					Ich habe die <a class="link" href="#">AGB</a> und 
+					Ich habe die <a class="link" href="#">AGB</a> und
 					<a class="link" href="#">Datenschutzbedingungen</a>
 					gelesen und akzeptiere diese
 				</label>
