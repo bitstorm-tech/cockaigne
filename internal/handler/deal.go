@@ -203,7 +203,7 @@ func getTopDealsList(c echo.Context) error {
 		limit = 100
 	}
 
-	header, err := service.GetTopDealHeaders(limit)
+	header, err := service.GetTopDealHeaders(user.ID.String(), limit)
 	if err != nil {
 		zap.L().Sugar().Error("can't get top deals: ", err)
 		return view.RenderAlert("Kann momentan die top Deals nicht laden. Bitte versuche es später nochmal.", c)

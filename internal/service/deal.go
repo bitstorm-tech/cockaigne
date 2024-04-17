@@ -468,11 +468,23 @@ func GetFavoriteDealerDealHeaders(userId string) (model.DealHeaders, error) {
 	return header.RotateByTime(), nil
 }
 
-func GetTopDealHeaders(limit int) ([]model.DealHeader, error) {
+func GetTopDealHeaders(userId string, limit int) ([]model.DealHeader, error) {
+	filter, err := CreateSpatialDealFilter(userId)
+	if err != nil {
+		return []model.DealHeader{}, err
+	}
+
+	filterGeom, err := filter.ToGeometry()
+	if err != nil {
+		return []model.DealHeader{}, err
+	}
+
+	query := fmt.Sprintf("select id, dealer_id, title, username, category_id from top_deals_view where st_within(location, %s) limit $1", filterGeom)
+
 	var header []model.DealHeader
-	err := persistence.DB.Select(
+	err = persistence.DB.Select(
 		&header,
-		"select id, dealer_id, title, username, category_id from top_deals_view limit $1",
+		query,
 		limit,
 	)
 
