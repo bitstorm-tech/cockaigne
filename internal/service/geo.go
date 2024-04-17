@@ -25,7 +25,6 @@ func GetPositionFromAddressFuzzy(address string) (model.Point, error) {
 }
 
 func pointFromQuery(query string) (model.Point, error) {
-	zap.L().Sugar().Debugf("Querying nominatim: %s", query)
 	res, err := http.Get(query)
 	if err != nil {
 		return model.Point{}, fmt.Errorf("can't get response from nominatim: %v", err)

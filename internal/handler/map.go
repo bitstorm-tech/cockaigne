@@ -21,6 +21,10 @@ func openMap(c echo.Context) error {
 		return redirect.Login(c)
 	}
 
+	if user.IsDealer {
+		return c.Redirect(301, "/")
+	}
+
 	if user.IsBasicUser {
 		filter := service.GetBasicUserFilter(user.ID.String())
 		return view.Render(view.Map(filter.SearchRadiusInMeters, filter.UseLocationService, filter.Location), c)

@@ -5,7 +5,7 @@ generate_templ:
 	templ generate -path ./internal/view
 
 generate_templ_watch:
-	templ generate --watch --proxy="http://localhost:3000" -proxyport 8080 --open-browser=false -path ./internal/view
+	templ generate --watch --proxy="http://localhost:3000" --open-browser=false -path ./internal/view
 
 tailwind:
 	bunx tailwindcss --watch -m -i ./tailwind.css -o ./static/app.css
