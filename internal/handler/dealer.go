@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/google/uuid"
 
 	"github.com/bitstorm-tech/cockaigne/internal/redirect"
 	"github.com/bitstorm-tech/cockaigne/internal/service"
@@ -25,11 +26,45 @@ func RegisterDealerHandlers(e *echo.Echo) {
 	e.GET("/dealer-rating-modal/:dealerId", getRatingModal)
 	e.GET("/dealer-image-zoom-modal/:dealerId", getImageZoomDialog)
 	e.GET("/dealer-header-favorite-button/:dealerId", getDealerHeaderFavoriteButton)
+	e.GET("/dealer-subscription-summary", getDealerSubscriptionSummary)
 	e.POST("/dealer-rating/:dealerId", createDealerRating)
 	e.POST("/dealer-images", addDealerImage)
 	e.POST("/dealer-favorite-toggle/:dealerId", toggleDealerFavorite)
 	e.DELETE("/dealer-images", deleteDealerImage)
 	e.DELETE("/dealer-rating/:dealerId", deleteDealerRating)
+}
+
+func getDealerSubscriptionSummary(c echo.Context) error {
+	dealerId, err := service.ParseUserId(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	hasSub, err := service.HasActiveSubscription(dealerId.String())
+	if err != nil {
+		zap.L().Sugar().Info("can't check if dealer has active subscription: ", err)
+		return view.Render(view.SubscriptionSummary("", "", true), c)
+	}
+
+	if !hasSub {
+		return view.Render(view.SubscriptionSummary("", "", false), c)
+	}
+
+	freeDaysLeft, err := service.GetFreeDaysLeftFromSubscription(dealerId.String())
+	if err != nil {
+		zap.L().Sugar().Error("can't get free days left from subscription: ", err)
+		return view.Render(view.SubscriptionSummary("", "", true), c)
+	}
+
+	endDateString, err := service.GetSubscriptionPeriodEndDate(dealerId.String())
+	if err != nil {
+		zap.L().Sugar().Error("can't get subscription period end date: ", err)
+		return view.Render(view.SubscriptionSummary("", "", true), c)
+	}
+
+	freeDaysLeftString := fmt.Sprintf("%d", freeDaysLeft)
+
+	return view.Render(view.SubscriptionSummary(freeDaysLeftString, endDateString, false), c)
 }
 
 func getDealerHeaderFavoriteButton(c echo.Context) error {

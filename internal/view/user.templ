@@ -120,7 +120,7 @@ templ UserHeader(userId string, username string) {
 templ DealsCountBadge(count int) {
 	<div id="deals-count-badge" class="badge gap-2 border border-[#2c363a] bg-transparent text-[#69828c]" hx-swap-oob="true">
 		<div class="h-3 w-3">
-			@icon.Deals()
+			@icon.Globe()
 		</div>
 		{ fmt.Sprintf("%d", count) }
 	</div>

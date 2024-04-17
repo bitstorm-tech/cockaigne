@@ -159,8 +159,6 @@ func GetActiveDeals(filter SpatialDealFilter, user User) ([]model.DealView, erro
 
 	addCategoryIdFilter(user, &query)
 
-	zap.L().Sugar().Info("QUERY: ", query)
-
 	var deals []model.DealView
 	err = persistence.DB.Select(&deals, query)
 
