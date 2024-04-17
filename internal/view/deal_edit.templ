@@ -155,8 +155,8 @@ templ DealEdit(deal model.Deal) {
 			//   <!-- Save and cancel -->
 			//   <!--------------------->
 			<div class="grid grid-cols-2 gap-2">
-				<button hx-post="/deal-new-summary" hx-target="#summary-modal">Erstellen</button>
 				<a href="/" class="btn btn-primary">Abrechen</a>
+				<button hx-post="/deal-new-summary" hx-target="#summary-modal">Erstellen</button>
 			</div>
 			<div id="summary-modal"></div>
 		</form>
