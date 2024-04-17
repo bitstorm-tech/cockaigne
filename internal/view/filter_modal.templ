@@ -25,7 +25,7 @@ templ FilterModal(categories []model.Category, favoriteCategoryIds []int, search
 			<div class="grid grid-cols-2 py-4 gap-2">
 				<button
 					type="button"
-					class="btn-sm"
+					class="btn-sm btn-primary"
 					hx-post="/api/accounts/filter/select-all"
 					hx-target="#category-list"
 				>
@@ -33,7 +33,7 @@ templ FilterModal(categories []model.Category, favoriteCategoryIds []int, search
 				</button>
 				<button
 					type="button"
-					class="btn-sm"
+					class="btn-sm btn-primary"
 					hx-post="/api/accounts/filter/deselect-all"
 					hx-target="#category-list"
 				>
