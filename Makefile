@@ -6,6 +6,7 @@ generate_templ:
 
 generate_templ_watch:
 	templ generate --watch --proxy="http://localhost:3000" --open-browser=false -path ./internal/view
+	# proxy port = 7331
 
 tailwind:
 	bunx tailwindcss --watch -m -i ./tailwind.css -o ./static/app.css
@@ -26,4 +27,4 @@ dev_kill:
 	pkill -f cockaigne/tmp/main || echo "Server was not running ..."
 
 stripe_dev:
-	stripe listen --forward-to localhost:3000/api/stripe/webhook
+	stripe listen --forward-to localhost:7331/api/stripe/webhook
