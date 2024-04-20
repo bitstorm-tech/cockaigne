@@ -1,9 +1,11 @@
 package service
 
 import (
+	"os"
+	"time"
+
 	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
-	"os"
 
 	"github.com/stripe/stripe-go/v76"
 	"github.com/stripe/stripe-go/v76/checkout/session"
@@ -40,5 +42,16 @@ func DeleteNotActivatedSubscription(accountId string) error {
 		accountId,
 		model.SubWaitingForActivation,
 	)
+	return err
+}
+
+func CancelSubscription(stripeSubscriptionId string) error {
+	_, err := persistence.DB.Exec(
+		"update subscriptions set state=$1, canceled=$2 where stripe_subscription_id=$3",
+		model.SubCanceled,
+		time.Now(),
+		stripeSubscriptionId,
+	)
+
 	return err
 }

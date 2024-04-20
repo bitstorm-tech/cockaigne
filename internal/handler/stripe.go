@@ -31,19 +31,46 @@ func processWebhookEvent(c echo.Context) error {
 		return err
 	}
 
-	if event.Type == "checkout.session.completed" {
-		var session stripe.CheckoutSession
-		err := json.Unmarshal(event.Data.Raw, &session)
-		if err != nil {
-			zap.L().Sugar().Error("can't unmarschal checkout.session.completed data: ", err)
-			return err
-		}
+	if event.Type == stripe.EventTypeCheckoutSessionCompleted {
+		return checkoutSessionComplete(event)
+	}
 
-		err = service.ActivateSubscription(session.ID, session.Subscription.ID)
-		if err != nil {
-			zap.L().Sugar().Error("can't activate subscription: ", err)
-			return err
-		}
+	if event.Type == stripe.EventTypeCustomerSubscriptionDeleted {
+		return customerSubscriptionDeleted(event)
+	}
+
+	return nil
+}
+
+func checkoutSessionComplete(event stripe.Event) error {
+	var session stripe.CheckoutSession
+	err := json.Unmarshal(event.Data.Raw, &session)
+	if err != nil {
+		zap.L().Sugar().Error("can't unmarschal checkout.session.completed data: ", err)
+		return err
+	}
+
+	err = service.ActivateSubscription(session.ID, session.Subscription.ID)
+	if err != nil {
+		zap.L().Sugar().Error("can't activate subscription: ", err)
+		return err
+	}
+
+	return nil
+}
+
+func customerSubscriptionDeleted(event stripe.Event) error {
+	var subscription stripe.Subscription
+	err := json.Unmarshal(event.Data.Raw, &subscription)
+	if err != nil {
+		zap.L().Sugar().Error("can't unmarschal customer.subscription.delete data: ", err)
+		return err
+	}
+
+	err = service.CancelSubscription(subscription.ID)
+	if err != nil {
+		zap.L().Sugar().Errorf("can't cancel subscription (%s): %v", subscription.ID, err)
+		return err
 	}
 
 	return nil

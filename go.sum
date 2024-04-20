@@ -41,8 +41,8 @@ github.com/aws/smithy-go v1.20.2/go.mod h1:krry+ya/rV9RDcV/Q16kpu6ypI4K2czasz0NC
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/getbrevo/brevo-go v1.0.2 h1:8QN5/q5sWgNw+Wzt8ODNuaz6ARbEq7lyzdbGLGmRiEQ=
-github.com/getbrevo/brevo-go v1.0.2/go.mod h1:2TBMEnaDqq/oiAXUYtn6eykiEdHcEoS7tc63+YoFibw=
+github.com/getbrevo/brevo-go v1.0.3 h1:N1jnMil8Ol1+bSgxjWiCv9vp2waligj4GdYxK4E2t94=
+github.com/getbrevo/brevo-go v1.0.3/go.mod h1:2TBMEnaDqq/oiAXUYtn6eykiEdHcEoS7tc63+YoFibw=
 github.com/go-sql-driver/mysql v1.6.0 h1:BCTh4TKNUYmOmMUcQ3IipzF5prigylS7XXjEkfCHuOE=
 github.com/go-sql-driver/mysql v1.6.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
 github.com/golang-jwt/jwt/v4 v4.5.0 h1:7cYmW1XlMY7h7ii7UhUyChSgS5wUJEnm9uZVTGqOWzg=
