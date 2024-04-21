@@ -507,7 +507,7 @@ func HasActiveSubscription(dealerId string) (bool, error) {
 	err := persistence.DB.Get(
 		&hasActiveSub,
 		"select exists(select * from subscriptions where state = $1 and account_id = $2)",
-		model.SubActive,
+		model.SubscriptionStateActive,
 		dealerId,
 	)
 

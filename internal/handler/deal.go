@@ -298,7 +298,6 @@ func saveDeal(c echo.Context) error {
 	}
 
 	deal.DealerId = userId
-	zap.L().Sugar().Debug("create deal: ", deal)
 
 	dealId, err := service.SaveDeal(deal)
 	if err != nil {
@@ -320,7 +319,17 @@ func saveDeal(c echo.Context) error {
 		}
 	}
 
-	c.Response().Header().Set("HX-Redirect", "/")
+	baseUrl := service.GetBaseUrl(c)
+	checkoutSession, err := service.DoStripePayment(userId.String(), deal.DurationInHours/24, baseUrl)
+	if err != nil {
+		zap.L().Sugar().Error("can't do stripe payment: ", err)
+	}
+
+	if checkoutSession != nil {
+		c.Response().Header().Set("HX-Redirect", checkoutSession.URL)
+	} else {
+		c.Response().Header().Set("HX-Redirect", "/")
+	}
 
 	return nil
 }

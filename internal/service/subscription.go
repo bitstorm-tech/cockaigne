@@ -13,7 +13,7 @@ func CreateSubscription(accountId string, planId int, stripeSubscriptionId strin
 		"insert into subscriptions (account_id, plan_id, state, stripe_checkout_session_id) values ($1, $2, $3, $4)",
 		accountId,
 		planId,
-		model.SubWaitingForActivation,
+		model.SubscriptionStateWaitingForActivation,
 		stripeSubscriptionId,
 	)
 
@@ -24,7 +24,7 @@ func ActivateSubscription(stripeCheckoutSessionId string, stripeSubscriptionId s
 	_, err := persistence.DB.Exec(
 		"update subscriptions set stripe_subscription_id = $1, state = $2, activated = now() where stripe_checkout_session_id = $3",
 		stripeSubscriptionId,
-		model.SubActive,
+		model.SubscriptionStateActive,
 		stripeCheckoutSessionId,
 	)
 
@@ -66,7 +66,7 @@ func GetFreeDaysPerMonthFromSubscription(dealerId string) (int, error) {
 	err := persistence.DB.Get(
 		&freeDaysPerMont,
 		"select coalesce((select free_days_per_month from subscriptions s join plans p on s.plan_id = p.id where state = $1 and account_id = $2), 0)",
-		model.SubActive,
+		model.SubscriptionStateActive,
 		dealerId,
 	)
 	if err != nil {

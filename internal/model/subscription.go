@@ -9,9 +9,9 @@ import (
 type SubscriptionState string
 
 const (
-	SubWaitingForActivation SubscriptionState = "WAITING_FOR_ACTIVATION"
-	SubActive               SubscriptionState = "ACTIVE"
-	SubCanceled             SubscriptionState = "CANCELED"
+	SubscriptionStateWaitingForActivation SubscriptionState = "WAITING_FOR_ACTIVATION"
+	SubscriptionStateActive               SubscriptionState = "ACTIVE"
+	SubscriptionStateCanceled             SubscriptionState = "CANCELED"
 )
 
 type Plan struct {

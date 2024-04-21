@@ -26,26 +26,38 @@ func subscribe(c echo.Context) error {
 	planId, err := strconv.Atoi(planIdString)
 	if err != nil {
 		zap.L().Sugar().Errorf("can't convert plan ID '%s' to integer: %v", planIdString, err)
-		return view.RenderAlert("Momentan können keine Abonemants abgeschlossen werden. Bitte versuche es später nochmal.", c)
+		return view.RenderAlert("Momentan können keine Abonnements abgeschlossen werden. Bitte versuche es später nochmal.", c)
 	}
 
 	plan, err := service.GetPlan(planId)
 	if err != nil {
-		zap.L().Sugar().Error("can't get plan: ", err)
-		return view.RenderAlert("Momentan können keine Abonemants abgeschlossen werden. Bitte versuche es später nochmal.", c)
+		zap.L().Sugar().Errorf("can't get plan (id=%s): %v", planIdString, err)
+		return view.RenderAlert("Momentan können keine Abonnements abgeschlossen werden. Bitte versuche es später nochmal.", c)
 	}
 
 	baseUrl := service.GetBaseUrl(c)
-	checkoutSession, err := service.CreateStripeCheckoutSession(plan.StripePriceId, baseUrl, accountId.String())
+	checkoutSession, err := service.CreateStripeCheckoutSessionForSubscription(plan.StripePriceId, baseUrl, accountId.String())
 	if err != nil {
-		zap.L().Sugar().Error("can't create stripe checkout session: ", err)
-		return view.RenderAlert("Momentan können keine Abonemants abgeschlossen werden. Bitte versuche es später nochmal.", c)
+		zap.L().Sugar().Errorf(
+			"can't create stripe checkout session (account=%s, plan=%s, stripePrice=%s, stripeProduct=%s): %v",
+			accountId,
+			planIdString,
+			plan.StripePriceId,
+			plan.StripeProductId,
+			err,
+		)
+		return view.RenderAlert("Momentan können keine Abonnements abgeschlossen werden. Bitte versuche es später nochmal.", c)
 	}
 
 	err = service.CreateSubscription(accountId.String(), planId, checkoutSession.ID)
 	if err != nil {
-		zap.L().Sugar().Error("can't create subscription: ", err)
-		return view.RenderAlert("Momentan können keine Abonemants abgeschlossen werden. Bitte versuche es später nochmal.", c)
+		zap.L().Sugar().Errorf(
+			"can't create subscription (account=%s, checkoutSession=%s): %v",
+			accountId,
+			checkoutSession.ID,
+			err,
+		)
+		return view.RenderAlert("Momentan können keine Abonnements abgeschlossen werden. Bitte versuche es später nochmal.", c)
 	}
 
 	c.Response().Header().Add("HX-Redirect", checkoutSession.URL)
