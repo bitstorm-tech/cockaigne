@@ -10,30 +10,37 @@ import (
 	"go.uber.org/zap"
 )
 
-type State string
+type DealPaymentState string
 
 const (
-	Active   State = "active"
-	Past     State = "past"
-	Future   State = "future"
-	Template State = "template"
+	DealPaymentStatePayed   DealPaymentState = "PAYED"
+	DealPaymentStatePending DealPaymentState = "PAYMENT_PENDING"
 )
 
-func ToState(state string) State {
+type DealState string
+
+const (
+	DealStateActive   DealState = "active"
+	DealStatePast     DealState = "past"
+	DealStateFuture   DealState = "future"
+	DealStateTemplate DealState = "template"
+)
+
+func ToDealState(state string) DealState {
 	switch strings.ToLower(state) {
 	case "active":
-		return Active
+		return DealStateActive
 	case "past":
-		return Past
+		return DealStatePast
 	case "future":
-		return Future
+		return DealStateFuture
 	case "template":
-		return Template
+		return DealStateTemplate
 	}
 
 	zap.L().Sugar().Warnf("invalid deal state (%s) -> use 'active' as default", state)
 
-	return Active
+	return DealStateActive
 }
 
 func GetColorById(id int) string {

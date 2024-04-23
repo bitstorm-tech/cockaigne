@@ -37,7 +37,7 @@ func CreateStripeCheckoutSessionForSubscription(priceId string, domain string, a
 	return s, nil
 }
 
-func createStripeCheckoutSessionForDynamicPrice(amount int64, days int, domain string) (*stripe.CheckoutSession, error) {
+func createStripeCheckoutSessionForDynamicPrice(amount int64, days int, domain string, dealId string) (*stripe.CheckoutSession, error) {
 	params := &stripe.CheckoutSessionParams{
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
@@ -52,7 +52,7 @@ func createStripeCheckoutSessionForDynamicPrice(amount int64, days int, domain s
 			},
 		},
 		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
-		SuccessURL: stripe.String(domain),
+		SuccessURL: stripe.String(domain + "/deal-payed/" + dealId),
 		CancelURL:  stripe.String(domain),
 	}
 
@@ -84,7 +84,7 @@ func CancelSubscription(stripeSubscriptionId string) error {
 	return err
 }
 
-func DoStripePayment(dealerId string, dealDays int, domain string) (*stripe.CheckoutSession, error) {
+func DoStripePayment(dealerId string, dealId string, dealDays int, domain string) (*stripe.CheckoutSession, error) {
 	hasActiveSub, err := HasActiveSubscription(dealerId)
 	if err != nil {
 		return nil, err
@@ -103,7 +103,7 @@ func DoStripePayment(dealerId string, dealDays int, domain string) (*stripe.Chec
 		daysToPay := dealDays - freeDaysLeft
 
 		amount := int64(daysToPay * 499)
-		return createStripeCheckoutSessionForDynamicPrice(amount, daysToPay, domain)
+		return createStripeCheckoutSessionForDynamicPrice(amount, daysToPay, domain, dealId)
 	}
 
 	discount, err := GetHighestVoucherDiscount(dealerId)
@@ -115,7 +115,7 @@ func DoStripePayment(dealerId string, dealDays int, domain string) (*stripe.Chec
 	amount = (amount * int64(100-discount)) / 100
 
 	if amount > 0 {
-		return createStripeCheckoutSessionForDynamicPrice(amount, dealDays, domain)
+		return createStripeCheckoutSessionForDynamicPrice(amount, dealDays, domain, dealId)
 	}
 
 	return nil, nil

@@ -35,10 +35,21 @@ func RegisterDealHandlers(e *echo.Echo) {
 	e.GET("/dealer-favorites-list", getFavoriteDealerDeals)
 	e.GET("/top-deals", openTopDealsPage)
 	e.GET("/ui/deals/report-modal/:id", getReportModal)
+	e.GET("/deal-payed/:id", markDealAsPayed)
 	e.POST("/deal-new-summary", openNewDealSummaryModal)
 	e.POST("/deal-report/:id", saveReport)
 	e.POST("/deals", saveDeal)
 	e.DELETE("/deal-favorite-remove/:id", removeFavorite)
+}
+
+func markDealAsPayed(c echo.Context) error {
+	dealId := c.Param("id")
+	err := service.MarkDealAsPayed(dealId)
+	if err != nil {
+		zap.L().Sugar().Errorf("can't mark deal (id=%s) as payed: %v", dealId, err)
+	}
+
+	return c.Redirect(http.StatusTemporaryRedirect, "/")
 }
 
 func openNewDealSummaryModal(c echo.Context) error {
@@ -146,7 +157,6 @@ func createSubscriptionModalParams(dealerId string, timesAndDates DealTimesAndDa
 	}
 
 	freeDaysLeft, err := service.GetFreeDaysLeftFromSubscription(dealerId)
-	zap.L().Sugar().Info("freeDaysLeft: ", freeDaysLeft)
 	if err != nil {
 		zap.L().Sugar().Error("can't get free days left from subscription: ", err)
 		params.Err = true
@@ -320,7 +330,7 @@ func saveDeal(c echo.Context) error {
 	}
 
 	baseUrl := service.GetBaseUrl(c)
-	checkoutSession, err := service.DoStripePayment(userId.String(), deal.DurationInHours/24, baseUrl)
+	checkoutSession, err := service.DoStripePayment(userId.String(), dealId.String(), deal.DurationInHours/24, baseUrl)
 	if err != nil {
 		zap.L().Sugar().Error("can't do stripe payment: ", err)
 	}
@@ -328,6 +338,10 @@ func saveDeal(c echo.Context) error {
 	if checkoutSession != nil {
 		c.Response().Header().Set("HX-Redirect", checkoutSession.URL)
 	} else {
+		err = service.MarkDealAsPayed(dealId.String())
+		if err != nil {
+			zap.L().Sugar().Errorf("can't mark deal (id=%s) as payed: %v", dealId, err)
+		}
 		c.Response().Header().Set("HX-Redirect", "/")
 	}
 
@@ -340,7 +354,7 @@ func getDealList(c echo.Context) error {
 		return redirect.Login(c)
 	}
 
-	state := model.ToState(c.Param("state"))
+	state := model.ToDealState(c.Param("state"))
 	dealerId := c.QueryParam("dealer_id")
 
 	headers, err := service.GetDealHeaders(state, &user, dealerId)

@@ -27,12 +27,12 @@ func processWebhookEvent(c echo.Context) error {
 
 	event, err := webhook.ConstructEvent(body, c.Request().Header.Get("Stripe-Signature"), webhookSecret)
 	if err != nil {
-		zap.L().Sugar().Error("can't construct stribe webhook event: ", err)
+		zap.L().Sugar().Error("can't construct stripe webhook event: ", err)
 		return err
 	}
 
-	if event.Type == stripe.EventTypeCheckoutSessionCompleted {
-		return checkoutSessionComplete(event)
+	if event.Type == stripe.EventTypeCustomerSubscriptionCreated {
+		return customerSubscriptionCreated(event)
 	}
 
 	if event.Type == stripe.EventTypeCustomerSubscriptionDeleted {
@@ -42,11 +42,11 @@ func processWebhookEvent(c echo.Context) error {
 	return nil
 }
 
-func checkoutSessionComplete(event stripe.Event) error {
+func customerSubscriptionCreated(event stripe.Event) error {
 	var session stripe.CheckoutSession
 	err := json.Unmarshal(event.Data.Raw, &session)
 	if err != nil {
-		zap.L().Sugar().Error("can't unmarschal checkout.session.completed data: ", err)
+		zap.L().Sugar().Error("can't unmarshal customer.subscription.created data: ", err)
 		return err
 	}
 
@@ -63,7 +63,7 @@ func customerSubscriptionDeleted(event stripe.Event) error {
 	var subscription stripe.Subscription
 	err := json.Unmarshal(event.Data.Raw, &subscription)
 	if err != nil {
-		zap.L().Sugar().Error("can't unmarschal customer.subscription.delete data: ", err)
+		zap.L().Sugar().Error("can't unmarshal customer.subscription.delete data: ", err)
 		return err
 	}
 

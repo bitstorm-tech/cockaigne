@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/bitstorm-tech/cockaigne/internal/redirect"
@@ -76,5 +77,5 @@ func subscribeCancel(c echo.Context) error {
 		zap.L().Sugar().Error("can't delete not activated subscription: ", err)
 	}
 
-	return c.Redirect(302, "/pricing")
+	return c.Redirect(http.StatusTemporaryRedirect, "/pricing")
 }

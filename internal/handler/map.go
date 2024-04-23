@@ -7,6 +7,7 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/view"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
+	"net/http"
 )
 
 func RegisterMapHandlers(e *echo.Echo) {
@@ -22,7 +23,7 @@ func openMap(c echo.Context) error {
 	}
 
 	if user.IsDealer {
-		return c.Redirect(301, "/")
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
 
 	if user.IsBasicUser {

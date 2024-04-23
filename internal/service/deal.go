@@ -38,13 +38,14 @@ func GetCategory(id int) (model.Category, error) {
 func SaveDeal(deal model.Deal) (uuid.UUID, error) {
 	var dealId uuid.UUID
 	err := persistence.DB.Get(&dealId,
-		"insert into deals (dealer_id, title, description, category_id, duration_in_hours, start, template) values ($1, $2, $3, $4, $5, $6, false) returning id",
+		"insert into deals (dealer_id, title, description, category_id, duration_in_hours, start, payment_state, template) values ($1, $2, $3, $4, $5, $6, $7, false) returning id",
 		deal.DealerId,
 		deal.Title,
 		deal.Description,
 		deal.CategoryId,
 		deal.DurationInHours,
 		deal.Start,
+		model.DealPaymentStatePending,
 	)
 
 	if err != nil {
@@ -222,18 +223,18 @@ func addSpatialFilterToQuery(user User, query *string) error {
 	return nil
 }
 
-func GetDealHeaders(state model.State, user *User, dealerId string) (model.DealHeaders, error) {
-	if state != model.Future && state != model.Active && state != model.Past && state != model.Template {
+func GetDealHeaders(state model.DealState, user *User, dealerId string) (model.DealHeaders, error) {
+	if state != model.DealStateFuture && state != model.DealStateActive && state != model.DealStatePast && state != model.DealStateTemplate {
 		return model.DealHeaders{}, fmt.Errorf("unknown deal state: %s", state)
 	}
 
 	query := "select id, title, username, dealer_id, category_id, start_time from active_deals_view"
 	switch state {
-	case model.Past:
+	case model.DealStatePast:
 		query = "select id, title, username, dealer_id, category_id, start_time from past_deals_view"
-	case model.Future:
+	case model.DealStateFuture:
 		query = "select id, title, username, dealer_id, category_id, start_time from future_deals_view"
-	case model.Template:
+	case model.DealStateTemplate:
 		query = "select d.id, d.title, a.username, d.dealer_id, d.category_id from deals d join accounts a on a.id = d.dealer_id where template = true"
 	}
 
@@ -598,4 +599,14 @@ func NewDealsAvailable(user User, oldDealIds []string) (bool, error) {
 	}
 
 	return newDealsAvailable > 0, nil
+}
+
+func MarkDealAsPayed(dealId string) error {
+	_, err := persistence.DB.Exec(
+		"update deals set payment_state = $1 where id = $2",
+		model.DealPaymentStatePayed,
+		dealId,
+	)
+
+	return err
 }

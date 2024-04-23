@@ -68,6 +68,7 @@ create table
     description       text        not null,
     category_id       integer     not null references categories (id) on delete restrict on update cascade,
     duration_in_hours integer     not null,
+    payment_state     text,
     "start"           timestamptz not null,
     "template"        boolean     not null default false,
     created           timestamptz not null default now()
@@ -271,6 +272,7 @@ from deals d
          left join like_counts_view c on c.deal_id = d.id
 where d.template = false
   and now() between d."start" and d."start" + (d.duration_in_hours || ' hours')::interval
+  and d.payment_state = 'PAYED'
 order by start_time;
 
 
@@ -293,6 +295,7 @@ from deals d
          left join like_counts_view c on c.deal_id = d.id
 where d.template = false
   and d."start" > now()
+  and d.payment_state = 'PAYED'
 order by start_time;
 
 
@@ -315,6 +318,7 @@ from deals d
          left join like_counts_view c on c.deal_id = d.id
 where d.template = false
   and (d."start" + (d.duration_in_hours || ' hours')::interval) < now()
+  and d.payment_state = 'PAYED'
 order by start_time;
 
 
