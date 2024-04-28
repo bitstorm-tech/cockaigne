@@ -44,8 +44,8 @@ templ FilterModal(categories []model.Category, favoriteCategoryIds []int, search
 				@CategoryList(categories, favoriteCategoryIds)
 			</div>
 			<div class="modal-action">
+				<button class="btn-primary btn-outline" hx-delete="/ui/remove" hx-target="#modal">Abbrechen</button>
 				<button>Speichern</button>
-				<button class="btn-primary" hx-delete="/ui/remove" hx-target="#modal">Abbrechen</button>
 			</div>
 		</form>
 		@filterScript(searchRadius, favoriteCategoryIds)

@@ -54,12 +54,11 @@ templ DealerRatingModal(rating model.DealerRating, edit bool) {
 			<div class="modal-action">
 				<div class="flex gap-2">
 					if edit {
+						<button class="btn-primary btn-outline" hx-delete={ "/dealer-rating/" + rating.DealerId.String() }>Löschen</button>
 						<button class="btn-warning" hx-post={ "/dealer-rating/" + rating.DealerId.String() }>Ändern</button>
-						<button class="btn-primary" hx-delete={ "/dealer-rating/" + rating.DealerId.String() }>Löschen</button>
 					} else {
 						<button class="btn-warning" hx-post={ "/dealer-rating/" + rating.DealerId.String() }>Bewerten</button>
 					}
-					<button class="btn-primary" hx-delete="/ui/remove" hx-target="#modal">Abbrechen</button>
 				</div>
 			</div>
 		</form>

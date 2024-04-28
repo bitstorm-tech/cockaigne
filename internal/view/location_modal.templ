@@ -32,8 +32,8 @@ templ LocationModal(useLocationService bool) {
 				</div>
 			</div>
 			<div class="modal-action">
+				<button class="btn-primary btn-outline" hx-delete="/ui/remove" hx-target="#modal">Abbrechen</button>
 				<button onClick="searchAddress">Speichern</button>
-				<button class="btn-primary" hx-delete="/ui/remove" hx-target="#modal">Abbrechen</button>
 			</div>
 		</form>
 		@locationModal(useLocationService)
