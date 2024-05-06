@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var webhookSecret = os.Getenv("WEBHOOK_SECRET")
+var webhookSecret = os.Getenv("STRIPE_WEBHOOK_SECRET")
 
 func RegisterStripeHandler(e *echo.Echo) {
 	e.POST("/api/stripe/webhook", processWebhookEvent)
