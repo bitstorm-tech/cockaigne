@@ -130,8 +130,6 @@ func login(c echo.Context) error {
 		return view.RenderAlert("Login gerade nicht möglich, bitte später nochmal versuchen.", c)
 	}
 
-	zap.L().Sugar().Debug("login attempt: ", request.Email)
-
 	acc, err := service.GetAccountByEmail(request.Email)
 	if err != nil {
 		zap.L().Sugar().Errorf("can't get account by email (%s): %v", request.Email, err)

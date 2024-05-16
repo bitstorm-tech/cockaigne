@@ -480,7 +480,10 @@ func GetTopDealHeaders(userId string, limit int) ([]model.DealHeader, error) {
 		return []model.DealHeader{}, err
 	}
 
-	query := fmt.Sprintf("select id, dealer_id, title, username, category_id from top_deals_view where st_within(location, %s) limit $1", filterGeom)
+	query := fmt.Sprintf(
+		"select id, dealer_id, title, username, category_id from top_deals_view where st_within(location, %s) limit $1",
+		filterGeom,
+	)
 
 	var header []model.DealHeader
 	err = persistence.DB.Select(
@@ -606,6 +609,16 @@ func MarkDealAsPayed(dealId string) error {
 		"update deals set payment_state = $1 where id = $2",
 		model.DealPaymentStatePayed,
 		dealId,
+	)
+
+	return err
+}
+
+func DealClicked(userId, dealId string) error {
+	_, err := persistence.DB.Exec(
+		"insert into deal_clicks (deal_id, account_id) values ($1, $2) on conflict do nothing",
+		dealId,
+		userId,
 	)
 
 	return err

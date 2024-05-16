@@ -8,24 +8,24 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 )
 
-func CreateSubscription(accountId string, planId int, stripeSubscriptionId string) error {
+func CreateSubscription(accountId string, planId int, stripeTrackingId string) error {
 	_, err := persistence.DB.Exec(
-		"insert into subscriptions (account_id, plan_id, state, stripe_checkout_session_id) values ($1, $2, $3, $4)",
+		"insert into subscriptions (account_id, plan_id, state, stripe_tracking_id) values ($1, $2, $3, $4)",
 		accountId,
 		planId,
 		model.SubscriptionStateWaitingForActivation,
-		stripeSubscriptionId,
+		stripeTrackingId,
 	)
 
 	return err
 }
 
-func ActivateSubscription(stripeCheckoutSessionId string, stripeSubscriptionId string) error {
+func ActivateSubscription(trackingId string, stripeSubscriptionId string) error {
 	_, err := persistence.DB.Exec(
-		"update subscriptions set stripe_subscription_id = $1, state = $2, activated = now() where stripe_checkout_session_id = $3",
-		stripeSubscriptionId,
+		"update subscriptions set state = $1, activated = now(), stripe_subscription_id = $2 where stripe_tracking_id = $3",
 		model.SubscriptionStateActive,
-		stripeCheckoutSessionId,
+		stripeSubscriptionId,
+		trackingId,
 	)
 
 	return err

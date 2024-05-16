@@ -14,7 +14,7 @@ import (
 func RegisterSubscriptionHandler(e *echo.Echo) {
 	e.POST("/subscribe/:planId", subscribe)
 	e.GET("/subscribe-success", subscribeSuccess)
-	e.GET("/subscribe-cancel/:accountId", subscribeCancel)
+	e.GET("/subscribe-cancel/:trackingId", subscribeCancel)
 }
 
 func subscribe(c echo.Context) error {
@@ -37,7 +37,7 @@ func subscribe(c echo.Context) error {
 	}
 
 	baseUrl := service.GetBaseUrl(c)
-	checkoutSession, err := service.CreateStripeCheckoutSessionForSubscription(plan.StripePriceId, baseUrl, accountId.String())
+	checkoutSession, err := service.CreateStripeCheckoutSessionForSubscription(plan.StripePriceId, baseUrl)
 	if err != nil {
 		zap.L().Sugar().Errorf(
 			"can't create stripe checkout session (account=%s, plan=%s, stripePrice=%s, stripeProduct=%s): %v",
@@ -50,7 +50,7 @@ func subscribe(c echo.Context) error {
 		return view.RenderAlert("Momentan können keine Abonnements abgeschlossen werden. Bitte versuche es später nochmal.", c)
 	}
 
-	err = service.CreateSubscription(accountId.String(), planId, checkoutSession.ID)
+	err = service.CreateSubscription(accountId.String(), planId, checkoutSession.Metadata[service.StripeMetadataTrackingId])
 	if err != nil {
 		zap.L().Sugar().Errorf(
 			"can't create subscription (account=%s, checkoutSession=%s): %v",
@@ -71,8 +71,8 @@ func subscribeSuccess(c echo.Context) error {
 }
 
 func subscribeCancel(c echo.Context) error {
-	accountId := c.Param("accountId")
-	err := service.DeleteNotActivatedSubscription(accountId)
+	trackingId := c.Param("trackingId")
+	err := service.DeleteNotActivatedSubscription(trackingId)
 	if err != nil {
 		zap.L().Sugar().Error("can't delete not activated subscription: ", err)
 	}

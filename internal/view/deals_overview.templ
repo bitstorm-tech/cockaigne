@@ -59,9 +59,10 @@ templ SubscriptionSummary(freeDaysLeft string, periodEndDate string, err bool) {
 				<div class="text-xs text-right">Verfügbar bis { periodEndDate }</div>
 			</div>
 		} else {
-			<div class="flex flex-col">
-				<span class="text-sm">Kein Abo abgeschlossen. 4,99 EUR pro Dealtag.</span>
-				<a class="link text-xs text-center" href="/pricing">Jetzt Abo abschließen und Geld sparen!</a>
+			<div class="flex flex-col text-sm text-center">
+				<span>Kein Abo abgeschlossen.</span>
+				<span>4,99 EUR pro Dealtag.</span>
+				<a class="link text-xs" href="/pricing">Jetzt Abo abschließen und Geld sparen!</a>
 			</div>
 		}
 	}

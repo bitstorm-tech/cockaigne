@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"os"
 	"time"
 
@@ -16,7 +17,10 @@ func init() {
 	stripe.Key = os.Getenv("STRIPE_PRIVATE_API_KEY")
 }
 
-func CreateStripeCheckoutSessionForSubscription(priceId string, domain string, accountId string) (*stripe.CheckoutSession, error) {
+const StripeMetadataTrackingId = "trackingId"
+
+func CreateStripeCheckoutSessionForSubscription(priceId string, domain string) (*stripe.CheckoutSession, error) {
+	trackingId := uuid.New().String()
 	params := &stripe.CheckoutSessionParams{
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
@@ -24,9 +28,12 @@ func CreateStripeCheckoutSessionForSubscription(priceId string, domain string, a
 				Quantity: stripe.Int64(1),
 			},
 		},
+		Metadata: map[string]string{
+			StripeMetadataTrackingId: trackingId,
+		},
 		Mode:       stripe.String(string(stripe.CheckoutSessionModeSubscription)),
 		SuccessURL: stripe.String(domain + "/subscribe-success"),
-		CancelURL:  stripe.String(domain + "/subscribe-cancel/" + accountId),
+		CancelURL:  stripe.String(domain + "/subscribe-cancel/" + trackingId),
 	}
 
 	s, err := session.New(params)
@@ -64,10 +71,10 @@ func createStripeCheckoutSessionForDynamicPrice(amount int64, days int, domain s
 	return s, nil
 }
 
-func DeleteNotActivatedSubscription(accountId string) error {
+func DeleteNotActivatedSubscription(trackingId string) error {
 	_, err := persistence.DB.Exec(
-		"delete from subscriptions where account_id = $1 and state = $2",
-		accountId,
+		"delete from subscriptions where stripe_tracking_id = $1 and state = $2",
+		trackingId,
 		model.SubscriptionStateWaitingForActivation,
 	)
 	return err

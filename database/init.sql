@@ -11,8 +11,7 @@ begin;
 -- Table definitions
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-create table
-    categories
+create table categories
 (
     id        integer primary key,
     name      text    not null,
@@ -21,8 +20,7 @@ create table
 
 
 
-create table
-    accounts
+create table accounts
 (
     id                      uuid                         not null default public.uuid_generate_v4() primary key,
     username                text                         not null,
@@ -49,18 +47,12 @@ create table
     created                 timestamptz                  not null default now()
 );
 
-
-
 create unique index accounts_username_idx on accounts (lower(username));
-
-
-
 create index accounts_location_idx on accounts using GIST (location);
 
 
 
-create table
-    deals
+create table deals
 (
     id                uuid        not null default public.uuid_generate_v4() primary key,
     dealer_id         uuid        not null references accounts (id) on delete restrict on update cascade,
@@ -76,8 +68,7 @@ create table
 
 
 
-create table
-    dealer_ratings
+create table dealer_ratings
 (
     user_id   uuid        not null references accounts (id) on delete restrict on update cascade,
     dealer_id uuid        not null references accounts (id) on delete restrict on update cascade,
@@ -89,8 +80,7 @@ create table
 
 
 
-create table
-    favorite_deals
+create table favorite_deals
 (
     user_id uuid        not null references accounts (id) on delete restrict on update cascade,
     deal_id uuid        not null references deals (id) on delete restrict on update cascade,
@@ -100,8 +90,7 @@ create table
 
 
 
-create table
-    reported_deals
+create table reported_deals
 (
     reporter_id uuid        not null references accounts (id) on delete restrict on update cascade,
     deal_id     uuid        not null references deals (id) on delete restrict on update cascade,
@@ -112,8 +101,7 @@ create table
 
 
 
-create table
-    favorite_dealers
+create table favorite_dealers
 (
     user_id   uuid        not null references accounts (id) on delete restrict on update cascade,
     dealer_id uuid        not null references accounts (id) on delete restrict on update cascade,
@@ -123,8 +111,7 @@ create table
 
 
 
-create table
-    likes
+create table likes
 (
     user_id uuid        not null references accounts (id) on delete restrict on update cascade,
     deal_id uuid        not null references deals (id) on delete restrict on update cascade,
@@ -134,8 +121,7 @@ create table
 
 
 
-create table
-    selected_categories
+create table selected_categories
 (
     user_id     uuid        not null references accounts (id) on delete restrict on update cascade,
     category_id integer     not null references categories (id) on delete restrict on update cascade,
@@ -145,8 +131,7 @@ create table
 
 
 
-create table
-    vouchers
+create table vouchers
 (
     code                text        not null primary key,
     discount_in_percent int         not null,
@@ -160,8 +145,7 @@ create table
 
 
 
-create table
-    redeemed_vouchers
+create table redeemed_vouchers
 (
     account_id  uuid        not null references accounts (id) on delete restrict on update cascade,
     code        text        not null references vouchers (code) on delete restrict on update cascade,
@@ -171,8 +155,7 @@ create table
 
 
 
-create table
-    plans
+create table plans
 (
     id                  serial primary key,
     name                text      not null,
@@ -185,29 +168,46 @@ create table
 
 
 
-create table
-    subscriptions
+create table subscriptions
 (
-    id                         serial primary key,
-    account_id                 uuid        not null references accounts (id) on delete restrict on update cascade,
-    plan_id                    integer     not null references plans (id) on delete restrict on update cascade,
-    stripe_subscription_id     text        null,
-    stripe_checkout_session_id text        null,
-    state                      text        not null,
-    created                    timestamptz not null default now(),
-    activated                  timestamptz null,
-    canceled                   timestamptz null,
+    id                     serial primary key,
+    account_id             uuid        not null references accounts (id) on delete restrict on update cascade,
+    plan_id                integer     not null references plans (id) on delete restrict on update cascade,
+    stripe_subscription_id text        null,
+    stripe_tracking_id     uuid        null,
+    state                  text        not null,
+    created                timestamptz not null default now(),
+    activated              timestamptz null,
+    canceled               timestamptz null,
     constraint "account_subscription_key" unique (account_id, stripe_subscription_id)
 );
 
 
 
-create table
-    contact_messages
+create table contact_messages
 (
     account_id uuid        not null references accounts (id) on delete restrict on update cascade,
     message    text        not null,
     created    timestamptz not null default now()
+);
+
+
+
+create table contact_messages
+(
+    account_id uuid        not null references accounts (id) on delete restrict on update cascade,
+    message    text        not null,
+    created    timestamptz not null default now()
+);
+
+
+
+create table deal_clicks
+(
+    deal_id    uuid        not null references deals (id),
+    account_id uuid        not null references accounts (id),
+    clicked    timestamptz not null default now(),
+    constraint "deal_id_account_id_key" unique (deal_id, account_id)
 );
 
 
@@ -217,8 +217,7 @@ create table
 -- View definitions
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-create or replace view
-    like_counts_view as
+create or replace view like_counts_view as
 select deal_id,
        count(deal_id) as likecount
 from likes
@@ -227,8 +226,7 @@ order by likecount desc;
 
 
 
-create or replace view
-    favorite_counts_view as
+create or replace view favorite_counts_view as
 select deal_id,
        count(deal_id) as favoritecount
 from favorite_deals
@@ -237,8 +235,7 @@ order by favoritecount desc;
 
 
 
-create or replace view
-    dealer_view as
+create or replace view dealer_view as
 select a.id,
        a.username,
        a.street,
@@ -254,8 +251,7 @@ where is_dealer is true;
 
 
 
-create or replace view
-    active_deals_view as
+create or replace view active_deals_view as
 select d.id,
        d.dealer_id,
        d.title,
@@ -277,8 +273,7 @@ order by start_time;
 
 
 
-create or replace view
-    future_deals_view as
+create or replace view future_deals_view as
 select d.id,
        d.dealer_id,
        d.title,
@@ -300,8 +295,7 @@ order by start_time;
 
 
 
-create or replace view
-    past_deals_view as
+create or replace view past_deals_view as
 select d.id,
        d.dealer_id,
        d.title,
@@ -323,8 +317,7 @@ order by start_time;
 
 
 
-create or replace view
-    top_deals_view as
+create or replace view top_deals_view as
 select id,
        title,
        username,
@@ -340,8 +333,7 @@ order by likes desc,
          favorites desc;
 
 
-create or replace view
-    dealer_ratings_view as
+create or replace view dealer_ratings_view as
 select r.user_id,
        r.dealer_id,
        r.stars,
@@ -353,8 +345,7 @@ from dealer_ratings r
 
 
 
-create or replace view
-    favorite_dealers_view as
+create or replace view favorite_dealers_view as
 select f.user_id,
        f.dealer_id,
        a.username
@@ -363,8 +354,7 @@ from favorite_dealers f
 
 
 
-create or replace view
-    invoice_metadata_view as
+create or replace view invoice_metadata_view as
 select d.dealer_id,
        extract(
                year
@@ -387,8 +377,7 @@ group by d.dealer_id,
 
 
 
-create or replace view
-    active_vouchers_view as
+create or replace view active_vouchers_view as
 select rv.account_id,
        v.code,
        v.start,

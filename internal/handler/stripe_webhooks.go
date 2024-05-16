@@ -31,28 +31,32 @@ func processWebhookEvent(c echo.Context) error {
 		return err
 	}
 
-	if event.Type == stripe.EventTypeCustomerSubscriptionCreated {
+	switch event.Type {
+	case stripe.EventTypeCustomerSubscriptionCreated:
 		return customerSubscriptionCreated(event)
-	}
 
-	if event.Type == stripe.EventTypeCustomerSubscriptionDeleted {
+	case stripe.EventTypeCustomerSubscriptionUpdated:
+		return customerSubscriptionUpdated(event)
+
+	case stripe.EventTypeCustomerSubscriptionDeleted:
 		return customerSubscriptionDeleted(event)
+
+	case stripe.EventTypeCheckoutSessionCompleted:
+		return checkoutSessionCompleted(event)
 	}
 
 	return nil
 }
 
 func customerSubscriptionCreated(event stripe.Event) error {
-	var session stripe.CheckoutSession
-	err := json.Unmarshal(event.Data.Raw, &session)
-	if err != nil {
-		zap.L().Sugar().Error("can't unmarshal customer.subscription.created data: ", err)
-		return err
-	}
+	return nil
+}
 
-	err = service.ActivateSubscription(session.ID, session.Subscription.ID)
+func customerSubscriptionUpdated(event stripe.Event) error {
+	var subscription stripe.Subscription
+	err := json.Unmarshal(event.Data.Raw, &subscription)
 	if err != nil {
-		zap.L().Sugar().Error("can't activate subscription: ", err)
+		zap.L().Sugar().Error("can't unmarshal customer.subscription.updated data: ", err)
 		return err
 	}
 
@@ -70,6 +74,29 @@ func customerSubscriptionDeleted(event stripe.Event) error {
 	err = service.CancelSubscription(subscription.ID)
 	if err != nil {
 		zap.L().Sugar().Errorf("can't cancel subscription (%s): %v", subscription.ID, err)
+		return err
+	}
+
+	return nil
+}
+
+func checkoutSessionCompleted(event stripe.Event) error {
+	var checkoutSession stripe.CheckoutSession
+	err := json.Unmarshal(event.Data.Raw, &checkoutSession)
+	if err != nil {
+		zap.L().Sugar().Error("can't unmarshal checkout.session.completed data: ", err)
+		return err
+	}
+
+	if checkoutSession.Subscription == nil {
+		return nil
+	}
+
+	trackingId := checkoutSession.Metadata[service.StripeMetadataTrackingId]
+	subscriptionId := checkoutSession.Subscription.ID
+	err = service.ActivateSubscription(trackingId, subscriptionId)
+	if err != nil {
+		zap.L().Sugar().Errorf("can't update subscription (trackingId=%s, subscriptionId=%s): %v", trackingId, subscriptionId, err)
 		return err
 	}
 

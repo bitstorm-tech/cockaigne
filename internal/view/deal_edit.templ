@@ -155,7 +155,7 @@ templ DealEdit(deal model.Deal) {
 			//   <!-- Save and cancel -->
 			//   <!--------------------->
 			<div class="grid grid-cols-2 gap-2">
-				<a href="/" class="btn btn-primary">Abrechen</a>
+				<a href="/" class="btn btn-primary btn-outline">Abbrechen</a>
 				<button hx-post="/deal-new-summary" hx-target="#summary-modal">Erstellen</button>
 			</div>
 			<div id="summary-modal"></div>
@@ -218,7 +218,7 @@ templ NewDealSummaryModal(params NewDealSummaryModalParameter) {
 					<span class="text-xl">Kosten: { params.Price } €</span>
 					<span class="text-xs">
 						Du hast deine freien Tage für diese Monatsperiode aufgebraucht.
-						Falls du mehr freie Tage benötigst, kannst du auf ein größeres Abo umsteingen:
+						Falls du mehr freie Tage benötigst, kannst du auf ein größeres Abo umsteigen:
 						<a class="underline" href="/pricing">Abo wählen</a>
 					</span>
 				} else {
@@ -249,11 +249,11 @@ templ NewDealSummaryModal(params NewDealSummaryModalParameter) {
 				</span>
 			</div>
 		}
-		<div class="modal-action">
-			<button>Jetzt starten!</button>
+		<div class="grid grid-cols-2 gap-2 mt-8">
 			<button class="btn-primary" hx-delete="/ui/remove" hx-target="#summary-modal">
 				Nochmal überarbeiten
 			</button>
+			<button class="btn-warning">Jetzt starten!</button>
 		</div>
 	}
 }
