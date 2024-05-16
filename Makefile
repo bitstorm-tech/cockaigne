@@ -5,11 +5,10 @@ install_goose:
 	go install github.com/pressly/goose/v3/cmd/goose@latest
 
 database_migration: install_goose
-	printenv
 	export GOOSE_DRIVER=postgres
 	export GOOSE_DBSTRING="user=$PG_USER password=$PG_PASSWORD dbname=$PG_DATABASE sslmode=disable"
 	export GOOSE_MIGRATION_DIR=database/migrations
-	goose up
+	goose -v up
 
 generate_templ:
 	templ generate -path ./internal/view
