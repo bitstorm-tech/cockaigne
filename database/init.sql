@@ -202,16 +202,6 @@ create table contact_messages
 
 
 
-create table deal_clicks
-(
-    deal_id    uuid        not null references deals (id),
-    account_id uuid        not null references accounts (id),
-    clicked    timestamptz not null default now(),
-    constraint "deal_id_account_id_key" unique (deal_id, account_id)
-);
-
-
-
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 -- View definitions
