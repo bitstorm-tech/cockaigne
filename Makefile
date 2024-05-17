@@ -6,7 +6,7 @@ install_goose:
 
 database_migration: install_goose
 	GOOSE_DRIVER=postgres \
-	GOOSE_DBSTRING="user=${PG_USER} password=${PG_PASSWORD} dbname=${PG_DATABASE} sslmode=disable" \
+	GOOSE_DBSTRING="user=${PG_USER} password=${PG_PASSWORD} dbname=${PG_DATABASE} host=${PG_HOST} sslmode=disable" \
 	GOOSE_MIGRATION_DIR=database/migrations \
 	goose up
 
