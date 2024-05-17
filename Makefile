@@ -4,10 +4,11 @@ install_templ:
 install_goose:
 	go install github.com/pressly/goose/v3/cmd/goose@latest
 
+.ONESHELL:
 database_migration: install_goose
-	GOOSE_DRIVER=postgres \
-	GOOSE_DBSTRING="user=${PG_USER} password=${PG_PASSWORD} dbname=${PG_DATABASE} host=${PG_HOST} sslmode=disable" \
-	GOOSE_MIGRATION_DIR=database/migrations \
+	@export GOOSE_DRIVER=postgres
+	@export GOOSE_DBSTRING="user=${PG_USER} password=${PG_PASSWORD} dbname=${PG_DATABASE} host=${PG_HOST} sslmode=disable"
+	@export GOOSE_MIGRATION_DIR=database/migrations
 	goose up
 
 generate_templ:
