@@ -1,0 +1,39 @@
+package view
+
+import "github.com/bitstorm-tech/cockaigne/internal/model"
+import "fmt"
+
+templ DealStatistics(statistics model.DealStatistics) {
+	@BaseLayout() {
+		<div class="m-6">
+			<h1 class="text-center">Deal Statistiken</h1>
+			<table class="table-auto">
+				<tr>
+					<th class="p-4 text-start">Titel</th>
+					<td>{ statistics.Title }</td>
+				</tr>
+				<tr>
+					<th class="p-4 text-start">Start</th>
+					<td>{ statistics.Start.Format("02.01.2006") }</td>
+				</tr>
+				<tr>
+					<th class="p-4 text-start">Dauer</th>
+					<td>{ fmt.Sprintf("%d", statistics.DurationInHours/8) } Tag(e)</td>
+				</tr>
+				<tr>
+					<th class="p-4 text-start">Aufrufe</th>
+					<td>{ fmt.Sprintf("%d", statistics.ClickCount) }</td>
+				</tr>
+				<tr>
+					<th class="p-4 text-start">Likes</th>
+					<td>{ fmt.Sprintf("%d", statistics.LikeCount) }</td>
+				</tr>
+				<tr>
+					<th class="p-4 text-start">Favoriten</th>
+					<td>{ fmt.Sprintf("%d", statistics.FavoriteCount) }</td>
+				</tr>
+			</table>
+			<a class="btn btn-warning mt-4 w-full" href="/deal-overview">Zurück</a>
+		</div>
+	}
+}

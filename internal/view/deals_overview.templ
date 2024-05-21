@@ -13,7 +13,7 @@ templ DealsOverview(dealerId, freeDaysLeft, periodEndDate string) {
 			<div x-data="{selectedTab: 0}">
 				<div class="tabs tabs-bordered">
 					<div
-						hx-get={ "/deals/active?hide_name=true&dealer_id=" + dealerId }
+						hx-get={ "/deals/active?hide_name=true&show_statistics=true&dealer_id=" + dealerId }
 						hx-target="#content"
 						hx-trigger="click, load"
 						@click="selectedTab = 0"
@@ -23,7 +23,7 @@ templ DealsOverview(dealerId, freeDaysLeft, periodEndDate string) {
 						Aktiv
 					</div>
 					<div
-						hx-get={ "/deals/future?hide_name=true&dealer_id=" + dealerId }
+						hx-get={ "/deals/future?hide_name=true&show_statistics=true&dealer_id=" + dealerId }
 						hx-target="#content"
 						hx-trigger="click"
 						@click="selectedTab = 1"
@@ -33,7 +33,7 @@ templ DealsOverview(dealerId, freeDaysLeft, periodEndDate string) {
 						Geplant
 					</div>
 					<div
-						hx-get={ "/deals/past?hide_name=true&dealer_id=" + dealerId }
+						hx-get={ "/deals/past?hide_name=true&show_statistics=true&dealer_id=" + dealerId }
 						hx-target="#content"
 						hx-trigger="click"
 						@click="selectedTab = 2"

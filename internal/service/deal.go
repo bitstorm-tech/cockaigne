@@ -623,3 +623,14 @@ func DealClicked(userId, dealId string) error {
 
 	return err
 }
+
+func GetDealStatistics(dealId string) (model.DealStatistics, error) {
+	var statistics model.DealStatistics
+	err := persistence.DB.Get(
+		&statistics,
+		"select * from statistics_view where deal_id=$1",
+		dealId,
+	)
+
+	return statistics, err
+}

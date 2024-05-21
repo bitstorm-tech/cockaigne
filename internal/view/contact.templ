@@ -14,8 +14,8 @@ templ Contact() {
 				<textarea id="message" name="message" x-model="message" rows="10" maxlength="1000"></textarea>
 			</div>
 			<div class="grid grid-cols-2 gap-4">
-				<button :disabled="message.length === 0">Absenden</button>
 				<a class="btn btn-primary" href="/">Zurück</a>
+				<button :disabled="message.length === 0">Absenden</button>
 			</div>
 		</form>
 	}

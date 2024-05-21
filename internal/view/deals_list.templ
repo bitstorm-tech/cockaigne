@@ -15,7 +15,17 @@ const (
 	DealListDealer
 )
 
-templ DealsList(listType DealListType, user service.User, dealHeaders []model.DealHeader, hideName bool, showFavoriteToggle bool, removeFavorite bool, canEdit bool) {
+type ActionButtonType int
+
+const (
+	ActionButtonFavoriteToggle ActionButtonType = iota
+	ActionButtonRemoveFavorite
+	ActionButtonEdit
+	ActionButtonStatistics
+	ActionButtonNone
+)
+
+templ DealsList(listType DealListType, user service.User, dealHeaders []model.DealHeader, hideName bool, actionButtonType ActionButtonType) {
 	<div class="flex flex-col gap-2" x-data="{openDetailsId: ''}">
 		if user.IsBasicUser && (listType == DealListUserFavoriteDealerDeals || listType == DealListUserFavoriteDeals || listType == DealListTopDeals) {
 			<div class="flex flex-col p-4 text-center gap-8">
@@ -38,7 +48,7 @@ templ DealsList(listType DealListType, user service.User, dealHeaders []model.De
 				</div>
 			}
 			for _, header := range dealHeaders {
-				@dealHeader(user, header, hideName, showFavoriteToggle, removeFavorite, canEdit)
+				@dealHeader(user, header, hideName, actionButtonType)
 			}
 		}
 	</div>
@@ -48,7 +58,7 @@ templ DealsList(listType DealListType, user service.User, dealHeaders []model.De
 	@dealListScript(dealHeaders)
 }
 
-templ dealHeader(user service.User, header model.DealHeader, hideName bool, showFavoriteToggle bool, removeFavorite bool, canEdit bool) {
+templ dealHeader(user service.User, header model.DealHeader, hideName bool, actionButtonType ActionButtonType) {
 	<div id={ "deal-" + header.ID.String() }>
 		if !hideName {
 			<div class="flex items-center justify-between bg-[#232b2e] px-2 py-0.5">
@@ -68,21 +78,30 @@ templ dealHeader(user service.User, header model.DealHeader, hideName bool, show
 				@icon.DealIcon(header.CategoryId)
 				<span>{ header.Title }</span>
 			</div>
-			if canEdit {
-				<a class="clean" @click.stop="" href={ templ.SafeURL("/deal/" + header.ID.String()) }>
-					<img src="/static/images/icons/cog.svg" alt="Deal Einstellungen" class="h-5"/>
-				</a>
-			} else if showFavoriteToggle && !user.IsDealer {
-				if removeFavorite {
-					@DealFavoriteRemoveButton(header.ID.String())
-				} else {
-					<div
-						hx-get={ "/deal-favorite-button/" + header.ID.String() }
-						hx-trigger="load once"
-						hx-target="this"
-						hx-swap="outerHTML"
-					></div>
-				}
+			switch actionButtonType {
+				case ActionButtonEdit:
+					<a class="clean" @click.stop="" href={ templ.SafeURL("/deal/" + header.ID.String()) }>
+						<img src="/static/images/icons/cog.svg" alt="Deal Einstellungen" class="h-5"/>
+					</a>
+				case ActionButtonFavoriteToggle:
+					if !user.IsDealer {
+						<div
+							hx-get={ "/deal-favorite-button/" + header.ID.String() }
+							hx-trigger="load once"
+							hx-target="this"
+							hx-swap="outerHTML"
+						></div>
+					}
+				case ActionButtonRemoveFavorite:
+					if !user.IsDealer {
+						@DealFavoriteRemoveButton(header.ID.String())
+					}
+				case ActionButtonStatistics:
+					<a href={ templ.URL("/deal-statistics/" + header.ID.String()) }>
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5m.75-9 3-3 2.148 2.148A12.061 12.061 0 0 1 16.5 7.605"></path>
+						</svg>
+					</a>
 			}
 		</div>
 		<div
@@ -120,7 +139,9 @@ templ NewDealsButton() {
 }
 
 templ DealDetailsFooter(dealDetails model.DealDetails, imageUrls []string, isDealer bool, likes string) {
-	<span>{ dealDetails.Description }</span>
+	<span hx-get={ "/deal-viewed/" + dealDetails.ID.String() } hx-trigger="intersect once" hx-swap="none" hx-target="this">
+		{ dealDetails.Description }
+	</span>
 	<div class="grid grid-cols-3 gap-1 py-2">
 		for i, url := range imageUrls {
 			<img

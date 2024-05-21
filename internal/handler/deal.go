@@ -26,8 +26,10 @@ func RegisterDealHandlers(e *echo.Echo) {
 	e.GET("/deals/:state", getDealList)
 	e.GET("/deals-top/:limit", getTopDealsList)
 	e.GET("/api/deals", getDealsAsJson)
+	e.GET("/deal-statistics/:id", openDealStatisticsPage)
 	e.GET("/deal-details/:id", getDealDetails)
 	e.GET("/deal-likes/:id", toggleDealLike)
+	e.GET("/deal-viewed/:id", dealViewed)
 	e.GET("/deal-favorite-button/:id", getDealFavoriteButton)
 	e.GET("/deal-favorite-toggle/:id", toggleFavorite)
 	e.GET("/deal-favorites-list", getFavoriteDeals)
@@ -40,6 +42,42 @@ func RegisterDealHandlers(e *echo.Echo) {
 	e.POST("/deal-report/:id", saveReport)
 	e.POST("/deals", saveDeal)
 	e.DELETE("/deal-favorite-remove/:id", removeFavorite)
+}
+
+func dealViewed(c echo.Context) error {
+	user, err := service.ParseUser(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	dealId := c.Param("id")
+
+	if !user.IsBasicUser && !user.IsDealer {
+		service.DealClicked(user.ID.String(), dealId)
+	}
+
+	return nil
+}
+
+func openDealStatisticsPage(c echo.Context) error {
+	user, err := service.ParseUser(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	dealId := c.Param("id")
+	dealStatistics, err := service.GetDealStatistics(dealId)
+	if err != nil {
+		zap.L().Sugar().Error("can't get deal statistics: ", err)
+		return view.RenderAlert("Momentan können keine Statistiken abgerufen werden, bitte versuche es später noch einmal", c)
+	}
+
+	if dealStatistics.DealerId.String() != user.ID.String() {
+		zap.L().Sugar().Errorf("can't show deal statistics, deal (id=%s) does not belong to dealer (id=%s)", dealStatistics.DealId, user.ID)
+		return view.RenderAlert("Sie sind nicht berechtigt die Statistiken dieses Deals zu Sehen!", c)
+	}
+
+	return view.Render(view.DealStatistics(dealStatistics), c)
 }
 
 func markDealAsPayed(c echo.Context) error {
@@ -219,7 +257,7 @@ func getTopDealsList(c echo.Context) error {
 		return view.RenderAlert("Kann momentan die top Deals nicht laden. Bitte versuche es später nochmal.", c)
 	}
 
-	return view.Render(view.DealsList(view.DealListTopDeals, user, header, false, true, false, false), c)
+	return view.Render(view.DealsList(view.DealListTopDeals, user, header, false, view.ActionButtonFavoriteToggle), c)
 }
 
 func openTopDealsPage(c echo.Context) error {
@@ -238,7 +276,7 @@ func getFavoriteDealerDeals(c echo.Context) error {
 		return view.RenderAlert("Kann favorisierte Dealer Deals nicht laden, bitte später nochmal versuchen.", c)
 	}
 
-	return view.Render(view.DealsList(view.DealListUserFavoriteDealerDeals, user, headers, false, false, false, false), c)
+	return view.Render(view.DealsList(view.DealListUserFavoriteDealerDeals, user, headers, false, view.ActionButtonNone), c)
 }
 
 func getFavoriteDeals(c echo.Context) error {
@@ -253,7 +291,7 @@ func getFavoriteDeals(c echo.Context) error {
 		return view.RenderAlert("Kann favorisierte Deals aktuell nicht laden, bitte später nochmal versuchen.", c)
 	}
 
-	return view.Render(view.DealsList(view.DealListUserFavoriteDeals, user, headers, false, true, true, false), c)
+	return view.Render(view.DealsList(view.DealListUserFavoriteDeals, user, headers, false, view.ActionButtonRemoveFavorite), c)
 }
 
 func openDealCreatePage(c echo.Context) error {
@@ -363,15 +401,24 @@ func getDealList(c echo.Context) error {
 		return view.RenderAlert(err.Error(), c)
 	}
 
-	hideName := c.QueryParam("hide_name") == "true"
-	canEdit := c.QueryParam("can_edit") == "true"
-
 	dealListType := view.DealListUserDeals
 	if len(dealerId) > 0 {
 		dealListType = view.DealListDealer
 	}
 
-	return view.Render(view.DealsList(dealListType, user, headers, hideName, true, false, canEdit), c)
+	hideName := c.QueryParam("hide_name") == "true"
+	canEdit := c.QueryParam("can_edit") == "true"
+	showStatistics := c.QueryParam("show_statistics") == "true"
+
+	actionButton := view.ActionButtonFavoriteToggle
+	if canEdit {
+		actionButton = view.ActionButtonEdit
+	}
+	if showStatistics {
+		actionButton = view.ActionButtonStatistics
+	}
+
+	return view.Render(view.DealsList(dealListType, user, headers, hideName, actionButton), c)
 }
 
 type DealJson struct {

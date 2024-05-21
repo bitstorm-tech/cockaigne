@@ -232,3 +232,14 @@ type DealReport struct {
 	Title  string
 	Reason string
 }
+
+type DealStatistics struct {
+	DealId          uuid.UUID `db:"deal_id"`
+	DealerId        uuid.UUID `db:"dealer_id"`
+	Title           string
+	Start           time.Time
+	DurationInHours int `db:"duration_in_hours"`
+	LikeCount       int
+	FavoriteCount   int
+	ClickCount      int
+}
