@@ -3,6 +3,8 @@ package main
 import (
 	"os"
 
+	"github.com/bitstorm-tech/cockaigne/internal/service"
+
 	"github.com/bitstorm-tech/cockaigne/internal/handler"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	_ "github.com/joho/godotenv/autoload"
@@ -32,6 +34,8 @@ func main() {
 	handler.RegisterSystemHandler(e)
 	handler.RegisterUiHandlers(e)
 	handler.RegisterUserHandlers(e)
+
+	service.LoadI18n()
 
 	host := os.Getenv("HOST")
 	port := os.Getenv("PORT")

@@ -8,6 +8,7 @@ group by deal_id
 order by clickcount desc;
 -- +goose StatementEnd
 
+
 -- +goose Down
 -- +goose StatementBegin
 drop view click_counts_view;

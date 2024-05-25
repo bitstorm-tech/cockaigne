@@ -31,6 +31,7 @@ type Account struct {
 	Created              time.Time
 	SearchRadiusInMeters int  `db:"search_radius_in_meters"`
 	UseLocationService   bool `db:"use_location_service"`
+	Language             string
 }
 
 type FavoriteCategory struct {

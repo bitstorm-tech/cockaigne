@@ -2,6 +2,7 @@ package redirect
 
 import (
 	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
 func Login(c echo.Context) error {
@@ -9,6 +10,5 @@ func Login(c echo.Context) error {
 }
 
 func To(location string, c echo.Context) error {
-	c.Response().Header().Add("HX-Redirect", location)
-	return nil
+	return c.Redirect(http.StatusTemporaryRedirect, location)
 }

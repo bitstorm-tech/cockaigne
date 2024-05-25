@@ -153,7 +153,7 @@ func login(c echo.Context) error {
 		c.Response().Header().Add("HX-Location", "/user")
 	}
 
-	jwtString := service.CreateJwtToken(acc.ID, acc.IsDealer, false)
+	jwtString := service.CreateJwtToken(acc.ID, acc.IsDealer, false, acc.Language)
 	cookie := http.Cookie{
 		Name:     "jwt",
 		Value:    jwtString,
@@ -168,7 +168,7 @@ func login(c echo.Context) error {
 
 func loginAsBasicUser(c echo.Context) error {
 	userId := uuid.New()
-	jwtString := service.CreateJwtToken(userId, false, true)
+	jwtString := service.CreateJwtToken(userId, false, true, service.LanguageDe)
 	cookie := http.Cookie{
 		Name:     "jwt",
 		Value:    jwtString,

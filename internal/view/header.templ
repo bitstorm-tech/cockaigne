@@ -2,26 +2,27 @@ package view
 
 import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
 import "strings"
+import "github.com/bitstorm-tech/cockaigne/internal/service"
 
-templ Header(isAuthenticated bool, isDealer bool, isBasicUser bool) {
+templ Header(user service.User) {
 	<nav id="header" class="h-12 border-b border-b-white border-opacity-25" x-data="{showMenu: false}">
 		<div class="px-4 sm:px-6 lg:px-8">
 			<div class="flex h-12 items-center justify-between">
 				<div class="flex gap-4">
 					<a href="/"><img class="h-7" src="/static/images/logo-text.svg" alt="Logo"/></a>
-					if isAuthenticated && !isDealer {
+					if user.IsAuthenticated && !user.IsDealer {
 						<div class="self-end badge badge-neutral text-xs">
-							if isBasicUser {
-								BASIC
+							if user.IsBasicUser {
+								{ t("basic", user.Language) }
 							} else {
-								PRO
+								{ t("pro", user.Language) }
 							}
 						</div>
 					}
 				</div>
 				<div class="hidden gap-6 md:flex">
-					if isAuthenticated {
-						<a class="menu-item" href="/settings">Einstellungen</a>
+					if user.IsAuthenticated {
+						<a class="menu-item" href="/settings">{ t("settings", "en") }</a>
 						<a class="menu-item" href="/contact">Kontaktiere uns</a>
 						<a class="menu-item" href="/logout">Abmelden</a>
 					} else {
@@ -52,40 +53,46 @@ templ Header(isAuthenticated bool, isDealer bool, isBasicUser bool) {
 			@click.outside="showMenu = false"
 		>
 			<div class="flex flex-col gap-5 p-6 sm:px-3 ">
-				if isAuthenticated {
-					if isDealer {
-						@DealerMenu()
+				if user.IsAuthenticated {
+					if user.IsDealer {
+						@DealerMenu(user.Language)
 					} else {
-						@UserMenu()
+						@UserMenu(user.Language)
 					}
 				} else {
 					@menuEntry("Einloggen", "/login", icon.Login())
 					@menuEntry("Registrieren", "/signup", icon.Registration())
 				}
+				<div>
+					{ t("language", user.Language) }:
+					<a class="link" href="/language-set/de">DE</a>
+					/
+					<a class="link" href="/language-set/en">EN</a>
+				</div>
 				<button onclick="LocationService.toggleLocationServiceSimulation()">Toggle Walk Simulator</button>
 				<div class="flex gap-8 text-xs justify-around pt-8">
-					<a href="/imprint">Impressum</a>
-					<a href="/terms">AGB</a>
-					<a href="/privacy">Datenschutz</a>
+					<a href="/imprint">{ t("imprint", user.Language) }</a>
+					<a href="/terms">{ t("terms", user.Language) }</a>
+					<a href="/privacy">{ t("privacy", user.Language) }</a>
 				</div>
 			</div>
 		</div>
 	</nav>
 }
 
-templ UserMenu() {
-	@menuEntry("Einstellungen", "/settings", icon.CogOutline())
-	@menuEntry("Kontaktiere uns", "/contact", icon.At())
-	@menuEntry("Basic vs Pro", "/basic-vs-pro", icon.Rocket())
-	@menuEntry("Abmelden", "/logout", icon.Logout())
+templ UserMenu(lang string) {
+	@menuEntry(t("settings", lang), "/settings", icon.CogOutline())
+	@menuEntry(t("contact_us", lang), "/contact", icon.At())
+	@menuEntry(t("basic_vs_pro", lang), "/basic-vs-pro", icon.Rocket())
+	@menuEntry(t("logout", lang), "/logout", icon.Logout())
 }
 
-templ DealerMenu() {
-	@menuEntry("Einstellungen", "/settings", icon.CogOutline())
-	@menuEntry("Abo & Preise", "/pricing", icon.Money())
-	@menuEntry("Abo verwalten", "https://billing.stripe.com/p/login/test_4gw9AKfJh5rw9QQeUU", icon.SubManagement())
-	@menuEntry("Kontaktiere uns", "/contact", icon.At())
-	@menuEntry("Abmelden", "/logout", icon.Logout())
+templ DealerMenu(lang string) {
+	@menuEntry(t("settings", lang), "/settings", icon.CogOutline())
+	@menuEntry(t("pricing", lang), "/pricing", icon.Money())
+	@menuEntry(t("manage_subscription", lang), "https://billing.stripe.com/p/login/test_4gw9AKfJh5rw9QQeUU", icon.SubManagement())
+	@menuEntry(t("contact_us", lang), "/contact", icon.At())
+	@menuEntry(t("logout", lang), "/logout", icon.Logout())
 }
 
 templ menuEntry(text string, href string, icon templ.Component) {

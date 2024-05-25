@@ -2,7 +2,9 @@ package service
 
 import (
 	"fmt"
+	"net/http"
 	"os"
+	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
@@ -13,16 +15,31 @@ import (
 var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 type User struct {
-	ID          uuid.UUID
-	IsDealer    bool
-	IsBasicUser bool
+	ID              uuid.UUID
+	IsDealer        bool
+	IsBasicUser     bool
+	IsAuthenticated bool
+	Language        string
 }
 
-func CreateJwtToken(id uuid.UUID, isDealer bool, isBasicUser bool) string {
+const (
+	jwtTokenKeySub         = "sub"
+	jwtTokenKeyIsDealer    = "isDealer"
+	jwtTokenKeyIsBasicUser = "isBasicUser"
+	jwtTokenKeyLanguage    = "language"
+)
+
+const (
+	LanguageDe = "de"
+	LanguageEn = "en"
+)
+
+func CreateJwtToken(id uuid.UUID, isDealer bool, isBasicUser bool, language string) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
-		"sub":         id,
-		"isDealer":    isDealer,
-		"isBasicUser": isBasicUser,
+		jwtTokenKeySub:         id,
+		jwtTokenKeyIsDealer:    isDealer,
+		jwtTokenKeyIsBasicUser: isBasicUser,
+		jwtTokenKeyLanguage:    language,
 	})
 
 	signedString, err := token.SignedString(jwtSecret)
@@ -33,7 +50,7 @@ func CreateJwtToken(id uuid.UUID, isDealer bool, isBasicUser bool) string {
 	return signedString
 }
 
-func ParseJwtToken(c echo.Context) (jwt.MapClaims, error) {
+func parseJwtToken(c echo.Context) (jwt.MapClaims, error) {
 	cookie, err := c.Cookie("jwt")
 	if err != nil {
 		return nil, err
@@ -50,25 +67,46 @@ func ParseJwtToken(c echo.Context) (jwt.MapClaims, error) {
 }
 
 func ParseUser(c echo.Context) (User, error) {
-	claims, err := ParseJwtToken(c)
+	claims, err := parseJwtToken(c)
 	if err != nil {
-		return User{}, fmt.Errorf("can't parse JWT: %v", err)
+		return User{
+			IsAuthenticated: false,
+		}, fmt.Errorf("can't parse JWT: %v", err)
 	}
 
 	id, err := uuid.Parse(claims["sub"].(string))
 	if err != nil {
-		return User{}, fmt.Errorf("can't parse userId into UUID: %v", err)
+		return User{
+			IsAuthenticated: false,
+		}, fmt.Errorf("can't parse userId into UUID: %v", err)
+	}
+
+	isDealer := false
+	if claims[jwtTokenKeyIsDealer] != nil {
+		isDealer = claims[jwtTokenKeyIsDealer].(bool)
+	}
+
+	isBasicUser := true
+	if claims[jwtTokenKeyIsBasicUser] != nil {
+		isBasicUser = claims[jwtTokenKeyIsBasicUser].(bool)
+	}
+
+	language := "de"
+	if claims[jwtTokenKeyLanguage] != nil {
+		language = claims[jwtTokenKeyLanguage].(string)
 	}
 
 	return User{
-		ID:          id,
-		IsDealer:    claims["isDealer"].(bool),
-		IsBasicUser: claims["isBasicUser"].(bool),
+		ID:              id,
+		IsDealer:        isDealer,
+		IsBasicUser:     isBasicUser,
+		Language:        language,
+		IsAuthenticated: true,
 	}, nil
 }
 
 func ParseUserId(c echo.Context) (uuid.UUID, error) {
-	token, err := ParseJwtToken(c)
+	token, err := parseJwtToken(c)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -82,12 +120,12 @@ func ParseUserId(c echo.Context) (uuid.UUID, error) {
 }
 
 func IsAuthenticated(c echo.Context) bool {
-	_, err := ParseJwtToken(c)
+	_, err := parseJwtToken(c)
 	return err == nil
 }
 
 func IsDealer(c echo.Context) bool {
-	token, err := ParseJwtToken(c)
+	token, err := parseJwtToken(c)
 	if err != nil {
 		return false
 	}
@@ -95,11 +133,13 @@ func IsDealer(c echo.Context) bool {
 	return token["isDealer"].(bool)
 }
 
-func IsBasicUser(c echo.Context) bool {
-	token, err := ParseJwtToken(c)
-	if err != nil {
-		return false
+func SetJwtCookie(jwtString string, c echo.Context) {
+	cookie := http.Cookie{
+		Name:     "jwt",
+		Value:    jwtString,
+		HttpOnly: true,
+		Path:     "/",
+		Expires:  time.Now().Add(365 * 24 * time.Hour),
 	}
-
-	return token["isBasicUser"].(bool)
+	c.SetCookie(&cookie)
 }

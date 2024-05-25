@@ -9,6 +9,7 @@ create table if not exists deal_clicks
 );
 -- +goose StatementEnd
 
+
 -- +goose Down
 -- +goose StatementBegin
 drop table if exists deal_clicks;

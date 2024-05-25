@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/bitstorm-tech/cockaigne/internal/redirect"
 	"github.com/bitstorm-tech/cockaigne/internal/service"
@@ -15,8 +16,37 @@ func RegisterSystemHandler(e *echo.Echo) {
 	e.GET("/basic-vs-pro", getBasicVsProPage)
 	e.GET("/pricing", getPricingPage)
 	e.GET("/active-vouchers-card", getActiveVouchers)
+	e.GET("/language-set/:lang", setLanguage)
 	e.POST("/contact", saveContactMessage)
 	e.POST("/voucher-redeem", redeemVoucher)
+}
+
+func setLanguage(c echo.Context) error {
+	user, err := service.ParseUser(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	lang := strings.ToLower(c.Param("lang"))
+
+	if lang != service.LanguageDe && lang != service.LanguageEn {
+		zap.L().Sugar().Info("can't change language to: ", lang)
+		return nil
+	}
+
+	jwt := service.CreateJwtToken(user.ID, user.IsDealer, user.IsBasicUser, lang)
+	service.SetJwtCookie(jwt, c)
+
+	if !user.IsBasicUser {
+		err := service.ChangeLanguage(user.ID.String(), lang)
+		if err != nil {
+			zap.L().Sugar().Errorf("can't update language to %s for account %s: %v", lang, user.ID, err)
+		}
+	}
+
+	source := c.Request().Header.Get("Referer")
+
+	return redirect.To(source, c)
 }
 
 func redeemVoucher(c echo.Context) error {
@@ -91,5 +121,10 @@ func saveContactMessage(c echo.Context) error {
 }
 
 func getContactPage(c echo.Context) error {
+	_, err := service.ParseUser(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
 	return view.Render(view.Contact(), c)
 }
