@@ -18,7 +18,7 @@ func RegisterSubscriptionHandler(e *echo.Echo) {
 }
 
 func subscribe(c echo.Context) error {
-	accountId, err := service.ParseUserId(c)
+	accountId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}

@@ -20,7 +20,7 @@ func RegisterUserHandlers(e *echo.Echo) {
 }
 
 func showNewDealsButton(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -46,7 +46,7 @@ func showNewDealsButton(c echo.Context) error {
 }
 
 func getFavoriteDealersCountBadge(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -62,7 +62,7 @@ func getFavoriteDealersCountBadge(c echo.Context) error {
 }
 
 func getFavoriteDealsCountBadge(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -78,7 +78,7 @@ func getFavoriteDealsCountBadge(c echo.Context) error {
 }
 
 func getUser(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}

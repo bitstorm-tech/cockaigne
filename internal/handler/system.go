@@ -22,20 +22,19 @@ func RegisterSystemHandler(e *echo.Echo) {
 }
 
 func setLanguage(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
 
 	lang := strings.ToLower(c.Param("lang"))
 
-	if lang != service.LanguageDe && lang != service.LanguageEn {
+	if lang != service.LanguageCodeDe && lang != service.LanguageCodeEn {
 		zap.L().Sugar().Info("can't change language to: ", lang)
 		return nil
 	}
 
-	jwt := service.CreateJwtToken(user.ID, user.IsDealer, user.IsBasicUser, lang)
-	service.SetJwtCookie(jwt, c)
+	service.SetLanguageCookie(lang)
 
 	if !user.IsBasicUser {
 		err := service.ChangeLanguage(user.ID.String(), lang)
@@ -50,7 +49,7 @@ func setLanguage(c echo.Context) error {
 }
 
 func redeemVoucher(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -74,7 +73,7 @@ func redeemVoucher(c echo.Context) error {
 }
 
 func getActiveVouchers(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -96,7 +95,7 @@ func getBasicVsProPage(c echo.Context) error {
 }
 
 func saveContactMessage(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -121,7 +120,7 @@ func saveContactMessage(c echo.Context) error {
 }
 
 func getContactPage(c echo.Context) error {
-	_, err := service.ParseUser(c)
+	_, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}

@@ -18,6 +18,7 @@ type User struct {
 	ID              uuid.UUID
 	IsDealer        bool
 	IsBasicUser     bool
+	IsProUser       bool
 	IsAuthenticated bool
 	Language        string
 }
@@ -26,20 +27,13 @@ const (
 	jwtTokenKeySub         = "sub"
 	jwtTokenKeyIsDealer    = "isDealer"
 	jwtTokenKeyIsBasicUser = "isBasicUser"
-	jwtTokenKeyLanguage    = "language"
 )
 
-const (
-	LanguageDe = "de"
-	LanguageEn = "en"
-)
-
-func CreateJwtToken(id uuid.UUID, isDealer bool, isBasicUser bool, language string) string {
+func CreateJwtToken(id uuid.UUID, isDealer bool, isBasicUser bool) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
 		jwtTokenKeySub:         id,
 		jwtTokenKeyIsDealer:    isDealer,
 		jwtTokenKeyIsBasicUser: isBasicUser,
-		jwtTokenKeyLanguage:    language,
 	})
 
 	signedString, err := token.SignedString(jwtSecret)
@@ -66,7 +60,7 @@ func parseJwtToken(c echo.Context) (jwt.MapClaims, error) {
 	return token.Claims.(jwt.MapClaims), nil
 }
 
-func ParseUser(c echo.Context) (User, error) {
+func GetUserFromCookie(c echo.Context) (User, error) {
 	claims, err := parseJwtToken(c)
 	if err != nil {
 		return User{
@@ -91,21 +85,16 @@ func ParseUser(c echo.Context) (User, error) {
 		isBasicUser = claims[jwtTokenKeyIsBasicUser].(bool)
 	}
 
-	language := "de"
-	if claims[jwtTokenKeyLanguage] != nil {
-		language = claims[jwtTokenKeyLanguage].(string)
-	}
-
 	return User{
 		ID:              id,
 		IsDealer:        isDealer,
 		IsBasicUser:     isBasicUser,
-		Language:        language,
+		IsProUser:       !isBasicUser,
 		IsAuthenticated: true,
 	}, nil
 }
 
-func ParseUserId(c echo.Context) (uuid.UUID, error) {
+func GetUserIdFromCookie(c echo.Context) (uuid.UUID, error) {
 	token, err := parseJwtToken(c)
 	if err != nil {
 		return uuid.Nil, err

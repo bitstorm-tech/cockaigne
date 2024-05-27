@@ -17,7 +17,7 @@ func RegisterMapHandlers(e *echo.Echo) {
 }
 
 func openMap(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -45,7 +45,7 @@ func openMap(c echo.Context) error {
 }
 
 func openFilterModal(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -73,7 +73,7 @@ func openFilterModal(c echo.Context) error {
 }
 
 func openLocationModal(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}

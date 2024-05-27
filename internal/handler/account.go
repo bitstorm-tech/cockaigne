@@ -56,7 +56,7 @@ func deselectAllCategories(c echo.Context) error {
 }
 
 func updateLocation(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func openEmailChangePage(c echo.Context) error {
 }
 
 func sendEmailChangeEmail(c echo.Context) error {
-	accountId, err := service.ParseUserId(c)
+	accountId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -163,7 +163,7 @@ func openPasswordChangePage(c echo.Context) error {
 
 func sendPasswordChangeEmail(c echo.Context) error {
 	accountIdString := ""
-	accountId, err := service.ParseUserId(c)
+	accountId, err := service.GetUserIdFromCookie(c)
 	if err == nil {
 		accountIdString = accountId.String()
 	}
@@ -213,7 +213,7 @@ func activateAccount(c echo.Context) error {
 }
 
 func updateDealerAddress(c echo.Context) error {
-	dealerId, err := service.ParseUserId(c)
+	dealerId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -238,7 +238,7 @@ func updateDealerAddress(c echo.Context) error {
 }
 
 func getDealerAddressSettings(c echo.Context) error {
-	dealerId, err := service.ParseUserId(c)
+	dealerId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -253,7 +253,7 @@ func getDealerAddressSettings(c echo.Context) error {
 }
 
 func getDealerCommonSettings(c echo.Context) error {
-	dealerId, err := service.ParseUserId(c)
+	dealerId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -268,7 +268,7 @@ func getDealerCommonSettings(c echo.Context) error {
 }
 
 func updateProfileImage(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -300,7 +300,7 @@ func updateProfileImage(c echo.Context) error {
 }
 
 func updateAccount(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -349,7 +349,7 @@ func updateAccount(c echo.Context) error {
 }
 
 func getProfileImageSettings(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -364,7 +364,7 @@ func getProfileImageSettings(c echo.Context) error {
 }
 
 func getUserCommonsSettings(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -379,7 +379,7 @@ func getUserCommonsSettings(c echo.Context) error {
 }
 
 func openSettings(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -401,7 +401,7 @@ func getProfileImage(c echo.Context) error {
 }
 
 func updateFilter(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -441,7 +441,7 @@ func updateFilter(c echo.Context) error {
 }
 
 func updateUseLocationService(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}

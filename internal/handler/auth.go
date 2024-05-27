@@ -3,11 +3,9 @@ package handler
 import (
 	"database/sql"
 	"fmt"
+	"github.com/bitstorm-tech/cockaigne/internal/redirect"
 	"net/http"
 	"strings"
-	"time"
-
-	"github.com/bitstorm-tech/cockaigne/internal/redirect"
 
 	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/service"
@@ -153,30 +151,15 @@ func login(c echo.Context) error {
 		c.Response().Header().Add("HX-Location", "/user")
 	}
 
-	jwtString := service.CreateJwtToken(acc.ID, acc.IsDealer, false, acc.Language)
-	cookie := http.Cookie{
-		Name:     "jwt",
-		Value:    jwtString,
-		HttpOnly: true,
-		Path:     "/",
-		Expires:  time.Now().Add(7 * 24 * time.Hour),
-	}
-	c.SetCookie(&cookie)
-
+	jwtString := service.CreateJwtToken(acc.ID, acc.IsDealer, false)
+	service.SetJwtCookie(jwtString, c)
 	return nil
 }
 
 func loginAsBasicUser(c echo.Context) error {
 	userId := uuid.New()
-	jwtString := service.CreateJwtToken(userId, false, true, service.LanguageDe)
-	cookie := http.Cookie{
-		Name:     "jwt",
-		Value:    jwtString,
-		HttpOnly: true,
-		Path:     "/",
-		Expires:  time.Now().Add(365 * 24 * time.Hour),
-	}
-	c.SetCookie(&cookie)
+	jwtString := service.CreateJwtToken(userId, false, true)
+	service.SetJwtCookie(jwtString, c)
 
 	c.Response().Header().Add("HX-Location", "/user")
 
@@ -186,7 +169,7 @@ func loginAsBasicUser(c echo.Context) error {
 }
 
 func logout(c echo.Context) error {
-	user, _ := service.ParseUser(c)
+	user, _ := service.GetUserFromCookie(c)
 	cookie := http.Cookie{
 		Name:     "jwt",
 		Value:    "",

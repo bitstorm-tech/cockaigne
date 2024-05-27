@@ -8,10 +8,10 @@ import (
 
 func RegisterUiHandlers(e *echo.Echo) {
 	e.GET("/ui/header", func(c echo.Context) error {
-		user, _ := service.ParseUser(c)
+		user, _ := service.GetUserFromCookie(c)
 
 		if len(user.Language) == 0 {
-			user.Language = service.LanguageDe
+			user.Language = service.LanguageCodeDe
 		}
 
 		return view.Render(view.Header(user), c)

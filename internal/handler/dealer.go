@@ -35,7 +35,7 @@ func RegisterDealerHandlers(e *echo.Echo) {
 }
 
 func getDealerSubscriptionSummary(c echo.Context) error {
-	dealerId, err := service.ParseUserId(c)
+	dealerId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -68,7 +68,7 @@ func getDealerSubscriptionSummary(c echo.Context) error {
 }
 
 func getDealerHeaderFavoriteButton(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -83,7 +83,7 @@ func getDealerHeaderFavoriteButton(c echo.Context) error {
 }
 
 func toggleDealerFavorite(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -120,7 +120,7 @@ func getImageZoomDialog(c echo.Context) error {
 }
 
 func getDealerPage(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -152,7 +152,7 @@ func getDealerPage(c echo.Context) error {
 }
 
 func getOverviewPage(c echo.Context) error {
-	dealerId, err := service.ParseUserId(c)
+	dealerId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -182,7 +182,7 @@ func getTemplatesPage(c echo.Context) error {
 
 func getDealerImages(c echo.Context) error {
 	dealerId := c.Param("id")
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -198,7 +198,7 @@ func getDealerImages(c echo.Context) error {
 }
 
 func addDealerImage(c echo.Context) error {
-	dealerId, err := service.ParseUserId(c)
+	dealerId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -219,7 +219,7 @@ func addDealerImage(c echo.Context) error {
 }
 
 func deleteDealerImage(c echo.Context) error {
-	dealerId, err := service.ParseUserId(c)
+	dealerId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -247,7 +247,7 @@ func deleteDealerImage(c echo.Context) error {
 
 func getDealerRatings(c echo.Context) error {
 	dealerId := c.Param("dealerId")
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		zap.L().Sugar().Error("can't get userId: ", err)
 	}
@@ -273,7 +273,7 @@ func getDealerRatings(c echo.Context) error {
 
 func getRatingModal(c echo.Context) error {
 	dealerId := c.Param("dealerId")
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -298,7 +298,7 @@ func getRatingModal(c echo.Context) error {
 }
 
 func createDealerRating(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -323,7 +323,7 @@ func createDealerRating(c echo.Context) error {
 
 func deleteDealerRating(c echo.Context) error {
 	dealerId := c.Param("dealerId")
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}

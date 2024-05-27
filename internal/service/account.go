@@ -355,3 +355,14 @@ func ChangeLanguage(accountId string, lang string) error {
 
 	return err
 }
+
+func GetLanguage(accountId string) (string, error) {
+	var lang string
+	err := persistence.DB.Get(
+		&lang,
+		"select language from accounts where id = $1",
+		accountId,
+	)
+
+	return lang, err
+}

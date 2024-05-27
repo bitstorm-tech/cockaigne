@@ -45,7 +45,7 @@ func RegisterDealHandlers(e *echo.Echo) {
 }
 
 func dealViewed(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -53,14 +53,17 @@ func dealViewed(c echo.Context) error {
 	dealId := c.Param("id")
 
 	if !user.IsBasicUser && !user.IsDealer {
-		service.DealClicked(user.ID.String(), dealId)
+		err := service.DealClicked(user.ID.String(), dealId)
+		if err != nil {
+			zap.L().Sugar().Error("can't save deal clicked: ", err)
+		}
 	}
 
 	return nil
 }
 
 func openDealStatisticsPage(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -91,7 +94,7 @@ func markDealAsPayed(c echo.Context) error {
 }
 
 func openNewDealSummaryModal(c echo.Context) error {
-	dealerId, err := service.ParseUserId(c)
+	dealerId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -235,7 +238,7 @@ func createDiscountModalParams(dealerId string, timesAndDates DealTimesAndDates)
 }
 
 func getTopDealsList(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -265,7 +268,7 @@ func openTopDealsPage(c echo.Context) error {
 }
 
 func getFavoriteDealerDeals(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -280,7 +283,7 @@ func getFavoriteDealerDeals(c echo.Context) error {
 }
 
 func getFavoriteDeals(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -295,7 +298,7 @@ func getFavoriteDeals(c echo.Context) error {
 }
 
 func openDealCreatePage(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -335,7 +338,7 @@ func getCategorySelect(c echo.Context) error {
 }
 
 func saveDeal(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -387,7 +390,7 @@ func saveDeal(c echo.Context) error {
 }
 
 func getDealList(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -427,7 +430,7 @@ type DealJson struct {
 }
 
 func getDealsAsJson(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -460,7 +463,7 @@ func getDealsAsJson(c echo.Context) error {
 }
 
 func getDealDetails(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -483,7 +486,7 @@ func getDealDetails(c echo.Context) error {
 }
 
 func toggleDealLike(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
@@ -508,7 +511,7 @@ func toggleDealLike(c echo.Context) error {
 }
 
 func getReportModal(c echo.Context) error {
-	user, err := service.ParseUser(c)
+	user, err := service.GetUserFromCookie(c)
 	if err != nil {
 		return view.RenderAlert("Nur angemeldete User können einen Deal melden", c)
 	}
@@ -527,7 +530,7 @@ func getReportModal(c echo.Context) error {
 }
 
 func saveReport(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		zap.L().Sugar().Error("can't save deal report -> no user ID: ", err)
 		return view.RenderAlert("Nur angemeldete User können einen Deal melden", c)
@@ -550,7 +553,7 @@ func saveReport(c echo.Context) error {
 }
 
 func getDealFavoriteButton(c echo.Context) error {
-	userId, _ := service.ParseUserId(c)
+	userId, _ := service.GetUserIdFromCookie(c)
 	dealId := c.Param("id")
 	isFavorite := service.IsDealFavorite(dealId, userId.String())
 
@@ -558,7 +561,7 @@ func getDealFavoriteButton(c echo.Context) error {
 }
 
 func toggleFavorite(c echo.Context) error {
-	user, _ := service.ParseUser(c)
+	user, _ := service.GetUserFromCookie(c)
 	dealId := c.Param("id")
 
 	if user.IsBasicUser {
@@ -573,7 +576,7 @@ func toggleFavorite(c echo.Context) error {
 }
 
 func removeFavorite(c echo.Context) error {
-	userId, err := service.ParseUserId(c)
+	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		return redirect.Login(c)
 	}
