@@ -9,12 +9,9 @@ import (
 func RegisterUiHandlers(e *echo.Echo) {
 	e.GET("/ui/header", func(c echo.Context) error {
 		user, _ := service.GetUserFromCookie(c)
+		lang := service.GetLanguageFromCookie(c)
 
-		if len(user.Language) == 0 {
-			user.Language = service.LanguageCodeDe
-		}
-
-		return view.Render(view.Header(user), c)
+		return view.Render(view.Header(user, lang), c)
 	})
 
 	e.GET("/ui/footer", func(c echo.Context) error {

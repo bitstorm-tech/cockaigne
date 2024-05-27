@@ -3,9 +3,10 @@ package handler
 import (
 	"database/sql"
 	"fmt"
-	"github.com/bitstorm-tech/cockaigne/internal/redirect"
 	"net/http"
 	"strings"
+
+	"github.com/bitstorm-tech/cockaigne/internal/redirect"
 
 	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/service"
@@ -19,7 +20,8 @@ import (
 
 func RegisterAuthHandlers(e *echo.Echo) {
 	e.GET("/login", func(c echo.Context) error {
-		return view.Render(view.Login(), c)
+		lang := service.GetLanguageFromCookie(c)
+		return view.Render(view.Login(lang), c)
 	})
 
 	e.GET("/signup", func(c echo.Context) error {

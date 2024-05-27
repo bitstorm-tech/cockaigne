@@ -346,7 +346,7 @@ func ChangeEmail(code string) error {
 	return err
 }
 
-func ChangeLanguage(accountId string, lang string) error {
+func SaveLanguage(accountId string, lang string) error {
 	_, err := persistence.DB.Exec(
 		"update accounts set language = $1 where id = $2",
 		lang,

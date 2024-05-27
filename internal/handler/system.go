@@ -22,11 +22,6 @@ func RegisterSystemHandler(e *echo.Echo) {
 }
 
 func setLanguage(c echo.Context) error {
-	user, err := service.GetUserFromCookie(c)
-	if err != nil {
-		return redirect.Login(c)
-	}
-
 	lang := strings.ToLower(c.Param("lang"))
 
 	if lang != service.LanguageCodeDe && lang != service.LanguageCodeEn {
@@ -34,18 +29,21 @@ func setLanguage(c echo.Context) error {
 		return nil
 	}
 
-	service.SetLanguageCookie(lang)
+	service.SetLanguageCookie(lang, c)
 
-	if !user.IsBasicUser {
-		err := service.ChangeLanguage(user.ID.String(), lang)
-		if err != nil {
-			zap.L().Sugar().Errorf("can't update language to %s for account %s: %v", lang, user.ID, err)
+	user, err := service.GetUserFromCookie(c)
+	if err == nil {
+		if user.IsProUser {
+			err := service.SaveLanguage(user.ID.String(), lang)
+			if err != nil {
+				zap.L().Sugar().Errorf("can't update language to %s for account %s: %v", lang, user.ID, err)
+			}
 		}
 	}
 
-	source := c.Request().Header.Get("Referer")
+	sourceUrl := c.Request().Header.Get("Referer")
 
-	return redirect.To(source, c)
+	return redirect.To(sourceUrl, c)
 }
 
 func redeemVoucher(c echo.Context) error {

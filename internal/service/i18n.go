@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -15,11 +16,12 @@ type I18n struct {
 }
 
 const (
-	LanguageCodeDe = "de"
-	LanguageCodeEn = "en"
+	LanguageCodeDe      = "de"
+	LanguageCodeEn      = "en"
+	LanguageCodeDefault = LanguageCodeDe
 )
 
-const cookieLanguageKey = "lang"
+const cookieNameLanguage = "lang"
 
 var translations map[string]map[string]string
 
@@ -49,13 +51,15 @@ func T(key string, lang string) string {
 }
 
 func GetLanguageFromCookie(c echo.Context) string {
-	cookie, err := c.Request().Cookie(cookieLanguageKey)
+	cookie, err := c.Request().Cookie(cookieNameLanguage)
 	if err != nil {
-		if err == http.ErrNoCookie {
-
+		if errors.Is(err, http.ErrNoCookie) {
+			SetLanguageCookie(LanguageCodeDefault, c)
+		} else {
+			zap.L().Sugar().Error("can't get language cookie: ", err)
 		}
-		zap.L().Sugar().Error("can't get language cookie: ", err)
-		return LanguageCodeDe
+
+		return LanguageCodeDefault
 	}
 
 	lang := strings.ToLower(cookie.Value)
@@ -66,20 +70,28 @@ func GetLanguageFromCookie(c echo.Context) string {
 	user, err := GetUserFromCookie(c)
 	if err != nil {
 		zap.L().Sugar().Error("can't get user cookie: ", err)
-		return LanguageCodeDe
+		return LanguageCodeDefault
 	}
 
 	if user.IsProUser {
 		lang, err := GetLanguage(user.ID.String())
 		if err != nil {
 			zap.L().Sugar().Errorf("can't get language of user %s, %v", user.ID, err)
-			return LanguageCodeDe
+			return LanguageCodeDefault
 		}
 
 		return lang
 	}
 
-	return LanguageCodeDe
+	return LanguageCodeDefault
 }
 
-func SetLanguageCookie(lang string) {}
+func SetLanguageCookie(lang string, c echo.Context) {
+	cookie := http.Cookie{
+		Name:     cookieNameLanguage,
+		Value:    lang,
+		HttpOnly: true,
+		Path:     "/",
+	}
+	c.SetCookie(&cookie)
+}

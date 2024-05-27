@@ -4,7 +4,7 @@ import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
 import "strings"
 import "github.com/bitstorm-tech/cockaigne/internal/service"
 
-templ Header(user service.User) {
+templ Header(user service.User, lang string) {
 	<nav id="header" class="h-12 border-b border-b-white border-opacity-25" x-data="{showMenu: false}">
 		<div class="px-4 sm:px-6 lg:px-8">
 			<div class="flex h-12 items-center justify-between">
@@ -13,9 +13,9 @@ templ Header(user service.User) {
 					if user.IsAuthenticated && !user.IsDealer {
 						<div class="self-end badge badge-neutral text-xs">
 							if user.IsBasicUser {
-								{ t("basic", user.Language) }
+								{ t("basic", lang) }
 							} else {
-								{ t("pro", user.Language) }
+								{ t("pro", lang) }
 							}
 						</div>
 					}
@@ -55,25 +55,25 @@ templ Header(user service.User) {
 			<div class="flex flex-col gap-5 p-6 sm:px-3 ">
 				if user.IsAuthenticated {
 					if user.IsDealer {
-						@DealerMenu(user.Language)
+						@DealerMenu(lang)
 					} else {
-						@UserMenu(user.Language)
+						@UserMenu(lang)
 					}
 				} else {
-					@menuEntry("Einloggen", "/login", icon.Login())
-					@menuEntry("Registrieren", "/signup", icon.Registration())
+					@menuEntry(t("login", lang), "/login", icon.Login())
+					@menuEntry(t("signup", lang), "/signup", icon.Registration())
 				}
 				<div>
-					{ t("language", user.Language) }:
+					{ t("language", lang) }:
 					<a class="link" href="/language-set/de">DE</a>
 					/
 					<a class="link" href="/language-set/en">EN</a>
 				</div>
 				<button onclick="LocationService.toggleLocationServiceSimulation()">Toggle Walk Simulator</button>
 				<div class="flex gap-8 text-xs justify-around pt-8">
-					<a href="/imprint">{ t("imprint", user.Language) }</a>
-					<a href="/terms">{ t("terms", user.Language) }</a>
-					<a href="/privacy">{ t("privacy", user.Language) }</a>
+					<a href="/imprint">{ t("imprint", lang) }</a>
+					<a href="/terms">{ t("terms", lang) }</a>
+					<a href="/privacy">{ t("privacy", lang) }</a>
 				</div>
 			</div>
 		</div>

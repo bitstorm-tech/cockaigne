@@ -20,7 +20,6 @@ type User struct {
 	IsBasicUser     bool
 	IsProUser       bool
 	IsAuthenticated bool
-	Language        string
 }
 
 const (

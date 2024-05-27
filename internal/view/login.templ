@@ -1,27 +1,27 @@
 package view
 
-templ Login() {
+templ Login(lang string) {
 	@BaseLayout() {
 		<form hx-post="/api/login" hx-target="#alert" class="pt-1/3 m-4 flex flex-col gap-4 p-6 pt-18">
-			<h1 class="text-center">Einloggen</h1>
+			<h1 class="text-center">{ t("login", lang) }</h1>
 			<div class="form-control">
-				<label for="email">E-Mail</label>
+				<label for="email">{ t("email", lang) }</label>
 				<input id="email" type="email" name="email"/>
 			</div>
 			<div class="form-control pb-6">
-				<label for="password">Passwort</label>
+				<label for="password">{ t("password", lang) }</label>
 				<input id="password" type="password" name="password"/>
 			</div>
-			<button>Einloggen</button>
+			<button>{ t("login", lang) }</button>
 			<button class="btn btn-primary btn-sm" type="button" hx-post="/api/basic-login">
-				Weiter als Basic User
+				{ t("continue_as_basic_user", lang) }
 			</button>
 			<div class="pt-10 text-sm text-center">
-				<a href="/signup">Registrieren</a>
+				<a href="/signup">{ t("signup", lang) }</a>
 				<span>/</span>
-				<a href="/send-password-change-email">Passwort vergessen</a>
+				<a href="/send-password-change-email">{ t("password_reset", lang) }</a>
 				<span>/</span>
-				<a href="/signup-complete">Account aktivieren</a>
+				<a href="/signup-complete">{ t("account_activate", lang) }</a>
 			</div>
 		</form>
 	}
