@@ -2,34 +2,34 @@ package view
 
 import "fmt"
 
-templ SignupComplete(email string, code string) {
+templ SignupComplete(email string, code string, lang string) {
 	@BaseLayout() {
 		<div class="flex flex-col gap-6">
 			<form class="flex flex-col gap-6 p-6" hx-post="/activate" x-data={ fmt.Sprintf("{code: '%s'}", code) }>
-				<h1 class="text-center">Registrierung abschließen</h1>
+				<h1 class="text-center">{ t("signup_complete", lang) }</h1>
 				<span>
-					Wir haben dir eine E-Mail mit dem Aktivierungscode geschickt. Bitte gibt diesen Code unten in das Feld ein.
+					{ t("activation_code_description", lang) }
 				</span>
 				<div class="form-control">
-					<label for="code">Aktivierungscode</label>
+					<label for="code">{ t("activation_code", lang) }</label>
 					<input id="code" name="code" type="text" maxlength="6" class="text-center tracking-[0.5rem]" x-model="code"/>
 				</div>
 				<div class="grid grid-cols-2 gap-4">
-					<a href="/" class="btn btn-primary btn-outline">Zurück</a>
-					<button class="btn btn-warning" :disabled="code.length === 0">Aktivieren</button>
+					<a href="/" class="btn btn-primary btn-outline">{ t("back", lang) }</a>
+					<button class="btn btn-warning" :disabled="code.length === 0">{ t("activate", lang) }</button>
 				</div>
 			</form>
 			<form class="flex flex-col gap-6 p-6" hx-post="/api/send-activation-email" x-data={ fmt.Sprintf("{email: '%s'}", email) }>
 				<span class="text-xs">
-					Solltest du keine E-Mail bekommen haben, klicke entweder auf den Button unten um einen neuen Code anzufordern oder melde
-					dich bei unserem <a href="mailto:support@cockaigne.city" class="underline">Support-Team</a>.
+					{ t("activation_code_send_new_description", lang) }
+					<a href="mailto:support@cockaigne.city" class="underline">Support-Team</a>.
 				</span>
 				<div class="form-control">
-					<label for="email">E-Mail</label>
+					<label for="email">{ t("email", lang) }</label>
 					<input id="email" name="email" type="email" x-model="email"/>
 				</div>
 				<button class="btn btn-primary" :disabled="email.length === 0">
-					Neuen Code senden
+					{ t("activation_code_send_new", lang) }
 				</button>
 			</form>
 		</div>

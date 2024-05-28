@@ -39,8 +39,9 @@ func RegisterAuthHandlers(e *echo.Echo) {
 func completeSignup(c echo.Context) error {
 	email := c.QueryParam("email")
 	code := c.QueryParam("code")
+	lang := service.GetLanguageFromCookie(c)
 
-	return view.Render(view.SignupComplete(email, code), c)
+	return view.Render(view.SignupComplete(email, code, lang), c)
 }
 
 func signup(c echo.Context) error {
