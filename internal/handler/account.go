@@ -158,8 +158,9 @@ func changePassword(c echo.Context) error {
 
 func openPasswordChangePage(c echo.Context) error {
 	code := c.Param("code")
+	lang := service.GetLanguageFromCookie(c)
 
-	return view.Render(view.PasswordChangePage(code), c)
+	return view.Render(view.PasswordChangePage(code, lang), c)
 }
 
 func sendPasswordChangeEmail(c echo.Context) error {
