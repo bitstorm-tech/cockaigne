@@ -3,9 +3,9 @@ package view
 import "github.com/bitstorm-tech/cockaigne/internal/model"
 import "strconv"
 
-templ CategorySelect(name string, categories []model.Category, selectedId int) {
+templ CategorySelect(emptyOptionText string, categories []model.Category, selectedId int) {
 	<select class="w-full" name="category">
-		<option selected disabled hidden value="-1">{ name } wählen ...</option>
+		<option selected disabled hidden value="-1">{ emptyOptionText } ...</option>
 		for _, c := range categories {
 			<option value={ strconv.Itoa(c.ID) } selected?={ c.ID == selectedId }>{ c.Name }</option>
 		}

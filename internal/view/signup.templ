@@ -1,32 +1,32 @@
 package view
 
-templ Signup() {
+templ Signup(lang string) {
 	@BaseLayout() {
 		<form class="flex flex-col gap-4 p-6" hx-post="/api/signup" hx-target="#alert" x-data="{isDealer: false}">
-			<h1 class="text-center">Registrieren</h1>
+			<h1 class="text-center">{ t("signup", lang) }</h1>
 			<div class="form-control-horizontal">
 				<input id="dealer" type="checkbox" checked="checked" class="checkbox" name="isDealer" x-model="isDealer"/>
-				<label for="dealer" class="cursor-pointer">Ich bin ein Dealer</label>
+				<label for="dealer" class="cursor-pointer">{ t("i_am_a_dealer", lang) }</label>
 			</div>
 			<div class="form-control">
-				<label for="email">E-Mail</label>
+				<label for="email">{ t("email", lang) }</label>
 				<input id="email" type="text" name="email"/>
 			</div>
 			<div class="form-control">
-				<label for="username">Benutzername</label>
+				<label for="username">{ t("username", lang) }</label>
 				<input id="username" type="text" name="username"/>
 			</div>
 			<div class="form-control">
-				<label for="password">Passwort</label>
+				<label for="password">{ t("password", lang) }</label>
 				<input id="password" type="password" name="password"/>
 			</div>
 			<div class="form-control">
-				<label for="password-repeat">Passwort wiederholen</label>
+				<label for="password-repeat">{ t("password_repeat", lang) }</label>
 				<input id="password-repeat" type="password" name="passwordRepeat"/>
 			</div>
 			<div class="flex flex-col gap-4" x-show="!isDealer">
 				<div class="form-control">
-					<label for="age">Alter</label>
+					<label for="age">{ t("age", lang) }</label>
 					<div id="age" class="join grid grid-cols-3 grid-rows-2 w-full">
 						<input class="join-item btn btn-sm" type="radio" value="1" name="age" aria-label="bis 18" checked/>
 						<input class="join-item btn btn-sm" type="radio" value="2" name="age" aria-label="19 - 29"/>
@@ -37,7 +37,7 @@ templ Signup() {
 					</div>
 				</div>
 				<div class="form-control">
-					<label for="gender">Geschlecht</label>
+					<label for="gender">{ t("gender", lang) }</label>
 					<div id="gender" class="join grid grid-cols-3 w-full">
 						<input class="join-item btn btn-sm" type="radio" value="f" name="gender" aria-label="Frau" checked/>
 						<input class="join-item btn btn-sm" type="radio" value="m" name="gender" aria-label="Mann"/>
@@ -47,49 +47,51 @@ templ Signup() {
 			</div>
 			<div class="flex flex-col gap-4" x-show="isDealer">
 				<div class="form-control">
-					<label for="category-select">Branche</label>
-					<div id="category-select" hx-get="/ui/category-select?name=Branche" hx-trigger="load once" hx-target="this"></div>
+					<label for="category-select">{ t("industry", lang) }</label>
+					<div id="category-select" hx-get="/ui/category-select?translation_key=industry_select" hx-trigger="load once" hx-target="this"></div>
 				</div>
 				<div class="grid grid-cols-3 gap-2">
 					<div class="form-control col-span-2">
-						<label for="street">Straße</label>
+						<label for="street">{ t("street", lang) }</label>
 						<input id="street" type="text" name="street"/>
 					</div>
 					<div class="form-control">
-						<label for="house-number">Hausnummer</label>
+						<label for="house-number">{ t("housenumber", lang) }</label>
 						<input id="house-number" type="text" name="houseNumber"/>
 					</div>
 				</div>
 				<div class="grid grid-cols-3 gap-2">
 					<div class="form-control col-span-2">
-						<label for="city">Ort</label>
+						<label for="city">{ t("city", lang) }</label>
 						<input id="city" type="text" name="city"/>
 					</div>
 					<div class="form-control">
-						<label for="zip">PLZ</label>
+						<label for="zip">{ t("zipcode", lang) }</label>
 						<input id="zip" type="number" name="zipCode"/>
 					</div>
 				</div>
 				<div class="form-control">
-					<label for="phone">Telefon</label>
+					<label for="phone">{ t("phone", lang) }</label>
 					<input id="phone" type="text" name="phone"/>
 				</div>
 				<div class="form-control">
-					<label for="tax-id">Umsatzsteuer ID</label>
+					<label for="tax-id">{ t("taxid", lang) }</label>
 					<input id="tax-id" type="text" name="taxId"/>
 				</div>
 			</div>
 			<div class="form-control-horizontal pt-10">
 				<input id="agb" type="checkbox" class="checkbox" name="agb"/>
 				<label for="agb" class="cursor-pointer">
-					Ich habe die <a class="link" href="#">AGB</a> und
-					<a class="link" href="#">Datenschutzbedingungen</a>
-					gelesen und akzeptiere diese
+					{ t("accept_terms_and_privacy_1", lang) }
+					<a class="link" href="#">{ t("terms", lang) }</a>
+					{ t("and", lang) }
+					<a class="link" href="#">{ t("privacy", lang) }</a>
+					{ t("accept_terms_and_privacy_2", lang) }
 				</label>
 			</div>
 			<div class="mt-4 grid grid-cols-2 gap-2">
-				<a class="btn btn-primary btn-outline" href="/">Abbrechen</a>
-				<button>Registrieren</button>
+				<a class="btn btn-primary btn-outline" href="/">{ t("cancel", lang) }</a>
+				<button>{ t("signup", lang) }</button>
 			</div>
 		</form>
 	}

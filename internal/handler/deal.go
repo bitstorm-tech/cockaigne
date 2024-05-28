@@ -321,8 +321,10 @@ func openDealCreatePage(c echo.Context) error {
 
 func getCategorySelect(c echo.Context) error {
 	categories := service.GetCategories()
-	name := c.QueryParam("name")
+	translationKey := c.QueryParam("translation_key")
 	selectedParam := c.QueryParam("selected")
+	lang := service.GetLanguageFromCookie(c)
+	emptyOptionText := service.T(translationKey, lang)
 
 	selected := -1
 	var err error
@@ -334,7 +336,7 @@ func getCategorySelect(c echo.Context) error {
 		}
 	}
 
-	return view.Render(view.CategorySelect(name, categories, selected), c)
+	return view.Render(view.CategorySelect(emptyOptionText, categories, selected), c)
 }
 
 func saveDeal(c echo.Context) error {

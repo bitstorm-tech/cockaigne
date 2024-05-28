@@ -25,7 +25,8 @@ func RegisterAuthHandlers(e *echo.Echo) {
 	})
 
 	e.GET("/signup", func(c echo.Context) error {
-		return view.Render(view.Signup(), c)
+		lang := service.GetLanguageFromCookie(c)
+		return view.Render(view.Signup(lang), c)
 	})
 
 	e.GET("/signup-complete", completeSignup)

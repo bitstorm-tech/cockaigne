@@ -105,7 +105,7 @@ templ CommonDealerSettings(acc model.Account) {
 			<label for="category-select">Branche</label>
 			<div
 				id="category-select"
-				hx-get={ "/ui/category-select?name=Kategorie&selected=" + strconv.Itoa(int(acc.DefaultCategory.Int32)) }
+				hx-get={ "/ui/category-select?translation_key=industry_select&selected=" + strconv.Itoa(int(acc.DefaultCategory.Int32)) }
 				hx-trigger="load once"
 				hx-target="this"
 			></div>

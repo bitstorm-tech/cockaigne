@@ -33,7 +33,7 @@ templ DealEdit(deal model.Deal) {
 				<label for="category-select">Kategorie</label>
 				<div
 					id="category-select"
-					hx-get={ "/ui/category-select?name=Kategorie&selected=" + strconv.Itoa(deal.CategoryId) }
+					hx-get={ "/ui/category-select?translation_key=category_select&selected=" + strconv.Itoa(deal.CategoryId) }
 					hx-trigger="load once"
 					hx-target="this"
 				></div>
