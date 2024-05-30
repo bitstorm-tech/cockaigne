@@ -550,8 +550,8 @@ type StartAndEndDate struct {
 
 func CalculateStartAndEndAsHumanReadable(start time.Time, durationInHours int) StartAndEndDate {
 	return StartAndEndDate{
-		Start: start.Format("02.01.2006 um 15:04"),
-		End:   start.Add(time.Duration(durationInHours) * time.Hour).Format("02.01.2006 um 15:04"),
+		Start: start.Format("02.01.2006 15:04"),
+		End:   start.Add(time.Duration(durationInHours) * time.Hour).Format("02.01.2006 15:04"),
 	}
 }
 

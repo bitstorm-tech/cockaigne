@@ -4,9 +4,9 @@ import "github.com/bitstorm-tech/cockaigne/internal/model"
 import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
 import "fmt"
 
-templ User(userId string, username string, useLocationService bool, isBasicUser bool, currentLocation model.Point) {
+templ User(userId string, username string, useLocationService bool, isBasicUser bool, currentLocation model.Point, lang string) {
 	@BaseLayout() {
-		@UserHeader(userId, username)
+		@UserHeader(userId, username, lang)
 		<div x-data="{selectedTab: 0}">
 			<div class="tabs tabs-bordered" x-cloak>
 				<div
@@ -77,7 +77,7 @@ script userScript(useLocationService bool, currentLocation model.Point, isBasicU
   }
 }
 
-templ UserHeader(userId string, username string) {
+templ UserHeader(userId string, username string, lang string) {
 	<div class="flex h-52 justify-between">
 		<div class="flex w-full justify-between">
 			<div class="m-4 flex flex-col gap-4">
@@ -88,7 +88,7 @@ templ UserHeader(userId string, username string) {
 				</div>
 				<div class="text-2xl">{ username }</div>
 				<div class="flex flex-col gap-2 text-sm">
-					<div class="font-extrabold">Dein Standort</div>
+					<div class="font-extrabold">{ t("your_location", lang) }</div>
 					<div class="flex gap-1">
 						<img src="/static/images/icons/location.svg" alt="Location" class="h-6"/>
 						<div class="flex flex-col text-xs">

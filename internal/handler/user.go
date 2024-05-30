@@ -83,9 +83,11 @@ func getUser(c echo.Context) error {
 		return redirect.Login(c)
 	}
 
+	lang := service.GetLanguageFromCookie(c)
+
 	if user.IsBasicUser {
 		filter := service.GetBasicUserFilter(user.ID.String())
-		return view.Render(view.User(user.ID.String(), "Basic", false, true, filter.Location), c)
+		return view.Render(view.User(user.ID.String(), "Basic", false, true, filter.Location, lang), c)
 	}
 
 	acc, err := service.GetAccount(user.ID.String())
@@ -98,5 +100,5 @@ func getUser(c echo.Context) error {
 		zap.L().Sugar().Errorf("can't create new point from account location (%s): %v", acc.Location.String, err)
 	}
 
-	return view.Render(view.User(acc.ID.String(), acc.Username, acc.UseLocationService, false, location), c)
+	return view.Render(view.User(acc.ID.String(), acc.Username, acc.UseLocationService, false, location, lang), c)
 }

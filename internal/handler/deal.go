@@ -179,8 +179,8 @@ func calculateDealTimesAndDates(c echo.Context) (DealTimesAndDates, error) {
 }
 
 func addStartAndEndToSummaryModalParameter(params *view.NewDealSummaryModalParameter, timesAndDates DealTimesAndDates) {
-	params.Start = timesAndDates.Start.Format("02.01.2006 um 15:04")
-	params.End = timesAndDates.End.Format("02.01.2006 um 15:04")
+	params.Start = timesAndDates.Start.Format("02.01.2006 15:04")
+	params.End = timesAndDates.End.Format("02.01.2006 15:04")
 	params.Duration = fmt.Sprintf("%d", timesAndDates.DurationInDays)
 }
 
@@ -484,7 +484,9 @@ func getDealDetails(c echo.Context) error {
 		return c.String(http.StatusNotFound, "Konnte Deal Details nicht laden, bitte versuche es später nochmal.")
 	}
 
-	return view.Render(view.DealDetailsFooter(details, imageUrls, user.IsDealer, strconv.Itoa(likes)), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.DealDetailsFooter(details, imageUrls, user.IsDealer, strconv.Itoa(likes), lang), c)
 }
 
 func toggleDealLike(c echo.Context) error {
@@ -528,7 +530,9 @@ func getReportModal(c echo.Context) error {
 		zap.L().Sugar().Error("can't get deal report reason: ", err)
 	}
 
-	return view.Render(view.DealReportModal(dealId, report.Reason, report.Title), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.DealReportModal(dealId, report.Reason, report.Title, lang), c)
 }
 
 func saveReport(c echo.Context) error {
