@@ -105,7 +105,8 @@ func changeEmail(c echo.Context) error {
 }
 
 func openEmailChangePage(c echo.Context) error {
-	return view.Render(view.EmailChangePage(), c)
+	lang := service.GetLanguageFromCookie(c)
+	return view.Render(view.EmailChangePage(lang), c)
 }
 
 func sendEmailChangeEmail(c echo.Context) error {
@@ -362,7 +363,9 @@ func getProfileImageSettings(c echo.Context) error {
 		return view.RenderAlert("Kann Profilbild nicht laden, bitte versuche es später nochmal.", c)
 	}
 
-	return view.Render(view.ProfileImageSettings(imageUrl, user.IsDealer), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.ProfileImageSettings(imageUrl, user.IsDealer, lang), c)
 }
 
 func getUserCommonsSettings(c echo.Context) error {
@@ -377,7 +380,9 @@ func getUserCommonsSettings(c echo.Context) error {
 		return view.RenderAlert("Deine Einstellungen konnten gerade nicht geladen werden, bitte versuche es später nochmal.", c)
 	}
 
-	return view.Render(view.CommonUserSettings(acc.Username, acc.Email), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.CommonUserSettings(acc.Username, acc.Email, lang), c)
 }
 
 func openSettings(c echo.Context) error {
@@ -386,7 +391,9 @@ func openSettings(c echo.Context) error {
 		return redirect.Login(c)
 	}
 
-	return view.Render(view.Settings(user.IsDealer), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.Settings(user.IsDealer, lang), c)
 }
 
 func getProfileImage(c echo.Context) error {

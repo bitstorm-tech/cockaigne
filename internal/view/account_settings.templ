@@ -4,7 +4,7 @@ import "github.com/bitstorm-tech/cockaigne/internal/model"
 import "strconv"
 import "fmt"
 
-templ Settings(isDealer bool) {
+templ Settings(isDealer bool, lang string) {
 	@BaseLayout() {
 		<div class="p-4" x-data="{selectedTab: 0}">
 			<div class="tabs tabs-bordered" x-cloak>
@@ -17,7 +17,7 @@ templ Settings(isDealer bool) {
 						:class="selectedTab === 0 ? 'tab-active' : ''"
 						@click="selectedTab = 0"
 					>
-						Allgemein
+						{ t("common", lang) }
 					</div>
 					<div
 						hx-get="/settings-dealer-address"
@@ -38,7 +38,7 @@ templ Settings(isDealer bool) {
 						:class="selectedTab === 0 ? 'tab-active' : ''"
 						@click="selectedTab = 0"
 					>
-						Allgemein
+						{ t("common", lang) }
 					</div>
 				}
 				<div
@@ -49,7 +49,7 @@ templ Settings(isDealer bool) {
 					:class="selectedTab === 1 ? 'tab-active' : ''"
 					@click="selectedTab = 1"
 				>
-					Profilbild
+					{ t("profile_picture", lang) }
 				</div>
 			</div>
 			if isDealer {
@@ -61,23 +61,23 @@ templ Settings(isDealer bool) {
 	}
 }
 
-templ CommonUserSettings(username string, email string) {
+templ CommonUserSettings(username string, email string, lang string) {
 	<form class="flex flex-col gap-4" hx-post="/settings-user-common" hx-target="closest #content">
 		<div class="form-control">
-			<label for="username">Benutzername</label>
+			<label for="username">{ t("username", lang) }</label>
 			<input id="username" type="text" name="username" value={ username }/>
 		</div>
 		<div class="form-control">
-			<label for="email">Benutzername</label>
+			<label for="email">{ t("email", lang) }</label>
 			<input id="email" type="email" value={ email } disabled/>
 		</div>
-		<a class="btn btn-primary" href="/email-change">E-Mail ändern</a>
+		<a class="btn btn-primary" href="/email-change">{ t("email_change", lang) }</a>
 		<button type="button" class="btn btn-primary" hx-post="/api/send-password-change-email">
-			Password ändern
+			{ t("password_change", lang) }
 		</button>
 		<div class="grid grid-cols-2 gap-4">
-			<button>Speichern</button>
-			<a class="btn btn-primary" href="/">Abbrechen</a>
+			<a class="btn" href="/">{ t("cancel", lang) }</a>
+			<button>{ t("save", lang) }</button>
 		</div>
 	</form>
 }
@@ -120,7 +120,7 @@ templ CommonDealerSettings(acc model.Account) {
 	</form>
 }
 
-templ ProfileImageSettings(imageUrl string, isDealer bool) {
+templ ProfileImageSettings(imageUrl string, isDealer bool, lang string) {
 	<form
 		class="flex flex-col gap-4"
 		enctype="multipart/form-data"
@@ -143,8 +143,8 @@ templ ProfileImageSettings(imageUrl string, isDealer bool) {
 		}"
 	>
 		<div class="grid grid-cols-2 gap-4">
-			<button type="button" class="btn btn-primary" @click="input.click()">Ändern</button>
-			<button type="button" class="btn btn-primary" @click="deleteImage()">Löschen</button>
+			<button type="button" class="btn btn-primary" @click="deleteImage()">{ t("delete", lang) }</button>
+			<button type="button" class="btn btn-primary" @click="input.click()">{ t("change", lang) }</button>
 		</div>
 		<img :src="newImage" alt="Neues Profilebild" x-show="newImage"/>
 		<div x-show="!newImage && !deleteImageFlag">
@@ -154,8 +154,8 @@ templ ProfileImageSettings(imageUrl string, isDealer bool) {
 			@ProfileImage("", isDealer)
 		</div>
 		<div class="grid grid-cols-2 gap-4">
-			<button>Speichern</button>
-			<a class="btn btn-primary" href="/">Abbrechen</a>
+			<a class="btn" href="/">{ t("cancel", lang) }</a>
+			<button>{ t("save", lang) }</button>
 		</div>
 		<input id="input" name="profile-image" type="file" @change="showImage($event)" hidden/>
 		<input id="delete" name="delete-image" type="text" :value="deleteImageFlag" hidden/>

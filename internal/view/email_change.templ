@@ -1,19 +1,19 @@
 package view
 
-templ EmailChangePage() {
+templ EmailChangePage(lang string) {
 	@BaseLayout() {
 		<form class="flex flex-col gap-6 p-6" hx-post="/api/send-email-change-email">
-			<h1 class="text-center">E-Mail ändern</h1>
+			<h1 class="text-center">{ t("email_change", lang) }</h1>
 			<span>
-				Bitte gibt die neue E-Mail Adresse ein. Wir schicken an diese Adresse eine E-Mail mit einem Bestätigungslink zum aktivieren der neuen E-Mail Adresse.
+				{ t("email_change_description", lang) }
 			</span>
 			<div class="form-control">
 				<label for="email">E-Mail</label>
 				<input id="email" name="email" type="email"/>
 			</div>
 			<div class="grid grid-cols-2 gap-4">
-				<button class="btn btn-warning">Senden</button>
-				<a class="btn btn-primary" href="/settings">Zurück</a>
+				<a class="btn btn-primary" href="/settings">{ t("back", lang) }</a>
+				<button class="btn btn-warning">{ t("send", lang) }</button>
 			</div>
 		</form>
 	}
