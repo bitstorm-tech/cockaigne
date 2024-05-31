@@ -52,11 +52,12 @@ func openFilterModal(c echo.Context) error {
 
 	categories := service.GetCategories()
 	redirectAfterSave := c.QueryParam("redirect-after-save")
+	lang := service.GetLanguageFromCookie(c)
 
 	if user.IsBasicUser {
 		basicUserFilter := service.GetBasicUserFilter(user.ID.String())
 		return view.Render(
-			view.FilterModal(categories, basicUserFilter.SelectedCategories, basicUserFilter.SearchRadiusInMeters, redirectAfterSave),
+			view.FilterModal(categories, basicUserFilter.SelectedCategories, basicUserFilter.SearchRadiusInMeters, redirectAfterSave, lang),
 			c,
 		)
 	}
@@ -69,7 +70,7 @@ func openFilterModal(c echo.Context) error {
 
 	favCategoryIds := service.GetFavoriteCategoryIds(user.ID)
 
-	return view.Render(view.FilterModal(categories, favCategoryIds, acc.SearchRadiusInMeters, redirectAfterSave), c)
+	return view.Render(view.FilterModal(categories, favCategoryIds, acc.SearchRadiusInMeters, redirectAfterSave, lang), c)
 }
 
 func openLocationModal(c echo.Context) error {

@@ -5,10 +5,11 @@ import (
 	"strconv"
 )
 
-templ FilterModal(categories []model.Category, favoriteCategoryIds []int, searchRadius int, redirectAfterSave string) {
+templ FilterModal(categories []model.Category, favoriteCategoryIds []int, searchRadius int, redirectAfterSave string, lang string) {
 	@Modal() {
+		<h1>{ t("filter", lang) }</h1>
 		<form hx-post={ "/api/accounts/filter?redirect-after-save=" + redirectAfterSave } hx-target="#modal">
-			<div class="form-control pb-6">
+			<div class="form-control">
 				<label id="radius-label" for="radius" class="flex items-center gap-1"></label>
 				<input
 					id="radius"
@@ -21,7 +22,7 @@ templ FilterModal(categories []model.Category, favoriteCategoryIds []int, search
 					oninput="changeRadius(this)"
 				/>
 			</div>
-			<hr/>
+			<hr class="my-4"/>
 			<div class="grid grid-cols-2 py-4 gap-2">
 				<button
 					type="button"
@@ -29,7 +30,7 @@ templ FilterModal(categories []model.Category, favoriteCategoryIds []int, search
 					hx-post="/api/accounts/filter/select-all"
 					hx-target="#category-list"
 				>
-					Alles auswählen
+					{ t("select_all", lang) }
 				</button>
 				<button
 					type="button"
@@ -37,18 +38,18 @@ templ FilterModal(categories []model.Category, favoriteCategoryIds []int, search
 					hx-post="/api/accounts/filter/deselect-all"
 					hx-target="#category-list"
 				>
-					Alles abwählen
+					{ t("deselect_all", lang) }
 				</button>
 			</div>
 			<div id="category-list" class="flex flex-col gap-2">
 				@CategoryList(categories, favoriteCategoryIds)
 			</div>
 			<div class="modal-action">
-				<button class="btn-primary btn-outline" hx-delete="/ui/remove" hx-target="#modal">Abbrechen</button>
-				<button>Speichern</button>
+				<button class="btn-primary btn-outline" hx-delete="/ui/remove" hx-target="#modal">{ t("cancel", lang) }</button>
+				<button>{ t("save", lang) }</button>
 			</div>
 		</form>
-		@filterScript(searchRadius, favoriteCategoryIds)
+		@filterScript(searchRadius, favoriteCategoryIds, t("perimeter", lang))
 	}
 }
 
@@ -69,17 +70,17 @@ templ CategoryList(categories []model.Category, favoriteCategoryIds []int) {
 	}
 }
 
-script filterScript(searchRadius int, selectedCategories []int) {
+script filterScript(searchRadius int, selectedCategories []int, perimeter string) {
   FilterService.searchRadius = searchRadius;
   FilterService.selectedCategories  = selectedCategories;
 
   const searchRadiusLabel = document.getElementById("radius-label");
-  searchRadiusLabel.textContent = `Umkreis ${searchRadius * 2 / 1000} km`
+  searchRadiusLabel.textContent = `${perimeter} ${searchRadius * 2 / 1000} km`
 
   document.changeRadius = function(element) {
     const newSearchRadius = +element.value;
     FilterService.searchRadius = newSearchRadius;
-    searchRadiusLabel.textContent = `Umkreis ${newSearchRadius * 2 / 1000} km`
+    searchRadiusLabel.textContent = `${perimeter} ${newSearchRadius * 2 / 1000} km`
   }
 
   document.changeSelectedCategories = function(element) {
