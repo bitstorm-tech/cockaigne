@@ -1,13 +1,13 @@
 package view
 
-templ LocationModal(useLocationService bool) {
+templ LocationModal(useLocationService bool, lang string) {
 	@Modal() {
 		<form hx-post="/api/accounts/use-location-service" hx-target="#modal">
 			<div class="flex flex-col gap-4">
 				<div id="address-input-form-control" class="form-control">
-					<label for="address-input">Adresse</label>
+					<label for="address-input">{ t("address", lang) }</label>
 					<input id="address-input" type="text" name="address" onkeydown="searchAddress(event)"/>
-					<button type="button" class="btn btn-sm btn-primary" onclick="searchAddress()">Addresse suchen</button>
+					<button type="button" class="btn btn-sm btn-primary" onclick="searchAddress()">{ t("address_search", lang) }</button>
 				</div>
 				<div class="flex items-center gap-2">
 					<div id="loading-indicator" class="flex justify-center items-center gap-2">
@@ -28,12 +28,12 @@ templ LocationModal(useLocationService bool) {
 						checked?={ useLocationService }
 						onclick="toggleCheckbox(this)"
 					/>
-					<label for="use-location-service">Aktuellen Standort verwenden</label>
+					<label for="use-location-service">{ t("use_current_location", lang) }</label>
 				</div>
 			</div>
 			<div class="modal-action">
-				<button class="btn-primary btn-outline" hx-delete="/ui/remove" hx-target="#modal">Abbrechen</button>
-				<button onClick="searchAddress">Speichern</button>
+				<button class="btn-primary btn-outline" hx-delete="/ui/remove" hx-target="#modal">{ t("cancel", lang) }</button>
+				<button onClick="searchAddress">{ t("save", lang) }</button>
 			</div>
 		</form>
 		@locationModal(useLocationService)

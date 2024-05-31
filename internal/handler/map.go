@@ -91,5 +91,7 @@ func openLocationModal(c echo.Context) error {
 		useLocationService = acc.UseLocationService
 	}
 
-	return view.Render(view.LocationModal(useLocationService), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.LocationModal(useLocationService, lang), c)
 }
