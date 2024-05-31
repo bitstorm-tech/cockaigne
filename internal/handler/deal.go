@@ -264,7 +264,8 @@ func getTopDealsList(c echo.Context) error {
 }
 
 func openTopDealsPage(c echo.Context) error {
-	return view.Render(view.TopDealsPage(), c)
+	lang := service.GetLanguageFromCookie(c)
+	return view.Render(view.TopDealsPage(lang), c)
 }
 
 func getFavoriteDealerDeals(c echo.Context) error {
