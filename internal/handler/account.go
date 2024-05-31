@@ -252,7 +252,9 @@ func getDealerAddressSettings(c echo.Context) error {
 		return view.RenderAlert("Kann aktuelle Adresse momentan nicht laden, bitte versuche es später nochmal.", c)
 	}
 
-	return view.Render(view.AddressSettings(acc), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.AddressSettings(acc, lang), c)
 }
 
 func getDealerCommonSettings(c echo.Context) error {
@@ -267,7 +269,9 @@ func getDealerCommonSettings(c echo.Context) error {
 		return view.RenderAlert("Kann Einstellungen gerade nicht laden, bitte versuche es später noch einmal.", c)
 	}
 
-	return view.Render(view.CommonDealerSettings(account), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.CommonDealerSettings(account, lang), c)
 }
 
 func updateProfileImage(c echo.Context) error {

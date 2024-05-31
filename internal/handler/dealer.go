@@ -147,8 +147,9 @@ func getDealerPage(c echo.Context) error {
 	)
 
 	isOwner := dealerId == userId.String()
+	lang := service.GetLanguageFromCookie(c)
 
-	return view.Render(view.Dealer(acc, category.Name, isOwner, googleMapsLink), c)
+	return view.Render(view.Dealer(acc, category.Name, isOwner, googleMapsLink, lang), c)
 }
 
 func getOverviewPage(c echo.Context) error {

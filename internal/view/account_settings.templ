@@ -27,7 +27,7 @@ templ Settings(isDealer bool, lang string) {
 						:class="selectedTab === 2 ? 'tab-active' : ''"
 						@click="selectedTab = 2"
 					>
-						Adresse
+						{ t("address", lang) }
 					</div>
 				} else {
 					<div
@@ -82,27 +82,27 @@ templ CommonUserSettings(username string, email string, lang string) {
 	</form>
 }
 
-templ CommonDealerSettings(acc model.Account) {
+templ CommonDealerSettings(acc model.Account, lang string) {
 	<form class="flex flex-col gap-4" hx-post="/settings" hx-target="closest #content">
 		<div class="form-control">
-			<label for="username">Benutzername</label>
+			<label for="username">{ t("username", lang) }</label>
 			<input id="username" type="text" name="username" value={ acc.Username }/>
 		</div>
 		<div class="form-control">
-			<label for="email">E-Mail</label>
+			<label for="email">{ t("email", lang) }</label>
 			<input id="email" type="email" value={ acc.Email } disabled/>
 		</div>
-		<a class="btn btn-primary" href="/email-change">E-Mail ändern</a>
+		<a class="btn btn-primary" href="/email-change">{ t("email_change", lang) }</a>
 		<div class="form-control">
-			<label for="phone">Telefonnummer</label>
+			<label for="phone">{ t("phone", lang) }</label>
 			<input id="phone" type="text" name="phone" value={ acc.Phone.String }/>
 		</div>
 		<div class="form-control">
-			<label for="tax-id">Umsatzsteuer ID</label>
+			<label for="tax-id">{ t("tax_id", lang) }</label>
 			<input id="tax-id" type="text" name="tax-id" value={ acc.TaxId.String }/>
 		</div>
 		<div class="form-control">
-			<label for="category-select">Branche</label>
+			<label for="category-select">{ t("industry", lang) }</label>
 			<div
 				id="category-select"
 				hx-get={ "/ui/category-select?translation_key=industry_select&selected=" + strconv.Itoa(int(acc.DefaultCategory.Int32)) }
@@ -111,11 +111,11 @@ templ CommonDealerSettings(acc model.Account) {
 			></div>
 		</div>
 		<button type="button" class="btn btn-primary" hx-post="/api/send-password-change-email">
-			Password ändern
+			{ t("password_change", lang) }
 		</button>
 		<div class="grid grid-cols-2 gap-4">
-			<button>Speichern</button>
-			<a class="btn btn-primary" href="/">Abbrechen</a>
+			<a class="btn btn-primary" href="/">{ t("cancel", lang) }</a>
+			<button>{ t("save", lang) }</button>
 		</div>
 	</form>
 }
@@ -162,41 +162,40 @@ templ ProfileImageSettings(imageUrl string, isDealer bool, lang string) {
 	</form>
 }
 
-templ AddressSettings(acc model.Account) {
+templ AddressSettings(acc model.Account, lang string) {
 	<form class="flex flex-col gap-4">
 		<div class="grid grid-cols-3 gap-3">
 			<div class="col-span-2">
 				<div class="form-control">
-					<label for="street">Straße</label>
+					<label for="street">{ t("street", lang) }</label>
 					<input id="street" type="text" name="street" value={ acc.Street.String }/>
 				</div>
 			</div>
 			<div class="form-control">
-				<label for="housenumber">Hausnummer</label>
+				<label for="housenumber">{ t("house_number", lang) }</label>
 				<input id="housenumber" type="text" name="housenumber" value={ acc.HouseNumber.String }/>
 			</div>
 		</div>
 		<div class="grid grid-cols-3 gap-3">
 			<div class="col-span-2">
 				<div class="form-control">
-					<label for="city">Ort</label>
+					<label for="city">{ t("city", lang) }</label>
 					<input id="city" type="text" name="city" value={ acc.City.String }/>
 				</div>
 			</div>
 			<div class="form-control">
-				<label for="zip">PLZ</label>
+				<label for="zip">{ t("zipcode", lang) }</label>
 				<input id="zip" type="text" name="zip" value={ fmt.Sprintf("%d", acc.ZipCode.Int32) }/>
 			</div>
 		</div>
 		<i>
-			Bitte prüfe genau, ob die Adresse auf der Karte korrekt angezeigt wird. Es ist extrem wichtig, dass die Position auf
-			der Karte stimmt, da hier die eingestellten Deals angezeigt werden!
+			{ t("location_change_description", lang) }
 		</i>
-		<button class="btn btn-sm btn-primary" type="button" onclick="searchLocation()">Auf Karte anzeigen</button>
+		<button class="btn btn-sm btn-primary" type="button" onclick="searchLocation()">{ t("show_on_map", lang) }</button>
 		<div id="map" class="w-full h-64"></div>
 		<div class="grid grid-cols-2 gap-4">
-			<button hx-post="/settings-dealer-address">Speichern</button>
-			<button class="btn btn-primary">Abbrechen</button>
+			<button class="btn btn-primary">{ t("cancel", lang) }</button>
+			<button hx-post="/settings-dealer-address">{ t("save", lang) }</button>
 		</div>
 	</form>
 	@addressSettingsData(acc.Street.String, acc.HouseNumber.String, acc.City.String, acc.ZipCode.Int32)

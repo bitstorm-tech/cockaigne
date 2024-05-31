@@ -4,9 +4,9 @@ import "github.com/bitstorm-tech/cockaigne/internal/model"
 import "strconv"
 import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
 
-templ Dealer(acc model.Account, category string, isOwner bool, googleMapsLink string) {
+templ Dealer(acc model.Account, category string, isOwner bool, googleMapsLink string, lang string) {
 	@BaseLayout() {
-		@dealerHeader(acc, category, isOwner, googleMapsLink)
+		@dealerHeader(acc, category, isOwner, googleMapsLink, lang)
 		<div x-data="{selectedTab: 0}">
 			<div class="tabs tabs-bordered" x-cloak>
 				<div
@@ -48,10 +48,10 @@ templ Dealer(acc model.Account, category string, isOwner bool, googleMapsLink st
 	}
 }
 
-templ dealerHeader(acc model.Account, category string, isOwner bool, googleMapsLink string) {
+templ dealerHeader(acc model.Account, category string, isOwner bool, googleMapsLink string, lang string) {
 	<div class="flex h-52 justify-between">
 		<div class="m-4 flex flex-col">
-			<span class="text-xs text-[#6a828c]"><b>Kategorie</b></span>
+			<span class="text-xs text-[#6a828c]"><b>{ t("category", lang) }</b></span>
 			<span class="text-xs font-extralight italic text-[#6a828c]">{ category }</span>
 			<span class="pb-2 pt-8 text-xl">{ acc.Username }</span>
 			<span class="text-xs">{ acc.Street.String } { acc.HouseNumber.String }</span>
