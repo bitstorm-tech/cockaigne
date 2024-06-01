@@ -12,7 +12,7 @@ templ DealerRatingList(ratings []model.DealerRating, dealerId string, alreadyRat
 		}
 		if isBasicUser {
 			<span class="text-center m-2 py-6 bg-warning">
-				<a href="/signup" class="link">{ t("", lang) }</a>, um Dealer bewerten zu können!
+				<a href="/signup" class="link">{ t("signup_now_1", lang) }</a>, { t("signup_now_2", lang) }
 			</span>
 		}
 		if len(ratings) == 0 && !isOwner {

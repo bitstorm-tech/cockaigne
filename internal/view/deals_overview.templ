@@ -1,12 +1,12 @@
 package view
 
-templ DealsOverview(dealerId, freeDaysLeft, periodEndDate string) {
+templ DealsOverview(dealerId, freeDaysLeft, periodEndDate string, lang string) {
 	@BaseLayout() {
 		<div class="flex flex-col gap-8">
 			<div class="flex flex-col gap-4 p-3">
-				<a href="/deal/new" class="btn btn-warning">Deal erstellen</a>
+				<a href="/deal/new" class="btn btn-warning">{ t("deal_create", lang) }</a>
 				<div class="grid grid-cols-2 gap-4">
-					<a href="/templates" class="btn btn-primary">Vorlagen</a>
+					<a href="/templates" class="btn btn-primary">{ t("templates", lang) }</a>
 					<div hx-get="/dealer-subscription-summary" hx-trigger="load" hx-target="this" hx-swap="outerHTML"></div>
 				</div>
 			</div>
@@ -20,7 +20,7 @@ templ DealsOverview(dealerId, freeDaysLeft, periodEndDate string) {
 						class="tab"
 						:class="selectedTab === 0 ? 'tab-active' :''"
 					>
-						Aktiv
+						{ t("active", lang) }
 					</div>
 					<div
 						hx-get={ "/deals/future?hide_name=true&show_statistics=true&dealer_id=" + dealerId }
@@ -30,7 +30,7 @@ templ DealsOverview(dealerId, freeDaysLeft, periodEndDate string) {
 						class="tab"
 						:class="selectedTab === 1 ? 'tab-active' :''"
 					>
-						Geplant
+						{ t("planed", lang) }
 					</div>
 					<div
 						hx-get={ "/deals/past?hide_name=true&show_statistics=true&dealer_id=" + dealerId }
@@ -40,7 +40,7 @@ templ DealsOverview(dealerId, freeDaysLeft, periodEndDate string) {
 						class="tab"
 						:class="selectedTab === 2 ? 'tab-active' :''"
 					>
-						Abgelaufen
+						{ t("past", lang) }
 					</div>
 				</div>
 			</div>
@@ -49,20 +49,24 @@ templ DealsOverview(dealerId, freeDaysLeft, periodEndDate string) {
 	}
 }
 
-templ SubscriptionSummary(freeDaysLeft string, periodEndDate string, err bool) {
+templ SubscriptionSummary(freeDaysLeft string, periodEndDate string, err bool, lang string) {
 	if err {
-		<span class="italic text-red-700 text-sm">Kann aktuellen Status des Abos momentan nicht abrufen</span>
+		<span class="italic text-red-700 text-sm">
+			{ t("subscription_no_info_available", lang) }
+		</span>
 	} else {
 		if len(freeDaysLeft) > 0 {
 			<div class="flex flex-col justify-center">
-				<div class="text-right">{ freeDaysLeft } Deals verbleibend</div>
+				<div class="text-right">{ freeDaysLeft } { t("deals_left", lang) }</div>
 				<div class="text-xs text-right">Verfügbar bis { periodEndDate }</div>
 			</div>
 		} else {
 			<div class="flex flex-col text-sm text-center">
-				<span>Kein Abo abgeschlossen.</span>
-				<span>4,99 EUR pro Dealtag.</span>
-				<a class="link text-xs" href="/pricing">Jetzt Abo abschließen und Geld sparen!</a>
+				<span>{ t("subscription_not_active", lang) }</span>
+				<span>4,99 € { t("per_deal_day", lang) }</span>
+				<a class="link text-xs" href="/pricing">
+					{ t("subscription_buy_now", lang) }
+				</a>
 			</div>
 		}
 	}

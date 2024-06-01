@@ -40,31 +40,33 @@ func getDealerSubscriptionSummary(c echo.Context) error {
 		return redirect.Login(c)
 	}
 
+	lang := service.GetLanguageFromCookie(c)
+
 	hasSub, err := service.HasActiveSubscription(dealerId.String())
 	if err != nil {
 		zap.L().Sugar().Info("can't check if dealer has active subscription: ", err)
-		return view.Render(view.SubscriptionSummary("", "", true), c)
+		return view.Render(view.SubscriptionSummary("", "", true, lang), c)
 	}
 
 	if !hasSub {
-		return view.Render(view.SubscriptionSummary("", "", false), c)
+		return view.Render(view.SubscriptionSummary("", "", false, lang), c)
 	}
 
 	freeDaysLeft, err := service.GetFreeDaysLeftFromSubscription(dealerId.String())
 	if err != nil {
 		zap.L().Sugar().Error("can't get free days left from subscription: ", err)
-		return view.Render(view.SubscriptionSummary("", "", true), c)
+		return view.Render(view.SubscriptionSummary("", "", true, lang), c)
 	}
 
 	endDateString, err := service.GetSubscriptionPeriodEndDate(dealerId.String())
 	if err != nil {
 		zap.L().Sugar().Error("can't get subscription period end date: ", err)
-		return view.Render(view.SubscriptionSummary("", "", true), c)
+		return view.Render(view.SubscriptionSummary("", "", true, lang), c)
 	}
 
 	freeDaysLeftString := fmt.Sprintf("%d", freeDaysLeft)
 
-	return view.Render(view.SubscriptionSummary(freeDaysLeftString, endDateString, false), c)
+	return view.Render(view.SubscriptionSummary(freeDaysLeftString, endDateString, false, lang), c)
 }
 
 func getDealerHeaderFavoriteButton(c echo.Context) error {
@@ -174,7 +176,9 @@ func getOverviewPage(c echo.Context) error {
 		periodEndDate = "01.01.3000"
 	}
 
-	return view.Render(view.DealsOverview(dealerId.String(), freeDaysLeftString, periodEndDate), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.DealsOverview(dealerId.String(), freeDaysLeftString, periodEndDate, lang), c)
 }
 
 func getTemplatesPage(c echo.Context) error {
