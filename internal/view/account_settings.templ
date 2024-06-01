@@ -203,7 +203,7 @@ templ AddressSettings(acc model.Account, lang string) {
 
 script addressSettingsData(street string, housenumber string, city string, zip int32) {
 	let marker
-	const map = L.map("map")
+	const map = L.map("map", {attributionControl: false})
 
 	getPosition(`${street} ${housenumber}, ${zip} ${city}`).then(position => {
 		map.setView(position, 17)

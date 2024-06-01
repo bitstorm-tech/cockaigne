@@ -39,7 +39,7 @@ templ Map(searchRadius int, useLocationService bool, currentLocation model.Point
 }
 
 script mapScript(searchRadius int, useLocationService bool, currentLocation model.Point) {
-  const map = L.map("map");
+  const map = L.map("map", {attributionControl: false});
   const markerLayer = L.layerGroup();
   const dealLayer = L.layerGroup();
   markerLayer.addTo(map);
