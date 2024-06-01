@@ -2,14 +2,14 @@ package view
 
 import "fmt"
 
-templ DealerImages(imageUrls []string, isOwner bool, dealerId string) {
+templ DealerImages(imageUrls []string, isOwner bool, dealerId string, lang string) {
 	<div id="dealer-image-list-root">
 		if len(imageUrls) == 0 {
 			<span class="flex justify-around p-8 text-center">
 				if isOwner {
-					🚀 Füge ein paar Bilder hinzu und mach deine Seite noch schöner!
+					{ t("dealer_images_add", lang) }
 				} else {
-					Leider gibt es hier noch keine Bilder vom Dealer zu bestaunen.
+					{ t("dealer_images_no_images_yet", lang) }
 				}
 			</span>
 		} else {

@@ -194,8 +194,9 @@ func getDealerImages(c echo.Context) error {
 	}
 
 	isOwner := dealerId == userId.String()
+	lang := service.GetLanguageFromCookie(c)
 
-	return view.Render(view.DealerImages(imageUrls, isOwner, dealerId), c)
+	return view.Render(view.DealerImages(imageUrls, isOwner, dealerId, lang), c)
 }
 
 func addDealerImage(c echo.Context) error {
@@ -243,7 +244,9 @@ func deleteDealerImage(c echo.Context) error {
 		zap.L().Sugar().Error("can't get dealer images: ", err)
 	}
 
-	return view.Render(view.DealerImages(imageUrls, true, dealerId.String()), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.DealerImages(imageUrls, true, dealerId.String(), lang), c)
 }
 
 func getDealerRatings(c echo.Context) error {
