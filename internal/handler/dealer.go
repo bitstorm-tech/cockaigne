@@ -268,8 +268,9 @@ func getDealerRatings(c echo.Context) error {
 	}
 
 	averageRating := float64(stars) / float64(len(ratings))
+	lang := service.GetLanguageFromCookie(c)
 
-	return view.Render(view.DealerRatingList(ratings, dealerId, alreadyRated, isOwner, user.IsBasicUser, averageRating), c)
+	return view.Render(view.DealerRatingList(ratings, dealerId, alreadyRated, isOwner, user.IsBasicUser, averageRating, lang), c)
 }
 
 func getRatingModal(c echo.Context) error {
@@ -295,7 +296,9 @@ func getRatingModal(c echo.Context) error {
 		return view.RenderAlert("Momentan können keine Bewertungen abgegeben werden, bitte versuche es später noch einmal.", c)
 	}
 
-	return view.Render(view.DealerRatingModal(rating, canEdit), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.DealerRatingModal(rating, canEdit, lang), c)
 }
 
 func createDealerRating(c echo.Context) error {

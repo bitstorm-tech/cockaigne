@@ -2,12 +2,12 @@ package view
 
 import "github.com/bitstorm-tech/cockaigne/internal/model"
 
-templ DealerRatingModal(rating model.DealerRating, edit bool) {
+templ DealerRatingModal(rating model.DealerRating, edit bool, lang string) {
 	@Modal() {
 		<form hx-target="#rating-list" hx-swap="outerHTML">
 			<div class="grid grid-cols-1 gap-4 py-4">
 				<div class="form-control">
-					<label for="stars">Bewertung</label>
+					<label for="stars">{ t("rating", lang) }</label>
 					<div id="stars" class="rating rating-lg gap-4">
 						<input
 							type="radio"
@@ -47,17 +47,17 @@ templ DealerRatingModal(rating model.DealerRating, edit bool) {
 					</div>
 				</div>
 				<div class="form-control">
-					<label for="rating-text">Bewertungstext</label>
+					<label for="rating-text">{ t("rating_text", lang) }</label>
 					<textarea name="rating-text" id="rating-text" rows="3">{ rating.Text }</textarea>
 				</div>
 			</div>
 			<div class="modal-action">
 				<div class="flex gap-2">
 					if edit {
-						<button class="btn-primary btn-outline" hx-delete={ "/dealer-rating/" + rating.DealerId.String() }>Löschen</button>
-						<button class="btn-warning" hx-post={ "/dealer-rating/" + rating.DealerId.String() }>Ändern</button>
+						<button class="btn-primary btn-outline" hx-delete={ "/dealer-rating/" + rating.DealerId.String() }>{ t("delete", lang) }</button>
+						<button class="btn-warning" hx-post={ "/dealer-rating/" + rating.DealerId.String() }>{ t("change", lang) }</button>
 					} else {
-						<button class="btn-warning" hx-post={ "/dealer-rating/" + rating.DealerId.String() }>Bewerten</button>
+						<button class="btn-warning" hx-post={ "/dealer-rating/" + rating.DealerId.String() }>{ t("rate", lang) }</button>
 					}
 				</div>
 			</div>

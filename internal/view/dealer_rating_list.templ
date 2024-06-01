@@ -3,31 +3,31 @@ package view
 import "github.com/bitstorm-tech/cockaigne/internal/model"
 import "fmt"
 
-templ DealerRatingList(ratings []model.DealerRating, dealerId string, alreadyRated bool, isOwner bool, isBasicUser bool, averageRating float64) {
+templ DealerRatingList(ratings []model.DealerRating, dealerId string, alreadyRated bool, isOwner bool, isBasicUser bool, averageRating float64, lang string) {
 	<div id="rating-list" class="flex flex-col">
 		if !alreadyRated && !isOwner && !isBasicUser {
 			<button class="m-4" hx-get={ "/dealer-rating-modal/" + dealerId } hx-target="#rating-modal">
-				Bewertung abgeben
+				{ t("rating_add", lang) }
 			</button>
 		}
 		if isBasicUser {
 			<span class="text-center m-2 py-6 bg-warning">
-				<a href="/signup" class="link">Registriere dich jetzt</a>, um Dealer bewerten zu können!
+				<a href="/signup" class="link">{ t("", lang) }</a>, um Dealer bewerten zu können!
 			</span>
 		}
 		if len(ratings) == 0 && !isOwner {
 			if isOwner {
-				<span class="w-full pt-4 text-center">Leider hat dich noch niemand bewertet 🙁</span>
+				<span class="w-full pt-4 text-center">{ t("rating_not_yet_rated", lang) }</span>
 			} else {
 				<div class="flex w-full flex-col pt-4 text-center">
-					<span>Sei der erste der eine Bewertung schreibt!</span>
-					<span>(nur für Pro-Mitglieder)</span>
+					<span>{ t("rating_be_the_first_1", lang) }</span>
+					<span>{ t("rating_be_the_first_2", lang) }</span>
 				</div>
 			}
 		}
 		if len(ratings) == 0 && isOwner {
 			<div class="flex w-full flex-col pt-4 text-center">
-				<span>Leider hast du noch keine Bewertung bekommen 😕</span>
+				<span>{ t("rating_not_yet_rated", lang) }</span>
 			</div>
 		}
 		if len(ratings) > 0 {
