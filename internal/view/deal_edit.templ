@@ -3,7 +3,7 @@ package view
 import "github.com/bitstorm-tech/cockaigne/internal/model"
 import "strconv"
 
-templ DealEdit(deal model.Deal) {
+templ DealEdit(deal model.Deal, lang string) {
 	@BaseLayout() {
 		<form
 			class="flex flex-col gap-4 p-4"
@@ -16,21 +16,21 @@ templ DealEdit(deal model.Deal) {
 			//   Title
 			// ------------------
 			<div class="form-control">
-				<label for="title">Titel</label>
+				<label for="title">{ t("title", lang) }</label>
 				<input id="title" type="text" name="title" value={ deal.Title }/>
 			</div>
 			//   <!------------------>
 			//   <!-- Description  -->
 			//   <!------------------>
 			<div class="form-control">
-				<label for="description">Beschreibung</label>
+				<label for="description">{ t("description", lang) }</label>
 				<textarea id="description" class="h-32" rows="10" name="description">{ deal.Description }</textarea>
 			</div>
 			//   <!------------------------->
 			//   <!-- Category selection  -->
 			//   <!------------------------->
 			<div class="form-control">
-				<label for="category-select">Kategorie</label>
+				<label for="category-select">{ t("category", lang) }</label>
 				<div
 					id="category-select"
 					hx-get={ "/ui/category-select?translation_key=category_select&selected=" + strconv.Itoa(deal.CategoryId) }
@@ -42,8 +42,8 @@ templ DealEdit(deal model.Deal) {
 			//   <!-- Add pictures  -->
 			//   <!------------------->
 			<span class="label-text">
-				Bilder hinzufügen
-				<span class="text-xs">(optional)</span>
+				{ t("images_add", lang) }
+				<span class="text-xs">({ t("optional", lang) })</span>
 				:
 			</span>
 			<div class="grid grid-cols-3 gap-2">
@@ -105,18 +105,18 @@ templ DealEdit(deal model.Deal) {
 			<div class="flex gap-6">
 				<div class="form-control-horizontal">
 					<input id="start-immediately" type="checkbox" class="checkbox" name="startInstantly" x-model="startInstantly"/>
-					<label for="start-immediately" class="cursor-pointer">Sofort starten</label>
+					<label for="start-immediately" class="cursor-pointer">{ t("start_immediately", lang) }</label>
 				</div>
 				<div class="form-control-horizontal">
 					<input id="runtime" type="checkbox" class="checkbox" name="ownEndDate" x-model="ownEndDate"/>
-					<label for="runtime" class="cursor-pointer">Individuelle Laufzeit</label>
+					<label for="runtime" class="cursor-pointer">{ t("runtime_individual", lang) }</label>
 				</div>
 			</div>
 			//   <!------------------------------------>
 			//   <!-- Start date or start instatnly  -->
 			//   <!------------------------------------>
 			<div class="form-control" x-show="!startInstantly">
-				<label for="start-date-input">Start</label>
+				<label for="start-date-input">{ t("start", lang) }</label>
 				<input
 					id="start-date-input"
 					type="datetime-local"
@@ -125,21 +125,21 @@ templ DealEdit(deal model.Deal) {
 				/>
 			</div>
 			<div class="py-6 text-sm" x-show="startInstantly">
-				<span>Dein Deal startet sofort, wenn du auf "Erstellen" klickst!</span>
+				<span>{ t("deal_start_description", lang) }</span>
 			</div>
 			//   <!----------------------------------------->
 			//   <!-- End date or runtime 1, 2 or 3 days  -->
 			//   <!----------------------------------------->
 			<div class="flex select-none gap-4">
 				<div class="form-control w-full" x-show="ownEndDate">
-					<label for="duration-input">Ende</label>
+					<label for="duration-input">{ t("end", lang) }</label>
 					<input id="duration-input" type="date" name="endDate"/>
 				</div>
 				<div class="form-control w-full py-3" x-show="!ownEndDate">
-					<label for="duration" class="text-sm">Laufzeit</label>
+					<label for="duration" class="text-sm">{ t("runtime", lang) }</label>
 					<div class="flex items-center gap-2">
 						<span x-text="runtime"></span>
-						<span>Tag(e)</span>
+						<span>{ t("days", lang) }</span>
 						<input id="duration" name="duration" type="range" min="1" max="10" step="1" x-model="runtime"/>
 					</div>
 				</div>
@@ -149,14 +149,14 @@ templ DealEdit(deal model.Deal) {
 			//   <!------------------------------------>
 			<div class="form-control-horizontal pt-10">
 				<input id="template" type="checkbox" class="checkbox" name="template"/>
-				<label for="template">Zusätzlich als Vorlage speichern</label>
+				<label for="template">{ t("save_additionally_as_template", lang) }</label>
 			</div>
 			//   <!--------------------->
 			//   <!-- Save and cancel -->
 			//   <!--------------------->
 			<div class="grid grid-cols-2 gap-2">
-				<a href="/" class="btn btn-primary btn-outline">Abbrechen</a>
-				<button hx-post="/deal-new-summary" hx-target="#summary-modal">Erstellen</button>
+				<a href="/" class="btn btn-primary btn-outline">{ t("cancel", lang) }</a>
+				<button hx-post="/deal-new-summary" hx-target="#summary-modal">{ t("create", lang) }</button>
 			</div>
 			<div id="summary-modal"></div>
 		</form>

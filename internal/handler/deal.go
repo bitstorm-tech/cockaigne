@@ -317,7 +317,9 @@ func openDealCreatePage(c echo.Context) error {
 		}
 	}
 
-	return view.Render(view.DealEdit(deal), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.DealEdit(deal, lang), c)
 }
 
 func getCategorySelect(c echo.Context) error {
