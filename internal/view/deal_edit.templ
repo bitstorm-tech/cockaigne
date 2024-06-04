@@ -196,16 +196,16 @@ type NewDealSummaryModalParameter struct {
 	FreeDaysLeft      string
 }
 
-templ NewDealSummaryModal(params NewDealSummaryModalParameter) {
+templ NewDealSummaryModal(params NewDealSummaryModalParameter, lang string) {
 	@Modal() {
-		<h2>Das Wichtigste zusammengefasst</h2>
+		<h2>{ t("deal_summary", lang) }</h2>
 		<div class="flex flex-col gap-4">
 			<div class="grid grid-cols-3">
-				<span>Start:</span>
+				<span>{ t("start", lang) }:</span>
 				<span class="col-span-2">{ params.Start }</span>
-				<span>Ende:</span>
+				<span>{ t("end", lang) }:</span>
 				<span class="col-span-2">{ params.End }</span>
-				<span>Dauer:</span>
+				<span>{ t("duration", lang) }:</span>
 				<span class="col-span-2">{ params.Duration } Tag(e)</span>
 			</div>
 		</div>
@@ -215,45 +215,49 @@ templ NewDealSummaryModal(params NewDealSummaryModalParameter) {
 		<div class="flex flex-col">
 			if len(params.FreeDaysLeft) > 0 {
 				if len(params.Price) > 0 {
-					<span class="text-xl">Kosten: { params.Price } €</span>
+					<span class="text-xl">{ t("costs", lang) }: { params.Price } €</span>
 					<span class="text-xs">
-						Du hast deine freien Tage für diese Monatsperiode aufgebraucht.
-						Falls du mehr freie Tage benötigst, kannst du auf ein größeres Abo umsteigen:
-						<a class="underline" href="/pricing">Abo wählen</a>
+						{ t("deal_summary_no_free_days_left", lang) }:
+						<a class="underline" href="/pricing">{ t("subscription_select", lang) }</a>
 					</span>
 				} else {
-					<span class="text-xl">Kosten: 0 €</span>
+					<span class="text-xl">{ t("costs", lang) }: 0 €</span>
 					<span class="text-xs">
-						Verbleibende freie Tage: { params.FreeDaysLeft }
+						{ t("free_days_left", lang) }: { params.FreeDaysLeft }
 					</span>
 				}
 			} else if len(params.PriceWithDiscount) > 0 {
-				<span class="text-xl">Kosten: <span class="line-through">{ params.Price }</span> { params.PriceWithDiscount } €</span>
-				<span class="text-xs">Du sparst durch einen aktiven Gutschein { params.Discount }%!</span>
+				<span class="text-xl">{ t("costs", lang) }: <span class="line-through">{ params.Price }</span> { params.PriceWithDiscount } €</span>
+				<span class="text-xs">{ t("deal_summary_active_voucher", lang) } { params.Discount }%!</span>
 			} else {
-				<span class="text-xl">Kosten: { params.Price } €</span>
-				<span class="text-xs">Spare Geld und <a href="/pricing" class="link" target="_blank">schließe ein Abo ab!</a></span>
+				<span class="text-xl">{ t("costs", lang) }: { params.Price } €</span>
+				<span class="text-xs">
+					{ t("save_money", lang) } { t("and", lang) }
+					<a href="/pricing" class="link" target="_blank">{ t("subscribe", lang) }</a>
+				</span>
 			}
 		</div>
 		if params.Err {
 			<div class="flex flex-col gap-4 text-red-500 italic">
 				<span>
-					Wir können momentan nicht überprüfen, ob du ein aktives Abo oder aktiven Gutschein hast.
+					{ t("deal_summary_error_1", lang) }
 				</span>
 				<span>
-					Deshalb müssen wir dir für diesen Deal leider den Standard-Preis berechnen.
+					{ t("deal_summary_error_2", lang) }
 				</span>
 				<span>
-					Du kannst es auch später nochmal versuchen oder melde dich bitte bei unserem Support-Team:
-					<a class="underline" href="mailto:support@cockaigne.city">Nachricht schreiben</a>!
+					{ t("deal_summary_error_3", lang) }
+					<a class="underline" href="mailto:support@cockaigne.city">
+						{ t("deal_summary_error_4", lang) }
+					</a>!
 				</span>
 			</div>
 		}
 		<div class="grid grid-cols-2 gap-2 mt-8">
 			<button class="btn-primary" hx-delete="/ui/remove" hx-target="#summary-modal">
-				Nochmal überarbeiten
+				{ t("deal_rework", lang) }
 			</button>
-			<button class="btn-warning">Jetzt starten!</button>
+			<button class="btn-warning">{ t("deal_start_now", lang) }</button>
 		</div>
 	}
 }

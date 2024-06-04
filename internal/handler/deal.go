@@ -115,27 +115,28 @@ func openNewDealSummaryModal(c echo.Context) error {
 		return view.Render(CannotCreateDealAlert, c)
 	}
 
+	lang := service.GetLanguageFromCookie(c)
+
 	params := createSubscriptionModalParams(dealerId.String(), timesAndDates)
 	if params != nil {
 		addStartAndEndToSummaryModalParameter(params, timesAndDates)
-		return view.Render(view.NewDealSummaryModal(*params), c)
+		return view.Render(view.NewDealSummaryModal(*params, lang), c)
 	}
 
 	params = createDiscountModalParams(dealerId.String(), timesAndDates)
 	if params != nil {
 		addStartAndEndToSummaryModalParameter(params, timesAndDates)
-		return view.Render(view.NewDealSummaryModal(*params), c)
+		return view.Render(view.NewDealSummaryModal(*params, lang), c)
 	}
 
 	params = &view.NewDealSummaryModalParameter{
 		Err:   false,
 		Price: service.FormatPrice(float64(timesAndDates.DurationInDays) * 4.99),
-		// Price: fmt.Sprintf("%.2f", float64(timesAndDates.DurationInDays)*4.99),
 	}
 
 	addStartAndEndToSummaryModalParameter(params, timesAndDates)
 
-	return view.Render(view.NewDealSummaryModal(*params), c)
+	return view.Render(view.NewDealSummaryModal(*params, lang), c)
 }
 
 type DealTimesAndDates struct {
