@@ -1,21 +1,23 @@
 package view
 
-templ Contact() {
+import "fmt"
+
+templ Contact(lang string) {
 	@BaseLayout() {
 		<form class="flex flex-col gap-6 p-6" hx-post="/contact" x-data="{message: ''}">
 			<span>
-				Hast du Fragen, Anmerkungen oder Lob? Oder willst du sonst etwas los werden? Schreib uns gerne eine Narchricht!
+				{ t("contact_us_description", lang) }
 			</span>
 			<span class="text-xs">
-				Auch wenn wir uns riesig über jedes Feedback freuen, kannst du uns nur alle 5 Minuten eine neue Nachricht schicken.
+				{ t("contact_us_restriction", lang) }
 			</span>
 			<div class="form-control">
-				<label for="message" x-text="`Nachricht (${message.length} / 1000)`"></label>
+				<label for="message" x-text={ fmt.Sprintf("`%s (${message.length} / 1000)`", t("message", lang)) }></label>
 				<textarea id="message" name="message" x-model="message" rows="10" maxlength="1000"></textarea>
 			</div>
 			<div class="grid grid-cols-2 gap-4">
-				<a class="btn btn-primary" href="/">Zurück</a>
-				<button :disabled="message.length === 0">Absenden</button>
+				<a class="btn btn-primary" href="/">{ t("back", lang) }</a>
+				<button :disabled="message.length === 0">{ t("send", lang) }</button>
 			</div>
 		</form>
 	}

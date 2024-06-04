@@ -123,5 +123,7 @@ func getContactPage(c echo.Context) error {
 		return redirect.Login(c)
 	}
 
-	return view.Render(view.Contact(), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.Contact(lang), c)
 }
