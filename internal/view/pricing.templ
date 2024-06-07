@@ -106,7 +106,7 @@ templ planCard(title string, price string, hasActiveSubscription bool, planId st
 			{ children... }
 			<div class="card-actions justify-end">
 				if hasActiveSubscription {
-					<span>Du hast bereits ein aktives Abo!</span>
+					<span>{ t("active_subscription_already_exists", lang) }</span>
 				} else {
 					<button hx-post={ "/subscribe/" + planId }>{ t("subscription_subscribe", lang) }</button>
 				}
@@ -133,7 +133,7 @@ templ VoucherCard(activeVouchers []model.ActiveVoucher, err bool, lang string) {
 			<span class="card-title">{ t("vouchers", lang) }</span>
 			if len(activeVouchers) > 0 {
 				<div>
-					<div class="text-sm pb-2">Bereits eingelöste Gutscheine:</div>
+					<div class="text-sm pb-2">{ t("voucher_already_activated", lang) }:</div>
 					<ul class="text-xs">
 						for _, voucher := range activeVouchers {
 							<li>{ redeemedVoucherInfo(voucher) }</li>
@@ -142,7 +142,7 @@ templ VoucherCard(activeVouchers []model.ActiveVoucher, err bool, lang string) {
 				</div>
 			}
 			if err {
-				<i class="text-red-500">Kann aktive Gutscheine momentan nicht anzeigen, bitte versuche es später nochmal.</i>
+				<i class="text-red-500">{ t("voucher_error_cannot_show", lang) }</i>
 			}
 			<div class="form-control">
 				<label for="voucher-code">{ t("voucher_code", lang) }</label>
