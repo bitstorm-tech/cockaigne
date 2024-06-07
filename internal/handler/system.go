@@ -66,8 +66,9 @@ func redeemVoucher(c echo.Context) error {
 	}
 
 	activeVouchers, err := service.GetActiveVouchers(userId.String())
+	lang := service.GetLanguageFromCookie(c)
 
-	return view.Render(view.VoucherCard(activeVouchers, err != nil), c)
+	return view.Render(view.VoucherCard(activeVouchers, err != nil, lang), c)
 }
 
 func getActiveVouchers(c echo.Context) error {
@@ -81,11 +82,14 @@ func getActiveVouchers(c echo.Context) error {
 		zap.L().Sugar().Errorf("can't get active vouchers for user '%s': %v", userId, err)
 	}
 
-	return view.Render(view.VoucherCard(activeVouchers, err != nil), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.VoucherCard(activeVouchers, err != nil, lang), c)
 }
 
 func getPricingPage(c echo.Context) error {
-	return view.Render(view.Pricing(false, []string{}), c)
+	lang := service.GetLanguageFromCookie(c)
+	return view.Render(view.Pricing(false, []string{}, lang), c)
 }
 
 func getBasicVsProPage(c echo.Context) error {

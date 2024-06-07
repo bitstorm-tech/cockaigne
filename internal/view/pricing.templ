@@ -4,34 +4,34 @@ import "github.com/bitstorm-tech/cockaigne/internal/model"
 import "fmt"
 import "time"
 
-templ Pricing(hasActiveSubscription bool, activeVouchers []string) {
+templ Pricing(hasActiveSubscription bool, activeVouchers []string, lang string) {
 	@BaseLayout() {
 		<section class="flex flex-col items-center gap-4 p-4" x-data="{tabIndex: 0}">
-			<h1>Preise & Abos</h1>
+			<h1>{ t("prices_and_subscriptions", lang) }</h1>
 			if hasActiveSubscription {
-				<h2 class="text-red">Du hast bereits ein aktives Abo!</h2>
+				<h2 class="text-red">{ t("already_have_active_subscription", lang) }</h2>
 			}
 			<div class="join grid grid-cols-3 w-full">
-				<input class="join-item btn" type="radio" name="options" aria-label="Basic" checked @click="tabIndex = 0"/>
-				<input class="join-item btn" type="radio" name="options" aria-label="Monatsabo" @click="tabIndex = 1"/>
-				<input class="join-item btn" type="radio" name="options" aria-label="Jahresabbo" @click="tabIndex = 2"/>
+				<input class="join-item btn" type="radio" name="options" aria-label={ t("basic_pricing", lang) } checked @click="tabIndex = 0"/>
+				<input class="join-item btn" type="radio" name="options" aria-label={ t("monthly_subscription", lang) } @click="tabIndex = 1"/>
+				<input class="join-item btn" type="radio" name="options" aria-label={ t("yearly_subscription", lang) } @click="tabIndex = 2"/>
 			</div>
 			<i class="px-4 text-center text-sm" :class="{'invisible': tabIndex === 0}">
-				Spare weitere 10% beim Abschluss eines Jahresabos!
+				{ t("save_10_percent_with_yearly", lang) }
 			</i>
 			// -------------------------------------
 			// Basic
 			// -------------------------------------
 			<template x-if="tabIndex === 0">
-				@basicPlanCard("Basic", "4,99 € / Deal") {
+				@basicPlanCard("Basic", "4,99 € / "+t("deal", lang)) {
 					<ul>
 						<li class="list-disc">
 							<div class="flex items-baseline gap-2">
-								Zahle pro Tagesdeal
-								<div class="text-xs">(24 Std. Laufzeit)</div>
+								{ t("basic_pricing_description_1", lang) }
+								<div class="text-xs">{ t("basic_pricing_description_1_24_hours", lang) }</div>
 							</div>
 						</li>
-						<li class="list-disc">Kein Abo / keine Grundgebühr</li>
+						<li class="list-disc">{ t("basic_pricing_description_2", lang) }</li>
 					</ul>
 				}
 			</template>
@@ -40,27 +40,27 @@ templ Pricing(hasActiveSubscription bool, activeVouchers []string) {
 			// Montly plan
 			// -------------------------------------
 			<div class="flex flex-col gap-4 w-full" x-show="tabIndex === 1">
-				@planCard("Starter", "99,90 € / Monat", hasActiveSubscription, "1") {
+				@planCard(t("starter", lang), "99,90 € / "+t("month", lang), hasActiveSubscription, "1", lang) {
 					<ul>
-						<li class="list-disc">30 kostenlose Tagesdeals pro Monat</li>
-						<li class="list-disc">Preisvorteil von ~33% je Deal</li>
-						<li class="list-disc">Monatlich kündbar</li>
+						<li class="list-disc">{ t("monthly_starter_1", lang) }</li>
+						<li class="list-disc">{ t("monthly_starter_2", lang) }</li>
+						<li class="list-disc">{ t("monthly_starter_3", lang) }</li>
 					</ul>
 				}
-				@planCard("Exclusive", "249,90 € / Monat", hasActiveSubscription, "2") {
+				@planCard(t("exclusive", lang), "249,90 € / "+t("month", lang), hasActiveSubscription, "2", lang) {
 					<ul>
-						<li class="list-disc">90 kostenlose Tagesdeals pro Monat</li>
-						<li class="list-disc">Preisvorteil von ~44% je Deal</li>
-						<li class="list-disc">Einfache Statistikabfragen (coming soon)</li>
-						<li class="list-disc">Monatlich kündbar</li>
+						<li class="list-disc">{ t("monthly_exclusive_1", lang) }</li>
+						<li class="list-disc">{ t("monthly_exclusive_2", lang) }</li>
+						<li class="list-disc">{ t("monthly_exclusive_3", lang) }</li>
+						<li class="list-disc">{ t("monthly_exclusive_4", lang) }</li>
 					</ul>
 				}
-				@planCard("Premium", "349,90 € / Monat", hasActiveSubscription, "3") {
+				@planCard(t("premium", lang), "349,90 € / "+t("month", lang), hasActiveSubscription, "3", lang) {
 					<ul>
-						<li class="list-disc">300 kostenlose Tagesdeals pro Monat</li>
-						<li class="list-disc">Preisvorteil von ~76% je Deal</li>
-						<li class="list-disc">Erweiterte Statistikabfragen (coming soon)</li>
-						<li class="list-disc">Monatlich kündbar</li>
+						<li class="list-disc">{ t("monthly_premium_1", lang) }</li>
+						<li class="list-disc">{ t("monthly_premium_2", lang) }</li>
+						<li class="list-disc">{ t("monthly_premium_3", lang) }</li>
+						<li class="list-disc">{ t("monthly_premium_4", lang) }</li>
 					</ul>
 				}
 			</div>
@@ -68,27 +68,27 @@ templ Pricing(hasActiveSubscription bool, activeVouchers []string) {
 			// Yearly plan
 			// -------------------------------------
 			<div class="flex flex-col gap-4 w-full" x-show="tabIndex === 2">
-				@planCard("Starter", "1.099,90 € / Jahr", hasActiveSubscription, "4") {
+				@planCard(t("starter", lang), "1.099,90 € / "+t("year", lang), hasActiveSubscription, "4", lang) {
 					<ul>
-						<li class="list-disc">30 kostenlose Tagesdeals pro Monat</li>
-						<li class="list-disc">Preisvorteil von ~39% je Deal</li>
-						<li class="list-disc">Kündbar zum Aboende</li>
+						<li class="list-disc">{ t("yearly_starter_1", lang) }</li>
+						<li class="list-disc">{ t("yearly_starter_2", lang) }</li>
+						<li class="list-disc">{ t("yearly_starter_3", lang) }</li>
 					</ul>
 				}
-				@planCard("Exclusive", "2.699,90 € / Jahr", hasActiveSubscription, "5") {
+				@planCard(t("exclusive", lang), "2.699,90 € / "+t("year", lang), hasActiveSubscription, "5", lang) {
 					<ul>
-						<li class="list-disc">90 kostenlose Tagesdeals pro Monat</li>
-						<li class="list-disc">Preisvorteil von ~50% je Deal</li>
-						<li class="list-disc">Einfache Statistikabfragen (coming soon)</li>
-						<li class="list-disc">Kündbar zum Aboende</li>
+						<li class="list-disc">{ t("yearly_exclusive_1", lang) }</li>
+						<li class="list-disc">{ t("yearly_exclusive_2", lang) }</li>
+						<li class="list-disc">{ t("yearly_exclusive_3", lang) }</li>
+						<li class="list-disc">{ t("yearly_exclusive_4", lang) }</li>
 					</ul>
 				}
-				@planCard("Premium", "3.799,90 € / Jahr", hasActiveSubscription, "6") {
+				@planCard(t("premium", lang), "3.799,90 € / "+t("year", lang), hasActiveSubscription, "6", lang) {
 					<ul>
-						<li class="list-disc">300 kostenlose Tagesdeals pro Monat</li>
-						<li class="list-disc">Preisvorteil von ~79% je Deal</li>
-						<li class="list-disc">Erweiterte Statistikabfragen (coming soon)</li>
-						<li class="list-disc">Kündbar zum Aboende</li>
+						<li class="list-disc">{ t("yearly_premium_1", lang) }</li>
+						<li class="list-disc">{ t("yearly_premium_2", lang) }</li>
+						<li class="list-disc">{ t("yearly_premium_3", lang) }</li>
+						<li class="list-disc">{ t("yearly_premium_4", lang) }</li>
 					</ul>
 				}
 			</div>
@@ -96,7 +96,7 @@ templ Pricing(hasActiveSubscription bool, activeVouchers []string) {
 	}
 }
 
-templ planCard(title string, price string, hasActiveSubscription bool, planId string) {
+templ planCard(title string, price string, hasActiveSubscription bool, planId string, lang string) {
 	<div class="card w-full text-100 shadow-xl bg-neutral">
 		<div class="card-body gap-6">
 			<span class="card-title w-full justify-between">
@@ -108,7 +108,7 @@ templ planCard(title string, price string, hasActiveSubscription bool, planId st
 				if hasActiveSubscription {
 					<span>Du hast bereits ein aktives Abo!</span>
 				} else {
-					<button hx-post={ "/subscribe/" + planId }>Abo abschließen</button>
+					<button hx-post={ "/subscribe/" + planId }>{ t("subscription_subscribe", lang) }</button>
 				}
 			</div>
 		</div>
@@ -127,10 +127,10 @@ templ basicPlanCard(title string, price string) {
 	</div>
 }
 
-templ VoucherCard(activeVouchers []model.ActiveVoucher, err bool) {
+templ VoucherCard(activeVouchers []model.ActiveVoucher, err bool, lang string) {
 	<form id="voucher" class="card w-full text-100 shadow-xl bg-neutral">
 		<div class="card-body gap-6">
-			<span class="card-title">Gutscheine</span>
+			<span class="card-title">{ t("vouchers", lang) }</span>
 			if len(activeVouchers) > 0 {
 				<div>
 					<div class="text-sm pb-2">Bereits eingelöste Gutscheine:</div>
@@ -145,11 +145,11 @@ templ VoucherCard(activeVouchers []model.ActiveVoucher, err bool) {
 				<i class="text-red-500">Kann aktive Gutscheine momentan nicht anzeigen, bitte versuche es später nochmal.</i>
 			}
 			<div class="form-control">
-				<label for="voucher-code">Gutscheincode</label>
+				<label for="voucher-code">{ t("voucher_code", lang) }</label>
 				<input id="voucher-code" name="voucher-code" type="text" class="text-100"/>
 			</div>
 			<div class="card-actions justify-end">
-				<button hx-post="/voucher-redeem" hx-target="#voucher" hx-swap="outerHTML" class="btn btn-warning">Einlösen</button>
+				<button hx-post="/voucher-redeem" hx-target="#voucher" hx-swap="outerHTML" class="btn btn-warning">{ t("redeem", lang) }</button>
 			</div>
 		</div>
 	</form>
