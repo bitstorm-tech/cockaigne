@@ -47,7 +47,13 @@ func LoadI18n() {
 }
 
 func T(key string, lang string) string {
-	return translations[key][lang]
+	text := translations[key][lang]
+	if len(text) == 0 {
+		zap.L().Sugar().Errorf("can't find translation for key=%s / lang=%s", key, lang)
+		return "#MISSING_TRANSLATION#"
+	}
+
+	return text
 }
 
 func GetLanguageFromCookie(c echo.Context) string {

@@ -49,7 +49,7 @@ func signup(c echo.Context) error {
 	err := c.Bind(&request)
 	if err != nil {
 		zap.L().Sugar().Error("can't bind to signup request: ", err)
-		return view.RenderAlert("Fehler bei der Registrierung, bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.error_while_signup", c)
 	}
 
 	zap.L().Sugar().Debug("Signup attempt: ", request.Email)
@@ -58,27 +58,27 @@ func signup(c echo.Context) error {
 
 	if err != nil {
 		zap.L().Sugar().Error("can't signup -> don't know if account already exists: ", err)
-		return view.RenderAlert("Leider gibt es aktuell ein technisches Problem, bitte versuche es später noch einmal!", c)
+		return view.RenderAlertTranslated("alert.technical_problem", c)
 	}
 
 	if accExists {
-		return view.RenderAlert("Benutzername oder E-Mail bereits vergeben", c)
+		return view.RenderAlertTranslated("alert.username_or_email_already_used", c)
 	}
 
 	if request.Password != request.PasswordRepeat {
-		return view.RenderAlert("Passwort und Wiederholung stimmen nicht überein", c)
+		return view.RenderAlertTranslated("alert.password_repeat_not_matching", c)
 	}
 
 	if request.Username == "" {
-		return view.RenderAlert("Bitte einen Benutzernamen angeben", c)
+		return view.RenderAlertTranslated("alert.provide_username", c)
 	}
 
 	if request.Email == "" || !strings.Contains(request.Email, "@") {
-		return view.RenderAlert("Bitte eine gültige E-Mail angeben", c)
+		return view.RenderAlertTranslated("alert.provide_email", c)
 	}
 
 	if request.Agb != "on" {
-		return view.RenderAlert("Bitte AGB und Datenschutzbedingungen lesen und akzeptieren", c)
+		return view.RenderAlertTranslated("alert.accept_terms_and_privacy", c)
 	}
 
 	zap.L().Sugar().Debug("new account: ", request.Email)
@@ -94,7 +94,7 @@ func signup(c echo.Context) error {
 		postion, err := service.GetPositionFromAddress(acc.City.String, int(acc.ZipCode.Int32), acc.Street.String, acc.HouseNumber.String)
 		if err != nil {
 			zap.L().Sugar().Error("Error while getting position from address: ", err)
-			return view.RenderAlert("Die Adresse konnte nicht gefunden werden", c)
+			return view.RenderAlertTranslated("alert.invalid_address", c)
 		}
 
 		acc.Location = sql.NullString{
@@ -110,14 +110,14 @@ func signup(c echo.Context) error {
 
 	if err != nil {
 		zap.L().Sugar().Error("can't save account: ", err)
-		return view.RenderAlert("Leider können momentan keine neuen Accounts angelegt werden, bitte versuche es später noch einmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_create_account", c)
 	}
 
 	baseUrl := service.GetBaseUrl(c)
 	err = service.SendAccountActivationMail(request.Email, baseUrl)
 	if err != nil {
 		zap.L().Sugar().Error("can't send account activation email: ", err)
-		return view.RenderAlert("Leider können momentan keine neuen Accounts angelegt werden, bitte versuche es später noch einmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_create_account", c)
 	}
 
 	return redirect.To("/signup-complete", c)
@@ -129,24 +129,24 @@ func login(c echo.Context) error {
 
 	if err != nil {
 		zap.L().Sugar().Error("can't bind to login request: ", err)
-		return view.RenderAlert("Login gerade nicht möglich, bitte später nochmal versuchen.", c)
+		return view.RenderAlertTranslated("alert.login_not_possible", c)
 	}
 
 	acc, err := service.GetAccountByEmail(request.Email)
 	if err != nil {
 		zap.L().Sugar().Errorf("can't get account by email (%s): %v", request.Email, err)
-		return view.RenderAlert("Benutzername oder Passwort falsch", c)
+		return view.RenderAlertTranslated("alert.invalid_username_or_password", c)
 	}
 
 	if !acc.Active {
 		zap.L().Sugar().Infof("login attempt from '%s', but not yet activated", acc.Email)
-		return view.RenderAlert("Account noch nicht aktiviert!", c)
+		return view.RenderAlertTranslated("alert.account_not_activated", c)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(acc.Password), []byte(request.Password))
 
 	if err != nil {
-		return view.RenderAlert("Benutzername oder Passwort falsch", c)
+		return view.RenderAlertTranslated("alert.invalid_username_or_password", c)
 	}
 
 	if acc.IsDealer {

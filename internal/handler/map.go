@@ -65,7 +65,7 @@ func openFilterModal(c echo.Context) error {
 	acc, err := service.GetAccount(user.ID.String())
 	if err != nil {
 		zap.L().Sugar().Errorf("can't get account: %v", err)
-		return view.RenderAlert("Leider können die Filter gerade nicht geladen werden, bitte versuche es später noch einmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_load_filter", c)
 	}
 
 	favCategoryIds := service.GetFavoriteCategoryIds(user.ID)
@@ -87,9 +87,9 @@ func openLocationModal(c echo.Context) error {
 		acc, err := service.GetAccount(user.ID.String())
 		if err != nil {
 			zap.L().Sugar().Error("can't get account: ", err)
-			return view.RenderAlert("Leider ist uns ein Fehler unterlaufen, bitte versuche es später noch einmal.", c)
+		} else {
+			useLocationService = acc.UseLocationService
 		}
-		useLocationService = acc.UseLocationService
 	}
 
 	lang := service.GetLanguageFromCookie(c)

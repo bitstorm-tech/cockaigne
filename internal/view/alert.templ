@@ -1,6 +1,7 @@
 package view
 
 import "github.com/labstack/echo/v4"
+import "github.com/bitstorm-tech/cockaigne/internal/service"
 
 templ Alert(message string, warning bool) {
 	<div
@@ -31,6 +32,18 @@ func RenderAlert(message string, c echo.Context) error {
 	return RenderToTarget(Alert(message, true), c, "#alert")
 }
 
+func RenderAlertTranslated(translationKey string, c echo.Context) error {
+	lang := service.GetLanguageFromCookie(c)
+	translation := t(translationKey, lang)
+	return RenderToTarget(Alert(translation, true), c, "#alert")
+}
+
 func RenderInfo(message string, c echo.Context) error {
 	return RenderToTarget(Alert(message, false), c, "#alert")
+}
+
+func RenderInfoTranslated(translationKey string, c echo.Context) error {
+	lang := service.GetLanguageFromCookie(c)
+	translation := t(translationKey, lang)
+	return RenderToTarget(Alert(translation, false), c, "#alert")
 }

@@ -118,17 +118,17 @@ func sendEmailChangeEmail(c echo.Context) error {
 	baseUrl := service.GetBaseUrl(c)
 	newEmail := c.FormValue("email")
 	if len(newEmail) == 0 {
-		return view.RenderAlert("Bitte eine gültige E-Mail angeben.", c)
+		return view.RenderAlertTranslated("alert.invalid_email", c)
 	}
 
 	err = service.PrepareEmailChange(accountId.String(), newEmail, baseUrl)
 	if err != nil {
 		if errors.Is(err, service.ErrEmailAlreadyExists) {
-			return view.RenderAlert("E-Mail ist bereits mit einem anderen Account verknüpft.", c)
+			return view.RenderAlertTranslated("alert.email_already_used", c)
 		}
 
 		zap.L().Sugar().Error("can't prepare email change: ", err)
-		return view.RenderAlert("Momentan kannst du deine E-Mail nicht ändern. Bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_change_email", c)
 	}
 
 	return view.RenderInfo("Wir haben dir an deine neue Adresse eine E-Mail mit dem Bestätigungslink geschickt.", c)
@@ -145,13 +145,13 @@ func changePassword(c echo.Context) error {
 	passwordRepeat := c.FormValue("password-repeat")
 
 	if password != passwordRepeat {
-		return view.RenderAlert("Das Passwort und die Wiederholung stimmen nicht überein", c)
+		return view.RenderAlertTranslated("alert.password_repeat_not_matching", c)
 	}
 
 	err := service.ChangePassword(code, password)
 	if err != nil {
 		zap.L().Sugar().Error("can't change password: ", err)
-		return view.RenderAlert("Das Passwort kann momentan nicht geändert werden. Bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_change_password", c)
 	}
 
 	return view.RenderToast("Passwort erfolgreich geändert.", c)
@@ -172,14 +172,14 @@ func sendPasswordChangeEmail(c echo.Context) error {
 	}
 	email := c.FormValue("email")
 	if len(accountIdString) == 0 && len(email) == 0 {
-		return view.RenderAlert("Bitte E-Mail Adresse angeben.", c)
+		return view.RenderAlertTranslated("alert.provide_email", c)
 	}
 
 	baseUrl := service.GetBaseUrl(c)
 	err = service.PreparePasswordChange(email, accountIdString, baseUrl)
 	if err != nil {
 		zap.L().Sugar().Error("can't change password: ", err)
-		return view.RenderAlert("Dein Passwort kann aktuell nicht geändert werden. Bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_change_password", c)
 	}
 
 	return view.RenderInfo("Wir haben dir eine E-Mail zum ändern deines Passworts geschickt.", c)
@@ -192,7 +192,7 @@ func sendActivationEmail(c echo.Context) error {
 	err := service.SendAccountActivationMail(email, baseUrl)
 	if err != nil {
 		zap.L().Sugar().Error("can't send account activation email: ", err)
-		return view.RenderAlert("Momentan können keine Aktivierungs-Emails versendet werden. Bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_send_activation_email", c)
 	}
 
 	return nil
@@ -203,13 +203,13 @@ func activateAccount(c echo.Context) error {
 	code, err := strconv.Atoi(codeString)
 	if err != nil {
 		zap.L().Sugar().Error("can't convert activation code '%s' to a number: %+v", codeString, err)
-		return view.RenderAlert("Der angegebene Aktivierungscode ist ungütlig.", c)
+		return view.RenderAlertTranslated("alert.invalid_activation_code", c)
 	}
 
 	err = service.ActivateAccount(code)
 	if err != nil {
 		zap.L().Sugar().Error("can't activate account: ", err)
-		return view.RenderAlert("Aktivierung des Accounts momentan nicht möglich. Bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_activate_account", c)
 	}
 
 	return redirect.Login(c)
@@ -228,13 +228,13 @@ func updateDealerAddress(c echo.Context) error {
 	zip, err := strconv.Atoi(zipString)
 	if err != nil {
 		zap.L().Sugar().Error("can't convert zip string into int: ", err)
-		return view.RenderAlert("Kann Adresse momentan nicht aktuallisieren, bitte versuche es später noch einmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_update_address", c)
 	}
 
 	err = service.UpdateDealerAddress(dealerId.String(), street, houseNumber, city, int32(zip))
 	if err != nil {
 		zap.L().Sugar().Error("can't update dealer address: ", err)
-		return view.RenderAlert("Kann Adresse momentan nicht aktuallisieren, bitte versuche es später noch einmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_update_address", c)
 	}
 
 	return view.RenderToast("Adresse erfolgreich geändert", c)
@@ -249,7 +249,7 @@ func getDealerAddressSettings(c echo.Context) error {
 	acc, err := service.GetAccount(dealerId.String())
 	if err != nil {
 		zap.L().Sugar().Error("can't get account: ", err)
-		return view.RenderAlert("Kann aktuelle Adresse momentan nicht laden, bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_load_address", c)
 	}
 
 	lang := service.GetLanguageFromCookie(c)
@@ -266,7 +266,7 @@ func getDealerCommonSettings(c echo.Context) error {
 	account, err := service.GetAccount(dealerId.String())
 	if err != nil {
 		zap.L().Sugar().Error("can't get account: ", err)
-		return view.RenderAlert("Kann Einstellungen gerade nicht laden, bitte versuche es später noch einmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_load_settings", c)
 	}
 
 	lang := service.GetLanguageFromCookie(c)
@@ -284,14 +284,14 @@ func updateProfileImage(c echo.Context) error {
 	if deleteImage {
 		err := service.DeleteProfileImage(userId.String())
 		if err != nil {
-			return view.RenderAlert("Profilbild kann nicht gelöscht werden, bitte versuche es später noch einmal.", c)
+			return view.RenderAlertTranslated("alert.can_t_delet_profile_image", c)
 		}
 	}
 
 	file, err := c.FormFile("profile-image")
 	if err != nil && !errors.Is(err, http.ErrMissingFile) {
 		zap.L().Sugar().Error("can't get image from request ", err)
-		return view.RenderAlert("Profilbild kann nicht gespeichert werden, bitte versuche es später noch einmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_save_profile_image", c)
 
 	}
 
@@ -299,7 +299,7 @@ func updateProfileImage(c echo.Context) error {
 		_, err = service.SaveProfileImage(userId.String(), file)
 		if err != nil {
 			zap.L().Sugar().Error("can't save profile image: ", err)
-			return view.RenderAlert("Profilbild kann nicht gespeichert werden, bitte versuche es später noch einmal.", c)
+			return view.RenderAlertTranslated("alert.can_t_save_profile_image", c)
 		}
 	}
 
@@ -316,40 +316,40 @@ func updateAccount(c echo.Context) error {
 	usernameExists := service.UsernameExists(userId.String(), username)
 
 	if usernameExists {
-		return view.RenderAlert("Der Benutzername ist leider schon vergeben.", c)
+		return view.RenderAlertTranslated("alert.username_already_exists", c)
 	}
 
 	err = service.UpdateUsername(userId.String(), username)
 	if err != nil {
 		zap.L().Sugar().Error("can't update username: ", err)
-		return view.RenderAlert("Dein Benutzername kann moment nicht geändert werden, bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_change_username", c)
 	}
 
 	phone := c.FormValue("phone")
 	err = service.UpdatePhone(userId.String(), phone)
 	if err != nil {
 		zap.L().Sugar().Error("can't update phone: ", err)
-		return view.RenderAlert("Deine Telefonnummer kann moment nicht geändert werden, bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_change_phone", c)
 	}
 
 	taxId := c.FormValue("tax-id")
 	err = service.UpdateTaxId(userId.String(), taxId)
 	if err != nil {
 		zap.L().Sugar().Error("can't update tax ID: ", err)
-		return view.RenderAlert("Deine Steuernummer ID kann moment nicht geändert werden, bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_chante_taxid", c)
 	}
 
 	categoryIdString := c.FormValue("category")
 	categoryId, err := strconv.Atoi(categoryIdString)
 	if err != nil {
 		zap.L().Sugar().Error("can't convert cagetory ID from string to int: ", err)
-		return view.RenderAlert("Deine Branche kann moment nicht geändert werden, bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_change_industry", c)
 	}
 
 	err = service.UpdateDefaultCategory(userId.String(), categoryId)
 	if err != nil {
 		zap.L().Sugar().Error("can't update tax ID: ", err)
-		return view.RenderAlert("Deine Branche kann moment nicht geändert werden, bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_change_industry", c)
 	}
 
 	return view.RenderToast("Einstellungen erfolgreich geändert", c)
@@ -364,7 +364,7 @@ func getProfileImageSettings(c echo.Context) error {
 	imageUrl, err := service.GetProfileImage(user.ID.String())
 	if err != nil {
 		zap.L().Sugar().Errorf("can't get profile image of user '%s': %v", user.ID, err)
-		return view.RenderAlert("Kann Profilbild nicht laden, bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_load_profile_image", c)
 	}
 
 	lang := service.GetLanguageFromCookie(c)
@@ -381,7 +381,7 @@ func getUserCommonsSettings(c echo.Context) error {
 	acc, err := service.GetAccount(userId.String())
 	if err != nil {
 		zap.L().Sugar().Errorf("can't get user account by id '%s': %v", userId, err)
-		return view.RenderAlert("Deine Einstellungen konnten gerade nicht geladen werden, bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_load_settings", c)
 	}
 
 	lang := service.GetLanguageFromCookie(c)
@@ -424,7 +424,7 @@ func updateFilter(c echo.Context) error {
 	err = c.Bind(&updateFilterRequest)
 	if err != nil {
 		zap.L().Sugar().Error("can't parse filter update request: ", err)
-		return view.RenderAlert("Wir konnten deine Filtereinstellungen nicht speichern. Bitte versuche es später noch einmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_save_filter", c)
 	}
 
 	if user.IsBasicUser {
@@ -436,12 +436,12 @@ func updateFilter(c echo.Context) error {
 
 	if err := service.UpdateSearchRadius(user.ID, updateFilterRequest.SearchRadiusInMeters); err != nil {
 		zap.L().Sugar().Error("can't update accounts search_radius_in_meters: ", err)
-		return view.RenderAlert("Wir konnten deine Filtereinstellungen nicht speichern. Bitte versuche es später noch einmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_save_filter", c)
 	}
 
 	if err := service.UpdateSelectedCategories(user.ID, updateFilterRequest.FavoriteCategoryIds); err != nil {
 		zap.L().Sugar().Error("can't update selected categories: ", err)
-		return view.RenderAlert("Wir konnten deine Filtereinstellungen nicht speichern. Bitte versuche es später noch einmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_save_filter", c)
 	}
 
 	redirectAfterSave := c.QueryParam("redirect-after-save")
@@ -469,7 +469,7 @@ func updateUseLocationService(c echo.Context) error {
 	err = service.UpdateUseLocationService(user.ID.String(), useLocationService)
 	if err != nil {
 		zap.L().Sugar().Error("can't save use location service: ", err)
-		return view.RenderAlert("Kann Einstellung leider nicht speichern, bitte später nochmal versuchen.", c)
+		return view.RenderAlertTranslated("alert.can_t_save_settings", c)
 	}
 
 	if !useLocationService {
@@ -477,12 +477,12 @@ func updateUseLocationService(c echo.Context) error {
 		point, err := service.GetPositionFromAddressFuzzy(address)
 		if err != nil {
 			zap.L().Sugar().Errorf("can't find position from address (%s): %v", address, err)
-			return view.RenderAlert("Ungültige Adresse, bitte geben Sie eine genauere Adresse an.", c)
+			return view.RenderAlertTranslated("alert.invalid_address", c)
 		}
 		err = service.UpdateLocation(user.ID.String(), point)
 		if err != nil {
 			zap.L().Sugar().Errorf("can't update location (%s): %v", address, err)
-			return view.RenderAlert("Kann Einstellung leider nicht speichern, bitte später nochmal versuchen.", c)
+			return view.RenderAlertTranslated("alert.can_t_save_settings", c)
 		}
 	}
 

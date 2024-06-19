@@ -99,7 +99,7 @@ func toggleDealerFavorite(c echo.Context) error {
 	isFavorite, err := service.ToggleDealerFavorite(dealerId, user.ID.String())
 	if err != nil {
 		zap.L().Sugar().Error("can't toggle dealer favorite: ", err)
-		return view.RenderAlert("Kann favorisierte Dealer momentan nicht speichern, bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_save_fav_dealer", c)
 	}
 
 	return view.Render(view.DealerHeaderFavoriteButton(dealerId, isFavorite), c)
@@ -115,7 +115,7 @@ func getImageZoomDialog(c echo.Context) error {
 	imageUrls, err := service.GetDealerImageUrls(dealerId)
 	if err != nil {
 		zap.L().Sugar().Error("can't get dealer images: ", err)
-		return view.RenderAlert("Kann Dealer Bilder momentan nicht laden, bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_load_dealer_images", c)
 	}
 
 	return view.Render(view.ImageZoomModal(imageUrls, startIndex), c)
@@ -240,7 +240,7 @@ func deleteDealerImage(c echo.Context) error {
 	err = service.DeleteDealerImage(imageUrl)
 	if err != nil {
 		zap.L().Sugar().Error("can't delete dealer image: ", err)
-		return view.RenderAlert("Konnte Bild nicht löschen, bitte später nochmal versuchen.", c)
+		return view.RenderAlertTranslated("alert.can_t_delete_image", c)
 	}
 
 	imageUrls, err := service.GetDealerImageUrls(dealerId.String())
@@ -289,7 +289,7 @@ func getRatingModal(c echo.Context) error {
 
 	rating, err := service.GetDealerRating(dealerId, userId.String())
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return view.RenderAlert("Kann Bewertung momentan nicht ändern, bitte später noch einmal versuchen.", c)
+		return view.RenderAlertTranslated("alert.can_t_change_rating", c)
 	}
 
 	if rating.Stars < 1 {
@@ -300,7 +300,7 @@ func getRatingModal(c echo.Context) error {
 	rating.DealerId, err = uuid.Parse(dealerId)
 	if err != nil {
 		zap.L().Sugar().Errorf("can't create uuid from string (%s): %v", dealerId, err)
-		return view.RenderAlert("Momentan können keine Bewertungen abgegeben werden, bitte versuche es später noch einmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_rate", c)
 	}
 
 	lang := service.GetLanguageFromCookie(c)
@@ -320,13 +320,13 @@ func createDealerRating(c echo.Context) error {
 	stars, err := strconv.Atoi(starsText)
 	if err != nil {
 		zap.L().Sugar().Errorf("can't convert stars-text '%s' into int: %+v", starsText, err)
-		return view.RenderAlert("Konnte Bewertung nicht speichern, bitte versuche es später noch mal.", c)
+		return view.RenderAlertTranslated("alert.can_t_save_rating", c)
 	}
 
 	err = service.SaveDealerRating(userId.String(), dealerId, stars, text)
 	if err != nil {
 		zap.L().Sugar().Error("can't save dealer rating: ", err)
-		return view.RenderAlert("Konnte Bewertung nicht speichern, bitte versuche es später noch mal.", c)
+		return view.RenderAlertTranslated("alert.can_t_save_rating", c)
 	}
 
 	return getDealerRatings(c)
@@ -342,7 +342,7 @@ func deleteDealerRating(c echo.Context) error {
 	err = service.DeleteDealerRating(dealerId, userId.String())
 	if err != nil {
 		zap.L().Sugar().Error("can't delete dealer rating: ", err)
-		return view.RenderAlert("Konnte Bewertung nicht löschen, bitte später noch einmal versuchen.", c)
+		return view.RenderAlertTranslated("alert.can_t_delete_rating", c)
 	}
 
 	return getDealerRatings(c)

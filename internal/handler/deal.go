@@ -15,11 +15,6 @@ import (
 	"go.uber.org/zap"
 )
 
-var CannotCreateDealAlert = view.Alert(
-	"Es können momentan keine Deals erstellt werden. Wir arbeiten bereits mit Hochdruck an einer Lösung. Bitte versuche es später noch einmal.",
-	true,
-)
-
 func RegisterDealHandlers(e *echo.Echo) {
 	e.GET("/deal/:dealId", openDealCreatePage)
 	e.GET("/ui/category-select", getCategorySelect)
@@ -72,12 +67,12 @@ func openDealStatisticsPage(c echo.Context) error {
 	dealStatistics, err := service.GetDealStatistics(dealId)
 	if err != nil {
 		zap.L().Sugar().Error("can't get deal statistics: ", err)
-		return view.RenderAlert("Momentan können keine Statistiken abgerufen werden, bitte versuche es später noch einmal", c)
+		return view.RenderAlertTranslated("alert.can_t_load_statistics", c)
 	}
 
 	if dealStatistics.DealerId.String() != user.ID.String() {
 		zap.L().Sugar().Errorf("can't show deal statistics, deal (id=%s) does not belong to dealer (id=%s)", dealStatistics.DealId, user.ID)
-		return view.RenderAlert("Sie sind nicht berechtigt die Statistiken dieses Deals zu Sehen!", c)
+		return view.RenderAlertTranslated("alert.not_your_statistics", c)
 	}
 
 	return view.Render(view.DealStatistics(dealStatistics), c)
@@ -101,18 +96,18 @@ func openNewDealSummaryModal(c echo.Context) error {
 
 	title := c.FormValue("title")
 	if len(title) == 0 {
-		return view.RenderAlert("Bitte einen Titel angeben", c)
+		return view.RenderAlertTranslated("alert.enter_title", c)
 	}
 
 	description := c.FormValue("description")
 	if len(description) == 0 {
-		return view.RenderAlert("Bitte eine Beschreibung angeben", c)
+		return view.RenderAlertTranslated("alert.enter_description", c)
 	}
 
 	timesAndDates, err := calculateDealTimesAndDates(c)
 	if err != nil {
 		zap.L().Sugar().Error("can't calculate deal times and dates: ", err)
-		return view.Render(CannotCreateDealAlert, c)
+		return view.RenderAlertTranslated("alert.can_t_create_deal", c)
 	}
 
 	lang := service.GetLanguageFromCookie(c)
@@ -248,7 +243,7 @@ func getTopDealsList(c echo.Context) error {
 	limit, err := strconv.Atoi(limitString)
 	if err != nil {
 		zap.L().Sugar().Error("can't convert limit parameter to int: ", err)
-		return view.RenderAlert("Kann momentan die top Deals nicht laden. Bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_load_top_deals", c)
 	}
 
 	if limit > 100 {
@@ -258,7 +253,7 @@ func getTopDealsList(c echo.Context) error {
 	header, err := service.GetTopDealHeaders(user.ID.String(), limit)
 	if err != nil {
 		zap.L().Sugar().Error("can't get top deals: ", err)
-		return view.RenderAlert("Kann momentan die top Deals nicht laden. Bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_load_top_deals", c)
 	}
 
 	return view.Render(view.DealsList(view.DealListTopDeals, user, header, false, view.ActionButtonFavoriteToggle), c)
@@ -278,7 +273,7 @@ func getFavoriteDealerDeals(c echo.Context) error {
 	headers, err := service.GetFavoriteDealerDealHeaders(user.ID.String())
 	if err != nil {
 		zap.L().Sugar().Error("can't get favorite dealer deals: ", err)
-		return view.RenderAlert("Kann favorisierte Dealer Deals nicht laden, bitte später nochmal versuchen.", c)
+		return view.RenderAlertTranslated("alert.can_t_load_favorite_deals", c)
 	}
 
 	return view.Render(view.DealsList(view.DealListUserFavoriteDealerDeals, user, headers, false, view.ActionButtonNone), c)
@@ -293,7 +288,7 @@ func getFavoriteDeals(c echo.Context) error {
 	headers, err := service.GetFavoriteDealHeaders(user.ID.String())
 	if err != nil {
 		zap.L().Sugar().Error("can't get favorite deal headers: ", err)
-		return view.RenderAlert("Kann favorisierte Deals aktuell nicht laden, bitte später nochmal versuchen.", c)
+		return view.RenderAlertTranslated("alert.can_t_load_favorite_deals", c)
 	}
 
 	return view.Render(view.DealsList(view.DealListUserFavoriteDeals, user, headers, false, view.ActionButtonRemoveFavorite), c)
@@ -314,7 +309,7 @@ func openDealCreatePage(c echo.Context) error {
 	} else {
 		deal, err = service.GetDeal(dealId)
 		if err != nil {
-			return view.RenderAlert("Der Deal konnte leider nicht gefunden werden, bitte versuche es später nochmal.", c)
+			return view.RenderAlertTranslated("alert.can_t_load_deal", c)
 		}
 	}
 
@@ -359,20 +354,20 @@ func saveDeal(c echo.Context) error {
 	dealId, err := service.SaveDeal(deal)
 	if err != nil {
 		zap.L().Sugar().Error("can't save deal: ", err)
-		return view.RenderAlert("Leider ist beim Erstellen etwas schief gegangen, bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_save_deal", c)
 	}
 
 	form, err := c.MultipartForm()
 	if err != nil {
 		zap.L().Sugar().Error("can't get multipart form: ", err)
-		return view.RenderAlert("Leider ist beim Erstellen etwas schief gegangen, bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_save_deal", c)
 	}
 
 	for index, file := range form.File["images"] {
 		err = service.UploadDealImage(file, dealId.String(), fmt.Sprintf("%d-", index))
 		if err != nil {
 			zap.L().Sugar().Error("can't upload deal image: ", err)
-			return view.RenderAlert("Leider ist beim Erstellen etwas schief gegangen, bitte versuche es später nochmal.", c)
+			return view.RenderAlertTranslated("alert.can_t_save_deal", c)
 		}
 	}
 
@@ -521,7 +516,7 @@ func toggleDealLike(c echo.Context) error {
 func getReportModal(c echo.Context) error {
 	user, err := service.GetUserFromCookie(c)
 	if err != nil {
-		return view.RenderAlert("Nur angemeldete User können einen Deal melden", c)
+		return view.RenderAlertTranslated("alert.can_t_report_deal", c)
 	}
 
 	if user.IsBasicUser {
@@ -543,20 +538,20 @@ func saveReport(c echo.Context) error {
 	userId, err := service.GetUserIdFromCookie(c)
 	if err != nil {
 		zap.L().Sugar().Error("can't save deal report -> no user ID: ", err)
-		return view.RenderAlert("Nur angemeldete User können einen Deal melden", c)
+		return view.RenderAlertTranslated("alert.can_t_report_deal", c)
 	}
 
 	reason := c.FormValue("reason")
 	if len(reason) == 0 {
 		zap.L().Sugar().Error("can't save deal report -> no reason")
-		return view.RenderAlert("Bitte gib an, was an dem Deal nicht passt", c)
+		return view.RenderAlertTranslated("alert.report_cause", c)
 	}
 
 	dealId := c.Param("id")
 	err = service.SaveDealReport(dealId, userId.String(), reason)
 	if err != nil {
 		zap.L().Sugar().Error("can't save deal report: ", err)
-		return view.RenderAlert("Deal konnte leider nicht gemeldet werden, bitte versuche es später noch einmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_save_report", c)
 	}
 
 	return nil
@@ -610,7 +605,7 @@ func getImageZoomModal(c echo.Context) error {
 	imageUrls, err := service.GetDealImageUrls(dealId)
 	if err != nil {
 		zap.L().Sugar().Error("can't get deal images: ", err)
-		return view.RenderAlert("Kann Deal Bilder momentan nicht laden, bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_load_deal_images", c)
 	}
 
 	return view.Render(view.ImageZoomModal(imageUrls, startIndex), c)

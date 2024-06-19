@@ -27,13 +27,13 @@ func subscribe(c echo.Context) error {
 	planId, err := strconv.Atoi(planIdString)
 	if err != nil {
 		zap.L().Sugar().Errorf("can't convert plan ID '%s' to integer: %v", planIdString, err)
-		return view.RenderAlert("Momentan können keine Abonnements abgeschlossen werden. Bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_conclude_subscription", c)
 	}
 
 	plan, err := service.GetPlan(planId)
 	if err != nil {
 		zap.L().Sugar().Errorf("can't get plan (id=%s): %v", planIdString, err)
-		return view.RenderAlert("Momentan können keine Abonnements abgeschlossen werden. Bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_conclude_subscription", c)
 	}
 
 	baseUrl := service.GetBaseUrl(c)
@@ -47,7 +47,7 @@ func subscribe(c echo.Context) error {
 			plan.StripeProductId,
 			err,
 		)
-		return view.RenderAlert("Momentan können keine Abonnements abgeschlossen werden. Bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_conclude_subscription", c)
 	}
 
 	err = service.CreateSubscription(accountId.String(), planId, checkoutSession.Metadata[service.StripeMetadataTrackingId])
@@ -58,7 +58,7 @@ func subscribe(c echo.Context) error {
 			checkoutSession.ID,
 			err,
 		)
-		return view.RenderAlert("Momentan können keine Abonnements abgeschlossen werden. Bitte versuche es später nochmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_conclude_subscription", c)
 	}
 
 	c.Response().Header().Add("HX-Redirect", checkoutSession.URL)

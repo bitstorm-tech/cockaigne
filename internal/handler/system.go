@@ -62,7 +62,7 @@ func redeemVoucher(c echo.Context) error {
 		} else {
 			zap.L().Sugar().Infof("can't redeem voucher '%s': %s", voucherCode, err)
 		}
-		return view.RenderAlert("Gutschein konnte nicht eingelöst werden. Er ist entweder nicht mehr gültig, wurde schon eingelöst oder existiert nicht.", c)
+		return view.RenderAlertTranslated("alert.can_t_activeate_voucher", c)
 	}
 
 	activeVouchers, err := service.GetActiveVouchers(userId.String())
@@ -108,14 +108,14 @@ func saveContactMessage(c echo.Context) error {
 	}
 
 	if lastMessageYoungerThen5Minutes {
-		return view.RenderAlert("Du kannst uns nur alle 5 Minuten eine neue Nachricht schreiben, bitte versuche es später noch einmal.", c)
+		return view.RenderAlertTranslated("alert.message_delay", c)
 	}
 
 	message := c.FormValue("message")
 	err = service.SaveContactMessage(userId.String(), message)
 	if err != nil {
 		zap.L().Sugar().Error("can't save contact message: ", err)
-		return view.RenderAlert("Leider ist beim speichern deiner Nachricht etwas schief gegangen, bitte versuche es später noch einmal.", c)
+		return view.RenderAlertTranslated("alert.can_t_save_message", c)
 	}
 
 	return view.RenderToast("Wir haben deine Nachricht erhalten. Vielen Dank dafür!", c)

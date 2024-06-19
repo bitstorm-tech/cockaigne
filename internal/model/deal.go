@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bitstorm-tech/cockaigne/internal/service"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -107,19 +108,20 @@ func NewDeal() Deal {
 }
 
 func DealFromRequest(c echo.Context) (Deal, string) {
+	lang := service.GetLanguageFromCookie(c)
 	title := c.FormValue("title")
 	if len(title) == 0 {
-		return Deal{}, "Bitte einen Titel angeben"
+		return Deal{}, service.T("alert.enter_title", lang)
 	}
 
 	description := c.FormValue("description")
 	if len(description) == 0 {
-		return Deal{}, "Bitte eine Beschreibung angeben"
+		return Deal{}, service.T("alert.enter_description", lang)
 	}
 
 	categoryId, err := strconv.Atoi(c.FormValue("category"))
 	if err != nil {
-		return Deal{}, "Bitte eine Kategorie auswählen"
+		return Deal{}, service.T("alert.select_category", lang)
 	}
 
 	startDate := time.Now()
@@ -127,7 +129,7 @@ func DealFromRequest(c echo.Context) (Deal, string) {
 	if c.FormValue("startInstantly") == "" {
 		startDate, err = time.Parse("2006-01-02T15:04", c.FormValue("startDate"))
 		if err != nil {
-			return Deal{}, "Bitte ein (gültiges) Startdatum angeben"
+			return Deal{}, service.T("alert.provide_start_date", lang)
 		}
 	}
 
@@ -138,13 +140,13 @@ func DealFromRequest(c echo.Context) (Deal, string) {
 	} else {
 		duration, err = strconv.Atoi(c.FormValue("duration"))
 		if err != nil {
-			return Deal{}, "Bitte entweder eine Laufzeit oder ein Enddatum angeben"
+			return Deal{}, service.T("alert.provide_runtime_or_enddate", lang)
 		}
 		duration *= 24
 	}
 
 	if duration <= 0 {
-		return Deal{}, "Das Startdatum muss vor dem Enddatum liegen"
+		return Deal{}, service.T("alert.start_before_end", lang)
 	}
 
 	isTemplate := c.FormValue("template") == "on"
