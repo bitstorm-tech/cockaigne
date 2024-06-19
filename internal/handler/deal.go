@@ -344,9 +344,9 @@ func saveDeal(c echo.Context) error {
 		return redirect.Login(c)
 	}
 
-	deal, errorMessage := model.DealFromRequest(c)
-	if len(errorMessage) > 0 {
-		return view.RenderAlert(errorMessage, c)
+	deal, errorMessageTranslationKey := model.DealFromRequest(c)
+	if len(errorMessageTranslationKey) > 0 {
+		return view.RenderAlertTranslated(errorMessageTranslationKey, c)
 	}
 
 	deal.DealerId = userId
