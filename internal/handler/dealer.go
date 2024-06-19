@@ -91,7 +91,7 @@ func toggleDealerFavorite(c echo.Context) error {
 	}
 
 	if user.IsBasicUser {
-		return view.RenderInfo("Diese Funktion steht nur PRO-Mitglieder zur Verfügung.", c)
+		return view.RenderInfoTranslated("info.only_for_pro_member", c)
 	}
 
 	dealerId := c.Param("dealerId")

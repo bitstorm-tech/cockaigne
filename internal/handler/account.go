@@ -131,7 +131,7 @@ func sendEmailChangeEmail(c echo.Context) error {
 		return view.RenderAlertTranslated("alert.can_t_change_email", c)
 	}
 
-	return view.RenderInfo("Wir haben dir an deine neue Adresse eine E-Mail mit dem Bestätigungslink geschickt.", c)
+	return view.RenderInfoTranslated("info.send_activation_email", c)
 }
 
 func openSendPasswordChangeEmailPage(c echo.Context) error {
@@ -182,7 +182,7 @@ func sendPasswordChangeEmail(c echo.Context) error {
 		return view.RenderAlertTranslated("alert.can_t_change_password", c)
 	}
 
-	return view.RenderInfo("Wir haben dir eine E-Mail zum ändern deines Passworts geschickt.", c)
+	return view.RenderInfoTranslated("info.send_change_pw_email", c)
 }
 
 func sendActivationEmail(c echo.Context) error {

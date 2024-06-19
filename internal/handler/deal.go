@@ -499,7 +499,7 @@ func toggleDealLike(c echo.Context) error {
 	likes := 0
 
 	if doToggle && user.IsBasicUser {
-		return view.RenderInfo("Diese Funktion steht nur PRO-Mitglieder zur Verfügung.", c)
+		return view.RenderInfoTranslated("info.only_for_pro_member", c)
 	}
 
 	if doToggle {
@@ -520,7 +520,7 @@ func getReportModal(c echo.Context) error {
 	}
 
 	if user.IsBasicUser {
-		return view.RenderInfo("Diese Funktion steht nur PRO-Mitglieder zur Verfügung.", c)
+		return view.RenderInfoTranslated("info.only_for_pro_member", c)
 	}
 
 	dealId := c.Param("id")
@@ -570,7 +570,7 @@ func toggleFavorite(c echo.Context) error {
 	dealId := c.Param("id")
 
 	if user.IsBasicUser {
-		return view.RenderInfo("Diese Funktion steht nur PRO-Mitglieder zur Verfügung.", c)
+		return view.RenderInfoTranslated("info.only_for_pro_member", c)
 	}
 
 	isFavorite := service.ToggleFavorite(dealId, user.ID.String())
