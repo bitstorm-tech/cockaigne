@@ -93,11 +93,14 @@ script mapScript(searchRadius int, useLocationService bool, currentLocation mode
   async function updateDealsOnMap(extent) {
     const res = await fetch("/api/deals?extent=" + extent);
     const deals = await res.json();
-    dealLayer.clearLayers();
+    const zoomLevel = map.getZoom();
+    const radius = Math.pow(2, 13 - zoomLevel) * 150;
+	dealLayer.clearLayers();
+  
     for (const deal of deals) {
       const coordinates = { lat: deal.Location.Lat, lon: deal.Location.Lon };
       const color = deal.Color;
-      L.circle(coordinates, 5, { color, fillOpacity: 0.8 }).addTo(dealLayer);
+      L.circle(coordinates, { color, fillOpacity: 0.7, radius }).addTo(dealLayer);
     }
   }
 
