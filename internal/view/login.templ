@@ -1,5 +1,7 @@
 package view
 
+import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
+
 templ Login(lang string) {
 	@BaseLayout() {
 		<form hx-post="/api/login" hx-target="#alert" class="pt-1/3 m-4 flex flex-col gap-4 p-6 pt-18">
@@ -22,6 +24,14 @@ templ Login(lang string) {
 				<a href="/send-password-change-email">{ t("password_reset", lang) }</a>
 				<span>/</span>
 				<a href="/signup-complete">{ t("account_activate", lang) }</a>
+			</div>
+			<div class="flex gap-2 justify-center mt-4">
+				<a class="link w-10" href="/language-set/de">
+					@icon.FlagDE()
+				</a>
+				<a class="link w-10" href="/language-set/en">
+					@icon.FlagUK()
+				</a>
 			</div>
 		</form>
 	}
