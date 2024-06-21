@@ -115,7 +115,7 @@ values
   ('deal_summary_error_3', 'Du kannst es auch später nochmal versuchen oder melde dich bitte bei unserem Support-Team:', 'You can also try again later or please contact our support team:'),
   ('deal_summary_error_4', 'Nachricht schreiben', 'Write us a message'),
   ('deal_summary_no_free_days_left', 'Du hast deine freien Tage für diese Monatsperiode aufgebraucht. Falls du mehr freie Tage benötigst, kannst du auf ein größeres Abo umsteigen', 'You have used up your free days for this monthly period. If you need more days off, you can upgrade to a larger subscription'),
-  ('dealer_images_add', 'Füge ein paar Bilder hinzu und mach deine Seite noch schöner! 🚀', 'Add a few pictures and make your page even more beautiful! 🚀'),
+  ('dealer_images_add', 'Füge ein paar Bilder hinzu und mach deine Seite noch interessanter! 🚀', 'Add a few pictures and make your page even more interesting! 🚀'),
   ('dealer_images_no_images_yet', 'Leider gibt es hier noch keine Bilder vom Dealer zu bestaunen.', 'Unfortunately there are no pictures of the dealer to marvel at yet.'),
   ('deals_left', 'Deals verbleibend', 'deals left'),
   ('delete', 'Löschen', 'Delete'),

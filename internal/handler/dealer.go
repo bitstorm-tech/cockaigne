@@ -219,9 +219,13 @@ func addDealerImage(c echo.Context) error {
 		zap.L().Sugar().Error("can't save dealer image: ", err)
 	}
 
-	img := fmt.Sprintf("<img src='%s', alt='Dealer image' class='h-36 w-full object-cover' />", imageUrl)
+	imageUrls, err := service.GetDealerImageUrls(dealerId.String())
+	if err != nil {
+		zap.L().Sugar().Errorf("can't get images for dealer %s: %v", dealerId, err)
+	}
+	index := len(imageUrls) - 1
 
-	return c.String(http.StatusOK, img)
+	return view.Render(view.DealerImage(imageUrl, true, dealerId.String(), index), c)
 }
 
 func deleteDealerImage(c echo.Context) error {
