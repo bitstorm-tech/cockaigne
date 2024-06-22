@@ -309,7 +309,7 @@ func openDealCreatePage(c echo.Context) error {
 	} else {
 		deal, err = service.GetDeal(dealId)
 		if err != nil {
-			return view.RenderAlertTranslated("alert.can_t_load_deal", c)
+			return view.RenderErrorPageTranslated("alert.can_t_load_deal", c)
 		}
 	}
 

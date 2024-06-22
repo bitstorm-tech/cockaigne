@@ -1,0 +1,21 @@
+package view
+
+import "github.com/labstack/echo/v4"
+import "github.com/bitstorm-tech/cockaigne/internal/service"
+
+templ ErrorPage(backUrl string, messageTranslationKey string, lang string) {
+	@BaseLayout() {
+		<section class="flex flex-col items-center gap-4 p-2">
+			<h1>{ t("error_page_title", lang) }</h1>
+			<p>{ t(messageTranslationKey, lang) }</p>
+			<a class="btn btn-warning mt-4" href={ templ.SafeURL(backUrl) }>{ t("back", lang) }</a>
+		</section>
+	}
+}
+
+func RenderErrorPageTranslated(messageTranslationKey string, c echo.Context) error {
+	lang := service.GetLanguageFromCookie(c)
+	backUrl := c.Request().Header.Get("Referer")
+
+	return Render(ErrorPage(backUrl, messageTranslationKey, lang), c)
+}

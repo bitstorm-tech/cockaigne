@@ -35,7 +35,7 @@ func RenderAlert(message string, c echo.Context) error {
 func RenderAlertTranslated(translationKey string, c echo.Context) error {
 	lang := service.GetLanguageFromCookie(c)
 	translation := t(translationKey, lang)
-	return RenderToTarget(Alert(translation, true), c, "#alert")
+	return RenderAlert(translation, c)
 }
 
 func RenderInfo(message string, c echo.Context) error {
@@ -45,5 +45,5 @@ func RenderInfo(message string, c echo.Context) error {
 func RenderInfoTranslated(translationKey string, c echo.Context) error {
 	lang := service.GetLanguageFromCookie(c)
 	translation := t(translationKey, lang)
-	return RenderToTarget(Alert(translation, false), c, "#alert")
+	return RenderInfo(translation, c)
 }

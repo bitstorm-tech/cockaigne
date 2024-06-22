@@ -127,6 +127,7 @@ values
   ('email_change_description', 'Bitte gibt die neue E-Mail Adresse ein. Wir schicken an diese Adresse eine E-Mail mit einem Bestätigungslink zum aktivieren der neuen E-Mail Adresse.', 'Please enter the new e-mail address. We will send an e-mail to this address with a confirmation link to activate the new e-mail address.'),
   ('end', 'Ende', 'End'),
   ('ends_on', 'Endet am', 'Ends on'),
+  ('error_page_title', 'Ein Fehler ist aufgetreten 🥺', 'An error has occurred 🥺'),
   ('exclusive', 'Exclusive', 'Exclusive'),
   ('filter', 'Filter', 'Filter'),
   ('free_days_left', 'Verbleibende freie Tage', 'Free days left'),
