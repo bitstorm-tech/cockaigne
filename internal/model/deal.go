@@ -93,6 +93,7 @@ type Deal struct {
 	Start           time.Time
 	IsTemplate      bool `db:"template"`
 	Created         time.Time
+	PaymentState    DealPaymentState `db:"payment_state"`
 }
 
 func NewDeal() Deal {

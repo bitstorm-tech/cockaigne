@@ -309,6 +309,7 @@ func openDealCreatePage(c echo.Context) error {
 	} else {
 		deal, err = service.GetDeal(dealId)
 		if err != nil {
+			zap.L().Sugar().Errorf("can't get deal %s: %v", dealId, err)
 			return view.RenderErrorPageTranslated("alert.can_t_load_deal", c)
 		}
 	}
