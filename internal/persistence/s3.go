@@ -49,7 +49,7 @@ func InitS3() {
 	zap.L().Sugar().Infof("S3 init done: region=%s, endpoint=%s, bucket=%s, baseUrl=%s", region, endpoint, Bucket, S3BaseUrl)
 }
 
-func UploadImage(path string, image *multipart.FileHeader) error {
+func UploadImageS3(path string, image *multipart.FileHeader) error {
 	tokens := strings.Split(image.Filename, ".")
 	fileExtension := tokens[len(tokens)-1]
 	contentType := image.Header.Get("Content-Type")
@@ -74,7 +74,7 @@ func UploadImage(path string, image *multipart.FileHeader) error {
 	return err
 }
 
-func GetImageUrls(path string) ([]string, error) {
+func GetImageUrlsS3(path string) ([]string, error) {
 	output, err := S3.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
 		Bucket: &Bucket,
 		Prefix: &path,
@@ -92,8 +92,8 @@ func GetImageUrls(path string) ([]string, error) {
 	return imageUrls, nil
 }
 
-func GetImageUrl(path string) (string, error) {
-	imageUrls, err := GetImageUrls(path)
+func GetImageUrlS3(path string) (string, error) {
+	imageUrls, err := GetImageUrlsS3(path)
 	if err != nil {
 		return "", err
 	}
@@ -109,7 +109,7 @@ func GetImageUrl(path string) (string, error) {
 	return imageUrls[0], nil
 }
 
-func DeleteImage(path string) error {
+func DeleteImageS3(path string) error {
 	if len(path) == 0 {
 		return nil
 	}

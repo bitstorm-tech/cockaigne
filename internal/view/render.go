@@ -13,6 +13,5 @@ func Render(t templ.Component, c echo.Context) error {
 
 func RenderToTarget(t templ.Component, c echo.Context, target string) error {
 	c.Response().Header().Add("HX-Retarget", target)
-	c.Response().Header().Add("HX-Location", "/user")
 	return t.Render(context.TODO(), c.Response().Writer)
 }

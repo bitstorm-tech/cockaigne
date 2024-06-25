@@ -365,7 +365,7 @@ func saveDeal(c echo.Context) error {
 	}
 
 	for index, file := range form.File["images"] {
-		err = service.UploadDealImage(file, dealId.String(), fmt.Sprintf("%d-", index))
+		err = service.UploadDealImage(file, dealId.String(), fmt.Sprintf("%d", index))
 		if err != nil {
 			zap.L().Sugar().Error("can't upload deal image: ", err)
 			return view.RenderAlertTranslated("alert.can_t_save_deal", c)

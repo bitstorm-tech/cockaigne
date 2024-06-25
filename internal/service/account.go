@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"mime/multipart"
-	"strings"
 
 	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"github.com/bitstorm-tech/cockaigne/internal/persistence"
@@ -198,13 +197,8 @@ func UpdateDealerAddress(dealerId string, street string, houseNumber string, cit
 	return err
 }
 
-func GetProfileImage(accountId string) (string, error) {
-	imageUrl, err := persistence.GetImageUrl(persistence.ProfileImagesFolder + "/" + accountId)
-	if err != nil {
-		return "", err
-	}
-
-	return imageUrl, nil
+func GetProfileImage(accountId string, transformations string) (string, error) {
+	return persistence.GetProfileImageUrlWithTransformations(accountId, transformations)
 }
 
 func UsernameExists(accountId string, username string) bool {
@@ -223,28 +217,11 @@ func UsernameExists(accountId string, username string) bool {
 }
 
 func SaveProfileImage(accountId string, image *multipart.FileHeader) (string, error) {
-	tokens := strings.Split(image.Filename, ".")
-	fileExtension := tokens[len(tokens)-1]
-	path := fmt.Sprintf("%s/%s.%s", persistence.ProfileImagesFolder, accountId, fileExtension)
-	err := persistence.UploadImage(path, image)
-	if err != nil {
-		return "", err
-	}
-
-	imageUrl := persistence.S3BaseUrl + "/" + path
-
-	return imageUrl, nil
+	return persistence.UploadProfileImage(accountId, image)
 }
 
 func DeleteProfileImage(accountId string) error {
-	path, err := persistence.GetImageUrl(fmt.Sprintf("%s/%s", persistence.ProfileImagesFolder, accountId))
-	if err != nil {
-		return err
-	}
-
-	path = strings.ReplaceAll(path, persistence.S3BaseUrl+"/", "")
-
-	return persistence.DeleteImage(path)
+	return persistence.DeleteProfileImage(accountId)
 }
 
 func SetActivationCode(email string, code int) error {

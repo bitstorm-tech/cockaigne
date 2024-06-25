@@ -241,7 +241,11 @@ func deleteDealerImage(c echo.Context) error {
 		return nil
 	}
 
-	err = service.DeleteDealerImage(imageUrl)
+	imageUrlTokens := strings.Split(imageUrl, "/")
+	imageName := imageUrlTokens[len(imageUrlTokens)-1]
+	imageName = strings.Split(imageName, "?")[0]
+
+	err = service.DeleteDealerImage(dealerId.String(), imageName)
 	if err != nil {
 		zap.L().Sugar().Error("can't delete dealer image: ", err)
 		return view.RenderAlertTranslated("alert.can_t_delete_image", c)
@@ -252,9 +256,16 @@ func deleteDealerImage(c echo.Context) error {
 		zap.L().Sugar().Error("can't get dealer images: ", err)
 	}
 
+	cleanedImageUrls := []string{}
+	for _, url := range imageUrls {
+		if !strings.Contains(url, imageName) {
+			cleanedImageUrls = append(cleanedImageUrls, url)
+		}
+	}
+
 	lang := service.GetLanguageFromCookie(c)
 
-	return view.Render(view.DealerImages(imageUrls, true, dealerId.String(), lang), c)
+	return view.Render(view.DealerImages(cleanedImageUrls, true, dealerId.String(), lang), c)
 }
 
 func getDealerRatings(c echo.Context) error {

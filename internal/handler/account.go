@@ -361,7 +361,7 @@ func getProfileImageSettings(c echo.Context) error {
 		return redirect.Login(c)
 	}
 
-	imageUrl, err := service.GetProfileImage(user.ID.String())
+	imageUrl, err := service.GetProfileImage(user.ID.String(), "w-600")
 	if err != nil {
 		zap.L().Sugar().Errorf("can't get profile image of user '%s': %v", user.ID, err)
 		return view.RenderAlertTranslated("alert.can_t_load_profile_image", c)
@@ -404,7 +404,7 @@ func getProfileImage(c echo.Context) error {
 	accountId := c.Param("accountId")
 	isDealer := c.QueryParam("dealer") == "true"
 
-	imageUrl, err := service.GetProfileImage(accountId)
+	imageUrl, err := service.GetProfileImage(accountId, "w-200")
 	if err != nil {
 		zap.L().Sugar().Errorf("can't get profile image for account '%s': %v", accountId, err)
 		return view.Render(view.ProfileImage("", isDealer), c)

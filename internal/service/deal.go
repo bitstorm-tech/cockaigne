@@ -419,18 +419,14 @@ func ToggleFavorite(dealId string, userId string) bool {
 	return !isFavorite
 }
 
-func UploadDealImage(image *multipart.FileHeader, dealId string, prefix string) error {
-	tokens := strings.Split(image.Filename, ".")
-	fileExtension := tokens[len(tokens)-1]
-	path := fmt.Sprintf("%s/%s/%s%d.%s", persistence.DealImagesFolder, dealId, prefix, time.Now().UnixMilli(), fileExtension)
+func UploadDealImage(image *multipart.FileHeader, dealId string, name string) error {
+	_, err := persistence.UploadDealImage(dealId, name, image)
 
-	return persistence.UploadImage(path, image)
+	return err
 }
 
 func GetDealImageUrls(dealId string) ([]string, error) {
-	path := fmt.Sprintf("%s/%s", persistence.DealImagesFolder, dealId)
-
-	return persistence.GetImageUrls(path)
+	return persistence.GetDealImageUrls(dealId)
 }
 
 func SaveDealReport(dealId string, reporterId string, reason string) error {

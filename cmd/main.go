@@ -19,6 +19,7 @@ func main() {
 
 	persistence.ConnectToDb()
 	persistence.InitS3()
+	persistence.InitImagekit()
 
 	e := echo.New()
 	e.Static("/static", "static")

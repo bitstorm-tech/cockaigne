@@ -3,7 +3,6 @@ package service
 import (
 	"fmt"
 	"mime/multipart"
-	"strings"
 	"time"
 
 	"github.com/bitstorm-tech/cockaigne/internal/model"
@@ -12,31 +11,22 @@ import (
 )
 
 func SaveDealerImage(dealerId string, image *multipart.FileHeader) (string, error) {
-	tokens := strings.Split(image.Filename, ".")
-	fileExtension := tokens[len(tokens)-1]
-	path := fmt.Sprintf("%s/%s/%d.%s", persistence.DealerImagesFolder, dealerId, time.Now().UnixMilli(), fileExtension)
-	err := persistence.UploadImage(path, image)
-	if err != nil {
-		return "", err
+	name := fmt.Sprintf("%d", time.Now().UnixMilli())
+	imageUrl, err := persistence.UploadDealerImage(dealerId, name, image)
+
+	if err == nil {
+		imageUrl += "?tr=w-400"
 	}
 
-	imageUrl := persistence.S3BaseUrl + "/" + path
-
-	return imageUrl, nil
+	return imageUrl, err
 }
 
 func GetDealerImageUrls(dealerId string) ([]string, error) {
-	imageUrls, err := persistence.GetImageUrls(persistence.DealerImagesFolder + "/" + dealerId)
-	if err != nil {
-		return []string{}, err
-	}
-
-	return imageUrls, nil
+	return persistence.GetDealerImageUrlsWithTransformations(dealerId, "w-400")
 }
 
-func DeleteDealerImage(imageUrl string) error {
-	path := strings.Replace(imageUrl, persistence.S3BaseUrl+"/", "", -1)
-	return persistence.DeleteImage(path)
+func DeleteDealerImage(dealerId string, imageName string) error {
+	return persistence.DeleteDealerImage(dealerId, imageName)
 }
 
 func GetDealerRatings(dealerId string, userId string) ([]model.DealerRating, error) {
