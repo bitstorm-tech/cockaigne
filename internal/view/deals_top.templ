@@ -1,32 +1,44 @@
 package view
 
-templ TopDealsPage(lang string) {
+templ TopDealsPage(isBasicUser bool, lang string) {
 	@BaseLayout() {
-		<section class="flex flex-col">
-			<h1 class="text-center">{ t("top_deals_in_your_area", lang) }</h1>
-			<div class="tabs tabs-bordered" x-data="{selectedTab: 0}">
-				<div
-					hx-get="/deals-top/25"
-					hx-target="#content"
-					hx-trigger="click, load"
-					class="tab"
-					:class="selectedTab === 0 ? 'tab-active' : ''"
-					@click="selectedTab = 0"
-				>
-					{ t("top_25", lang) }
+		if isBasicUser {
+			@basicUserHint(lang)
+		} else {
+			<section class="flex flex-col">
+				<h1 class="text-center">{ t("top_deals_in_your_area", lang) }</h1>
+				<div class="tabs tabs-bordered" x-data="{selectedTab: 0}">
+					<div
+						hx-get="/deals-top/25"
+						hx-target="#content"
+						hx-trigger="click, load"
+						class="tab"
+						:class="selectedTab === 0 ? 'tab-active' : ''"
+						@click="selectedTab = 0"
+					>
+						{ t("top_25", lang) }
+					</div>
+					<div
+						hx-get="/deals-top/100"
+						hx-target="#content"
+						hx-trigger="click"
+						class="tab"
+						:class="selectedTab === 1 ? 'tab-active' : ''"
+						@click="selectedTab = 1"
+					>
+						{ t("all", lang) }
+					</div>
 				</div>
-				<div
-					hx-get="/deals-top/100"
-					hx-target="#content"
-					hx-trigger="click"
-					class="tab"
-					:class="selectedTab === 1 ? 'tab-active' : ''"
-					@click="selectedTab = 1"
-				>
-					{ t("all", lang) }
-				</div>
-			</div>
-			<div id="content" class="pt-1"></div>
-		</section>
+				<div id="content" class="pt-1"></div>
+			</section>
+		}
 	}
+}
+
+templ basicUserHint(lang string) {
+	<div class="flex flex-col p-8 text-center gap-4">
+		<span>{ t("register_to_get_advantages_1", lang) }</span>
+		<a href="/signup" class="btn btn-warning">{ t("register_to_get_advantages_2", lang) }</a>
+		<a href="/basic-vs-pro" class="btn btn-primary">{ t("register_to_get_advantages_3", lang) }</a>
+	</div>
 }

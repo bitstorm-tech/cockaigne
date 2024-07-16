@@ -256,12 +256,20 @@ func getTopDealsList(c echo.Context) error {
 		return view.RenderAlertTranslated("alert.can_t_load_top_deals", c)
 	}
 
-	return view.Render(view.DealsList(view.DealListTopDeals, user, header, false, view.ActionButtonFavoriteToggle), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.DealsList(view.DealListTopDeals, user, header, false, view.ActionButtonFavoriteToggle, lang), c)
 }
 
 func openTopDealsPage(c echo.Context) error {
 	lang := service.GetLanguageFromCookie(c)
-	return view.Render(view.TopDealsPage(lang), c)
+	user, err := service.GetUserFromCookie(c)
+
+	if err != nil {
+		return view.RenderErrorPageTranslated("can_t_open_top_deals_page", c)
+	}
+
+	return view.Render(view.TopDealsPage(user.IsBasicUser, lang), c)
 }
 
 func getFavoriteDealerDeals(c echo.Context) error {
@@ -276,7 +284,9 @@ func getFavoriteDealerDeals(c echo.Context) error {
 		return view.RenderAlertTranslated("alert.can_t_load_favorite_deals", c)
 	}
 
-	return view.Render(view.DealsList(view.DealListUserFavoriteDealerDeals, user, headers, false, view.ActionButtonNone), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.DealsList(view.DealListUserFavoriteDealerDeals, user, headers, false, view.ActionButtonNone, lang), c)
 }
 
 func getFavoriteDeals(c echo.Context) error {
@@ -291,7 +301,9 @@ func getFavoriteDeals(c echo.Context) error {
 		return view.RenderAlertTranslated("alert.can_t_load_favorite_deals", c)
 	}
 
-	return view.Render(view.DealsList(view.DealListUserFavoriteDeals, user, headers, false, view.ActionButtonRemoveFavorite), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.DealsList(view.DealListUserFavoriteDeals, user, headers, false, view.ActionButtonRemoveFavorite, lang), c)
 }
 
 func openDealCreatePage(c echo.Context) error {
@@ -423,7 +435,9 @@ func getDealList(c echo.Context) error {
 		actionButton = view.ActionButtonStatistics
 	}
 
-	return view.Render(view.DealsList(dealListType, user, headers, hideName, actionButton), c)
+	lang := service.GetLanguageFromCookie(c)
+
+	return view.Render(view.DealsList(dealListType, user, headers, hideName, actionButton, lang), c)
 }
 
 type DealJson struct {
