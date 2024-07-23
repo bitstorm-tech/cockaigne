@@ -1,9 +1,11 @@
 package view
 
-import "github.com/bitstorm-tech/cockaigne/internal/model"
-import "fmt"
-import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
-import "github.com/bitstorm-tech/cockaigne/internal/service"
+import (
+	"fmt"
+	"github.com/bitstorm-tech/cockaigne/internal/model"
+	"github.com/bitstorm-tech/cockaigne/internal/service"
+	"github.com/bitstorm-tech/cockaigne/internal/view/icon"
+)
 
 type DealListType int
 
@@ -13,6 +15,10 @@ const (
 	DealListUserFavoriteDealerDeals
 	DealListTopDeals
 	DealListDealer
+	DealListDealerOverviewActive
+	DealListDealerOverviewPlanned
+	DealListDealerOverviewPast
+	DealListDealerTemplates
 )
 
 type ActionButtonType int
@@ -28,26 +34,14 @@ const (
 templ DealsList(listType DealListType, user service.User, dealHeaders []model.DealHeader, hideName bool, actionButtonType ActionButtonType, lang string) {
 	<div class="flex flex-col gap-2" x-data="{openDetailsId: ''}">
 		if user.IsBasicUser && (listType == DealListUserFavoriteDealerDeals || listType == DealListUserFavoriteDeals || listType == DealListTopDeals) {
-			<div class="flex flex-col p-8 text-center gap-4">
-				<span>{ t("register_to_get_advantages_1", lang) }</span>
-				<a href="/signup" class="btn btn-warning">{ t("register_to_get_advantages_2", lang) }</a>
-				<a href="/basic-vs-pro" class="btn btn-primary">{ t("register_to_get_advantages_3", lang) }</a>
-			</div>
+			@hintBasicUser(lang)
 		} else {
 			if len(dealHeaders) == 0 {
 				<div class="flex flex-col p-8 text-center gap-4">
 					if user.IsDealer {
-						<span>{ t("you_don_t_have_active_deals_1", lang) }</span>
-						<span>
-							{ t("you_don_t_have_active_deals_2", lang) }
-						</span>
-						<a href="/deal/new" class="btn btn-warning">{ t("you_don_t_have_active_deals_3", lang) }</a>
+						@hintForDealer(listType, lang)
 					} else {
-						<span>{ t("no_deals_near_you", lang) }</span>
-						<span>
-							{ t("adapt_filter_or_area_1", lang) }
-						</span>
-						<a href="/map" class="btn btn-warning">{ t("adapt_filter_or_area_2", lang) }</a>
+						@hintChangeFilter(lang)
 					}
 				</div>
 			}
@@ -60,6 +54,41 @@ templ DealsList(listType DealListType, user service.User, dealHeaders []model.De
 	<div id="image-zoom-modal"></div>
 	@DealsCountBadge(len(dealHeaders))
 	@dealListScript(dealHeaders)
+}
+
+templ hintBasicUser(lang string) {
+	<div class="flex flex-col p-8 text-center gap-4">
+		<span>{ t("register_to_get_advantages_1", lang) }</span>
+		<a href="/signup" class="btn btn-warning">{ t("register_to_get_advantages_2", lang) }</a>
+		<a href="/basic-vs-pro" class="btn btn-primary">{ t("register_to_get_advantages_3", lang) }</a>
+	</div>
+}
+
+templ hintChangeFilter(lang string) {
+	<span>{ t("no_deals_near_you", lang) }</span>
+	<span>
+		{ t("adapt_filter_or_area_1", lang) }
+	</span>
+	<a href="/map" class="btn btn-warning">{ t("adapt_filter_or_area_2", lang) }</a>
+}
+
+templ hintForDealer(listType DealListType, lang string) {
+	if listType == DealListDealerOverviewActive || listType == DealListDealer {
+		<span>{ t("you_don_t_have_active_deals_1", lang) }</span>
+	}
+	if listType == DealListDealerOverviewPlanned {
+		<span>{ t("you_don_t_have_planned_deals_1", lang) }</span>
+	}
+	if listType == DealListDealerOverviewPast {
+		<span>{ t("you_don_t_have_past_deals_1", lang) }</span>
+	}
+	if listType == DealListDealerTemplates {
+		<span>{ t("you_don_t_have_template_deals_1", lang) }</span>
+	}
+	<span>
+		{ t("you_don_t_have_active_deals_2", lang) }
+	</span>
+	<a href="/deal/new" class="btn btn-warning">{ t("you_don_t_have_active_deals_3", lang) }</a>
 }
 
 templ dealHeader(user service.User, header model.DealHeader, hideName bool, actionButtonType ActionButtonType) {

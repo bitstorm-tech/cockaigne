@@ -418,11 +418,8 @@ func getDealList(c echo.Context) error {
 		return view.RenderAlert(err.Error(), c)
 	}
 
-	dealListType := view.DealListUserDeals
-	if len(dealerId) > 0 {
-		dealListType = view.DealListDealer
-	}
-
+	sourceUrl := c.Request().Header.Get("Referer")
+	dealListType := determineDealListType(user, state, sourceUrl)
 	hideName := c.QueryParam("hide_name") == "true"
 	canEdit := c.QueryParam("can_edit") == "true"
 	showStatistics := c.QueryParam("show_statistics") == "true"
@@ -438,6 +435,30 @@ func getDealList(c echo.Context) error {
 	lang := service.GetLanguageFromCookie(c)
 
 	return view.Render(view.DealsList(dealListType, user, headers, hideName, actionButton, lang), c)
+}
+
+func determineDealListType(user service.User, state model.DealState, sourceUrl string) view.DealListType {
+	if !user.IsDealer {
+		return view.DealListUserDeals
+	}
+
+	sourceUrl = strings.ToLower(sourceUrl)
+	if strings.Contains(sourceUrl, "overview") {
+		switch state {
+		case model.DealStateActive:
+			return view.DealListDealerOverviewActive
+		case model.DealStateFuture:
+			return view.DealListDealerOverviewPlanned
+		case model.DealStatePast:
+			return view.DealListDealerOverviewPast
+		}
+	}
+
+	if strings.Contains(sourceUrl, "template") {
+		return view.DealListDealerTemplates
+	}
+
+	return view.DealListDealer
 }
 
 type DealJson struct {

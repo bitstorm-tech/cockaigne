@@ -215,7 +215,7 @@ values
   ('starter', 'Starter', 'Starter'),
   ('street', 'Straße', 'Street'),
   ('subscribe', 'schließe ein Abo ab!', 'subscribe!'),
-  ('subscription_buy_now', 'Jetzt Abo abschließen und Geld sparen!', 'Buy a subscription now and save money!'),
+  ('subscription_buy_now', 'Jetzt Abo abschließen und Geld sparen!', 'Subscribe now and save money!'),
   ('subscription_no_info_available', 'Kann aktuellen Status des Abos momentan nicht abrufen', 'Cannot retrieve current subscription status at the moment'),
   ('subscription_not_active', 'Kein Abo abgeschlossen', 'No subscription'),
   ('subscription_subscribe', 'Abo abschließen', 'Subscribe'),
@@ -249,6 +249,9 @@ values
   ('you_don_t_have_active_deals_1', 'Du hast aktuell keine aktiven Deals.', 'You currently have no active deals.'),
   ('you_don_t_have_active_deals_2', 'Worauf wartest du? Erstelle jetzt einfach einen Deal!', 'What are you waiting for? Simply create a deal now!'),
   ('you_don_t_have_active_deals_3', 'Deal erstellen', 'Create deal'),
+  ('you_don_t_have_past_deals_1', 'Du hast aktuell keine abgelaufenen Deals.', 'You currently have no past deals.'),
+  ('you_don_t_have_planned_deals_1', 'Du hast aktuell keine geplanten Deals.', 'You currently have no planned deals.'),
+  ('you_don_t_have_template_deals_1', 'Du hast aktuell keine Vorlagen.', 'You currently have no templates.'),
   ('you_want_to_report', 'Du willst den folgenden Deal melden?', 'You want to report the following deal?'),
   ('your_location', 'Dein Standort', 'Your location'),
   ('zipcode', 'PLZ', 'ZIP Code')
