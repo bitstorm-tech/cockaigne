@@ -11,6 +11,7 @@ import (
 	"github.com/bitstorm-tech/cockaigne/internal/redirect"
 	"github.com/bitstorm-tech/cockaigne/internal/service"
 	"github.com/bitstorm-tech/cockaigne/internal/view"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -364,7 +365,7 @@ func saveDeal(c echo.Context) error {
 
 	deal.DealerId = userId
 
-	dealId, err := service.SaveDeal(deal)
+	dealId, templateId, err := service.SaveDeal(deal)
 	if err != nil {
 		zap.L().Sugar().Error("can't save deal: ", err)
 		return view.RenderAlertTranslated("alert.can_t_save_deal", c)
@@ -381,6 +382,14 @@ func saveDeal(c echo.Context) error {
 		if err != nil {
 			zap.L().Sugar().Error("can't upload deal image: ", err)
 			return view.RenderAlertTranslated("alert.can_t_save_deal", c)
+		}
+
+		if templateId != uuid.Nil {
+			err = service.UploadDealImage(file, templateId.String(), fmt.Sprintf("%d", index))
+			if err != nil {
+				zap.L().Sugar().Error("can't upload template image: ", err)
+				return view.RenderAlertTranslated("alert.can_t_save_deal", c)
+			}
 		}
 	}
 

@@ -35,9 +35,8 @@ func GetCategory(id int) (model.Category, error) {
 	return category, nil
 }
 
-func SaveDeal(deal model.Deal) (uuid.UUID, error) {
-	var dealId uuid.UUID
-	err := persistence.DB.Get(&dealId,
+func SaveDeal(deal model.Deal) (dealId uuid.UUID, templateId uuid.UUID, err error) {
+	err = persistence.DB.Get(&dealId,
 		"insert into deals (dealer_id, title, description, category_id, duration_in_hours, start, payment_state, template) values ($1, $2, $3, $4, $5, $6, $7, false) returning id",
 		deal.DealerId,
 		deal.Title,
@@ -49,11 +48,12 @@ func SaveDeal(deal model.Deal) (uuid.UUID, error) {
 	)
 
 	if err != nil {
-		return uuid.UUID{}, err
+		return dealId, templateId, err
 	}
 
 	if deal.IsTemplate {
-		_, err = persistence.DB.Exec(
+		err = persistence.DB.Get(
+			&templateId,
 			"insert into deals (dealer_id, title, description, category_id, duration_in_hours, start, template) values ($1, $2, $3, $4, $5, $6, true) returning id",
 			deal.DealerId,
 			deal.Title,
@@ -64,11 +64,7 @@ func SaveDeal(deal model.Deal) (uuid.UUID, error) {
 		)
 	}
 
-	if err != nil {
-		return uuid.UUID{}, err
-	}
-
-	return dealId, nil
+	return dealId, templateId, err
 }
 
 func GetDeal(id string) (model.Deal, error) {
