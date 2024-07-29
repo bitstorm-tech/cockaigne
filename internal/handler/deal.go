@@ -76,7 +76,7 @@ func updateDeal(c echo.Context) error {
 		return view.RenderAlertTranslated("alert.can_t_update_deal", c)
 	}
 
-	return view.RenderToast("Vorlage erfolgreich gespeichert", c)
+	return view.RenderToastTranslated("toast.changes_saved_successfully", c)
 }
 
 func deleteImages(c echo.Context, dealId string) {

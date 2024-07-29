@@ -206,6 +206,7 @@ type DealHeader struct {
 	Username   string
 	CategoryId int       `db:"category_id"`
 	StartTime  time.Time `db:"start_time"`
+	CanEdit    bool
 }
 
 type DealHeaders []DealHeader

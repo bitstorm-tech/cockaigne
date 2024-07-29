@@ -3,6 +3,7 @@ package view
 import (
 	"github.com/bitstorm-tech/cockaigne/internal/model"
 	"strconv"
+	"github.com/google/uuid"
 )
 
 templ DealEdit(deal model.Deal, dealImageUrls []string, lang string) {
@@ -110,7 +111,7 @@ templ DealEdit(deal model.Deal, dealImageUrls []string, lang string) {
 			//   <!--------------------------------------------------------------------------->
 			//   <!-- Switch between start date or start instatnly and end date or runtime  -->
 			//   <!--------------------------------------------------------------------------->
-			<div class="flex gap-6">
+			<div class={ "flex gap-6", templ.KV("hidden", editCreatedDeal(deal)) }>
 				<div class="form-control-horizontal">
 					<input id="start-immediately" type="checkbox" class="checkbox" name="startInstantly" x-model="startInstantly"/>
 					<label for="start-immediately" class="cursor-pointer">{ t("start_immediately", lang) }</label>
@@ -123,7 +124,7 @@ templ DealEdit(deal model.Deal, dealImageUrls []string, lang string) {
 			//   <!------------------------------------>
 			//   <!-- Start date or start instantly  -->
 			//   <!------------------------------------>
-			<div class="form-control" x-show="!startInstantly">
+			<div class={ "form-control", templ.KV("hidden", editCreatedDeal(deal)) } x-show="!startInstantly">
 				<label for="start-date-input">{ t("start", lang) }</label>
 				<input
 					id="start-date-input"
@@ -132,13 +133,13 @@ templ DealEdit(deal model.Deal, dealImageUrls []string, lang string) {
 					value={ deal.Start.Format("2006-01-02T15:04") }
 				/>
 			</div>
-			<div class="py-6 text-sm" x-show="startInstantly">
+			<div class={ "py-6 text-sm", templ.KV("hidden", editCreatedDeal(deal)) } x-show="startInstantly">
 				<span>{ t("deal_start_description", lang) }</span>
 			</div>
 			//   <!----------------------------------------->
 			//   <!-- End date or runtime 1, 2 or 3 days  -->
 			//   <!----------------------------------------->
-			<div class="flex select-none gap-4">
+			<div class={ "flex select-none gap-4", templ.KV("hidden", editCreatedDeal(deal)) }>
 				<div class="form-control w-full" x-show="ownEndDate">
 					<label for="duration-input">{ t("end", lang) }</label>
 					<input id="duration-input" type="date" name="endDate" value={ calculateEndDate(deal) }/>
@@ -163,7 +164,7 @@ templ DealEdit(deal model.Deal, dealImageUrls []string, lang string) {
 			//   <!------------------------------------>
 			//   <!-- Save additionally as template  -->
 			//   <!------------------------------------>
-			if !deal.IsTemplate {
+			if !deal.IsTemplate && !editCreatedDeal(deal) {
 				<div class="form-control-horizontal pt-10">
 					<input id="template" type="checkbox" class="checkbox" name="template"/>
 					<label for="template">{ t("save_additionally_as_template", lang) }</label>
@@ -174,7 +175,7 @@ templ DealEdit(deal model.Deal, dealImageUrls []string, lang string) {
 			//   <!--------------------->
 			<div class="flex gap-2">
 				<a href="/" class="btn btn-primary btn-outline flex-1">{ t("cancel", lang) }</a>
-				if deal.IsTemplate {
+				if deal.IsTemplate || editCreatedDeal(deal) {
 					<button
 						type="submit"
 						class="btn btn-primary flex-1"
@@ -182,7 +183,9 @@ templ DealEdit(deal model.Deal, dealImageUrls []string, lang string) {
 						hx-encoding="multipart/form-data"
 					>{ t("save_changes", lang) }</button>
 				}
-				<button class="flex-1" hx-post="/deal-new-summary" hx-target="#summary-modal">{ t("create", lang) }</button>
+				if !editCreatedDeal(deal) {
+					<button class="flex-1" hx-post="/deal-new-summary" hx-target="#summary-modal">{ t("create", lang) }</button>
+				}
 			</div>
 			<div id="summary-modal"></div>
 		</form>
@@ -230,6 +233,10 @@ templ DealEdit(deal model.Deal, dealImageUrls []string, lang string) {
 func calculateEndDate(deal model.Deal) string {
 	endDate := deal.Start.AddDate(0, 0, deal.DurationInHours/24)
 	return endDate.Format("2006-01-02")
+}
+
+func editCreatedDeal(deal model.Deal) bool {
+	return deal.ID != uuid.Nil && !deal.IsTemplate
 }
 
 type NewDealSummaryModalParameter struct {

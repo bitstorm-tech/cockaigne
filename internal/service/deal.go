@@ -228,14 +228,14 @@ func GetDealHeaders(state model.DealState, user *User, dealerId string) (model.D
 		return model.DealHeaders{}, fmt.Errorf("unknown deal state: %s", state)
 	}
 
-	query := "select id, title, username, dealer_id, category_id, start_time from active_deals_view"
+	query := "select id, title, username, dealer_id, category_id, start_time, start + interval '60 minute' >= now() as CanEdit from active_deals_view"
 	switch state {
 	case model.DealStatePast:
-		query = "select id, title, username, dealer_id, category_id, start_time from past_deals_view"
+		query = "select id, title, username, dealer_id, category_id, start_time, start + interval '60 minute' >= now() as CanEdit from past_deals_view"
 	case model.DealStateFuture:
-		query = "select id, title, username, dealer_id, category_id, start_time from future_deals_view"
+		query = "select id, title, username, dealer_id, category_id, start_time, start + interval '60 minute' >= now() as CanEdit from future_deals_view"
 	case model.DealStateTemplate:
-		query = "select d.id, d.title, a.username, d.dealer_id, d.category_id from deals d join accounts a on a.id = d.dealer_id where template = true"
+		query = "select d.id, d.title, a.username, d.dealer_id, d.category_id, d.start + interval '60 minute' >= now() as CanEdit from deals d join accounts a on a.id = d.dealer_id where template = true"
 	}
 
 	if len(dealerId) > 0 {
@@ -632,18 +632,31 @@ func GetDealStatistics(dealId string) (model.DealStatistics, error) {
 }
 
 func UpdateDeal(deal model.Deal) error {
-	_, err := persistence.DB.Exec(
-		"update deals set start_instantly = $1, own_end_date = $2, start = $3, category_id = $4, title = $5, description = $6, duration_in_hours = $7 where id = $8 and dealer_id = $9",
-		deal.StartInstantly,
-		deal.OwnEndDate,
-		deal.Start,
-		deal.CategoryId,
-		deal.Title,
-		deal.Description,
-		deal.DurationInHours,
-		deal.ID,
-		deal.DealerId,
-	)
+	var err error
+
+	if deal.IsTemplate {
+		_, err = persistence.DB.Exec(
+			"update deals set start_instantly = $1, own_end_date = $2, start = $3, category_id = $4, title = $5, description = $6, duration_in_hours = $7 where id = $8 and dealer_id = $9",
+			deal.StartInstantly,
+			deal.OwnEndDate,
+			deal.Start,
+			deal.CategoryId,
+			deal.Title,
+			deal.Description,
+			deal.DurationInHours,
+			deal.ID,
+			deal.DealerId,
+		)
+	} else {
+		_, err = persistence.DB.Exec(
+			"update deals set category_id = $1, title = $2, description = $3 where id = $4 and dealer_id = $5",
+			deal.CategoryId,
+			deal.Title,
+			deal.Description,
+			deal.ID,
+			deal.DealerId,
+		)
+	}
 
 	return err
 }

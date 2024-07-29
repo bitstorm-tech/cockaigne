@@ -227,6 +227,7 @@ values
   ('templates', 'Vorlagen', 'Templates'),
   ('terms', 'AGB', 'Terms'),
   ('title', 'Titel', 'Title'),
+  ('toast.changes_saved_successfully', 'Änderungen erfolgreich gespeichert', 'Changes saved successfully'),
   ('top_25', 'Top 25', 'Top 25'),
   ('top_deals_in_your_area', 'TOP-Deals in deiner Nähe', 'TOP deals in your area'),
   ('until', 'Bis', 'Until'),
