@@ -505,11 +505,10 @@ func getDealList(c echo.Context) error {
 	sourceUrl := c.Request().Header.Get("Referer")
 	dealListType := determineDealListType(user, state, sourceUrl)
 	hideName := c.QueryParam("hide_name") == "true"
-	canEdit := c.QueryParam("can_edit") == "true"
 	showStatistics := c.QueryParam("show_statistics") == "true"
 
 	actionButton := view.ActionButtonFavoriteToggle
-	if canEdit {
+	if state == model.DealStateTemplate {
 		actionButton = view.ActionButtonEdit
 	}
 	if showStatistics {
