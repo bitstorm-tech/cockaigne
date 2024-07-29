@@ -37,7 +37,69 @@ func RegisterDealHandlers(e *echo.Echo) {
 	e.POST("/deal-new-summary", openNewDealSummaryModal)
 	e.POST("/deal-report/:id", saveReport)
 	e.POST("/deals", saveDeal)
+	e.POST("/deal-update/:id", updateDeal)
 	e.DELETE("/deal-favorite-remove/:id", removeFavorite)
+}
+
+func updateDeal(c echo.Context) error {
+	userId, err := service.GetUserIdFromCookie(c)
+	if err != nil {
+		return redirect.Login(c)
+	}
+
+	deal, errMessageTranslationKey := model.DealFromRequest(c)
+	if len(errMessageTranslationKey) > 0 {
+		zap.L().Sugar().Error("can't update template: ", errMessageTranslationKey)
+		return view.RenderAlertTranslated(errMessageTranslationKey, c)
+	}
+
+	dealId, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		zap.L().Sugar().Error("can't update template -> invalid id: ", err)
+		return view.RenderAlertTranslated("alert.can_t_update_deal", c)
+	}
+
+	deal.ID = dealId
+	deal.DealerId = userId
+
+	err = service.UpdateDeal(deal)
+	if err != nil {
+		zap.L().Sugar().Error("can't update deal: ", err)
+		return view.RenderAlertTranslated("alert.can_t_update_deal", c)
+	}
+
+	deleteImages(c, dealId.String())
+
+	err = uploadImages(c, dealId.String())
+	if err != nil {
+		zap.L().Sugar().Error("can't update deal -> can't upload images: ", err)
+		return view.RenderAlertTranslated("alert.can_t_update_deal", c)
+	}
+
+	return view.RenderToast("Vorlage erfolgreich gespeichert", c)
+}
+
+func deleteImages(c echo.Context, dealId string) {
+	for i := range 3 {
+		if c.FormValue(fmt.Sprintf("deleteImage%d", i)) == "on" {
+			service.DeleteDealImage(dealId, fmt.Sprintf("%d", i))
+		}
+	}
+}
+
+func uploadImages(c echo.Context, dealId string) error {
+	for i := range 3 {
+		file, err := c.FormFile(fmt.Sprintf("image%d", i))
+		if err != nil && (err != http.ErrMissingFile || err != http.ErrNotMultipart) {
+			continue
+		}
+		err = service.UploadDealImage(file, dealId, fmt.Sprintf("%d", i))
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func dealViewed(c echo.Context) error {
@@ -316,6 +378,7 @@ func openDealCreatePage(c echo.Context) error {
 	dealId := c.Param("dealId")
 
 	var deal model.Deal
+	var dealImageUrls []string
 	if strings.EqualFold(dealId, "new") {
 		deal = model.NewDeal()
 		deal.CategoryId = service.GetDefaultCategoryId(userId)
@@ -325,11 +388,17 @@ func openDealCreatePage(c echo.Context) error {
 			zap.L().Sugar().Errorf("can't get deal %s: %v", dealId, err)
 			return view.RenderErrorPageTranslated("alert.can_t_load_deal", c)
 		}
+
+		dealImageUrls, err = service.GetDealImageUrls(dealId)
+		if err != nil {
+			zap.L().Sugar().Error("can't get deal image URLs: ", err)
+			return view.RenderErrorPageTranslated("alert.can_t_load_deal", c)
+		}
 	}
 
 	lang := service.GetLanguageFromCookie(c)
 
-	return view.Render(view.DealEdit(deal, lang), c)
+	return view.Render(view.DealEdit(deal, dealImageUrls, lang), c)
 }
 
 func getCategorySelect(c echo.Context) error {
@@ -371,25 +440,31 @@ func saveDeal(c echo.Context) error {
 		return view.RenderAlertTranslated("alert.can_t_save_deal", c)
 	}
 
-	form, err := c.MultipartForm()
+	err = uploadImages(c, dealId.String())
 	if err != nil {
-		zap.L().Sugar().Error("can't get multipart form: ", err)
+		zap.L().Sugar().Error("can't save deal -> can't upload images: ", err)
 		return view.RenderAlertTranslated("alert.can_t_save_deal", c)
 	}
 
-	for index, file := range form.File["images"] {
-		err = service.UploadDealImage(file, dealId.String(), fmt.Sprintf("%d", index))
+	if templateId != uuid.Nil {
+		err = uploadImages(c, templateId.String())
 		if err != nil {
-			zap.L().Sugar().Error("can't upload deal image: ", err)
+			zap.L().Sugar().Error("can't save deal -> can't upload template images: ", err)
 			return view.RenderAlertTranslated("alert.can_t_save_deal", c)
 		}
+	}
 
-		if templateId != uuid.Nil {
-			err = service.UploadDealImage(file, templateId.String(), fmt.Sprintf("%d", index))
-			if err != nil {
-				zap.L().Sugar().Error("can't upload template image: ", err)
-				return view.RenderAlertTranslated("alert.can_t_save_deal", c)
-			}
+	fromTemplateId, err := uuid.Parse(c.QueryParam("from_template"))
+	if err != nil {
+		zap.L().Sugar().Error("can't save deal -> can't create from_template uuid: ", err)
+		return view.RenderAlertTranslated("alert.can_t_save_deal", c)
+	}
+
+	if fromTemplateId != uuid.Nil {
+		err = service.CopyDealImages(fromTemplateId.String(), dealId.String())
+		if err != nil {
+			zap.L().Sugar().Error("can't save deal -> can't copy images from template: ", err)
+			return view.RenderAlertTranslated("alert.can_t_save_deal", c)
 		}
 	}
 

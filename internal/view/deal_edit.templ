@@ -1,17 +1,22 @@
 package view
 
-import "github.com/bitstorm-tech/cockaigne/internal/model"
-import "strconv"
+import (
+	"github.com/bitstorm-tech/cockaigne/internal/model"
+	"strconv"
+)
 
-templ DealEdit(deal model.Deal, lang string) {
+templ DealEdit(deal model.Deal, dealImageUrls []string, lang string) {
 	@BaseLayout() {
 		<form
 			class="flex flex-col gap-4 p-4"
-			hx-post="/deals"
+			hx-post={ "/deals?from_template=" + deal.ID.String() }
+			hx-encoding="multipart/form-data"
 			hx-target="#alert"
-			enctype="multipart/form-data"
 			x-data="data"
 		>
+			if deal.IsTemplate {
+				<h1 class="text-center">{ t("template", lang) }</h1>
+			}
 			// ------------------
 			//   Title
 			// ------------------
@@ -46,6 +51,9 @@ templ DealEdit(deal model.Deal, lang string) {
 				<span class="text-xs">({ t("optional", lang) })</span>
 				:
 			</span>
+			<input id="deleteImage0" name="deleteImage0" type="checkbox" hidden/>
+			<input id="deleteImage1" name="deleteImage1" type="checkbox" hidden/>
+			<input id="deleteImage2" name="deleteImage2" type="checkbox" hidden/>
 			<div class="grid grid-cols-3 gap-2">
 				<div>
 					<button
@@ -62,7 +70,7 @@ templ DealEdit(deal model.Deal, lang string) {
 						class="h-24 w-full object-cover"
 						alt="Deal image 1"
 					/>
-					<input x-ref="fileInput0" type="file" hidden @change="add($event, 0)" name="images"/>
+					<input x-ref="fileInput0" type="file" hidden @change="add($event, 0)" name="image0"/>
 				</div>
 				<div>
 					<button
@@ -79,7 +87,7 @@ templ DealEdit(deal model.Deal, lang string) {
 						class="h-24 w-full object-cover"
 						alt="Deal image 1"
 					/>
-					<input x-ref="fileInput1" type="file" hidden @change="add($event, 1)" name="images"/>
+					<input x-ref="fileInput1" type="file" hidden @change="add($event, 1)" name="image1"/>
 				</div>
 				<div>
 					<button
@@ -96,7 +104,7 @@ templ DealEdit(deal model.Deal, lang string) {
 						class="h-24 w-full object-cover"
 						alt="Deal image 1"
 					/>
-					<input x-ref="fileInput2" type="file" hidden @change="add($event, 2)" name="images"/>
+					<input x-ref="fileInput2" type="file" hidden @change="add($event, 2)" name="image2"/>
 				</div>
 			</div>
 			//   <!--------------------------------------------------------------------------->
@@ -113,7 +121,7 @@ templ DealEdit(deal model.Deal, lang string) {
 				</div>
 			</div>
 			//   <!------------------------------------>
-			//   <!-- Start date or start instatnly  -->
+			//   <!-- Start date or start instantly  -->
 			//   <!------------------------------------>
 			<div class="form-control" x-show="!startInstantly">
 				<label for="start-date-input">{ t("start", lang) }</label>
@@ -133,33 +141,53 @@ templ DealEdit(deal model.Deal, lang string) {
 			<div class="flex select-none gap-4">
 				<div class="form-control w-full" x-show="ownEndDate">
 					<label for="duration-input">{ t("end", lang) }</label>
-					<input id="duration-input" type="date" name="endDate"/>
+					<input id="duration-input" type="date" name="endDate" value={ calculateEndDate(deal) }/>
 				</div>
 				<div class="form-control w-full py-3" x-show="!ownEndDate">
 					<label for="duration" class="text-sm">{ t("runtime", lang) }</label>
 					<div class="flex items-center gap-2">
 						<span x-text="runtime"></span>
 						<span>{ t("days", lang) }</span>
-						<input id="duration" name="duration" type="range" min="1" max="10" step="1" x-model="runtime"/>
+						<input
+							id="duration"
+							name="duration"
+							type="range"
+							min="1"
+							max="10"
+							step="1"
+							x-model="runtime"
+						/>
 					</div>
 				</div>
 			</div>
 			//   <!------------------------------------>
 			//   <!-- Save additionally as template  -->
 			//   <!------------------------------------>
-			<div class="form-control-horizontal pt-10">
-				<input id="template" type="checkbox" class="checkbox" name="template"/>
-				<label for="template">{ t("save_additionally_as_template", lang) }</label>
-			</div>
+			if !deal.IsTemplate {
+				<div class="form-control-horizontal pt-10">
+					<input id="template" type="checkbox" class="checkbox" name="template"/>
+					<label for="template">{ t("save_additionally_as_template", lang) }</label>
+				</div>
+			}
 			//   <!--------------------->
 			//   <!-- Save and cancel -->
 			//   <!--------------------->
-			<div class="grid grid-cols-2 gap-2">
-				<a href="/" class="btn btn-primary btn-outline">{ t("cancel", lang) }</a>
-				<button hx-post="/deal-new-summary" hx-target="#summary-modal">{ t("create", lang) }</button>
+			<div class="flex gap-2">
+				<a href="/" class="btn btn-primary btn-outline flex-1">{ t("cancel", lang) }</a>
+				if deal.IsTemplate {
+					<button
+						type="submit"
+						class="btn btn-primary flex-1"
+						hx-post={ "/deal-update/" + deal.ID.String() }
+						hx-encoding="multipart/form-data"
+					>{ t("save_changes", lang) }</button>
+				}
+				<button class="flex-1" hx-post="/deal-new-summary" hx-target="#summary-modal">{ t("create", lang) }</button>
 			</div>
 			<div id="summary-modal"></div>
 		</form>
+		@templ.JSONScript("dealData", deal)
+		@templ.JSONScript("dealImageUrls", dealImageUrls)
 		<script>
 			const data = {
 				startInstantly: false,
@@ -167,22 +195,41 @@ templ DealEdit(deal model.Deal, lang string) {
 				runtime: 1,
 				imagePreviewUrls: [null, null, null],
 				add: function (event, index) {
-				const file = event.target.files[0];
+					const file = event.target.files[0];
 
-				if (!file) {
-					return;
-				}
+					if (!file) {
+						return;
+					}
 
-				const URL = window.URL || window.webkitURL;
-				this.imagePreviewUrls[index] = URL.createObjectURL(file);
+					const URL = window.URL || window.webkitURL;
+					this.imagePreviewUrls[index] = URL.createObjectURL(file);
+					document.getElementById(`deleteImage${index}`).checked = false;
 				},
 				remove: function (input, index) {
-				this.imagePreviewUrls[index] = null;
-				input.value = null;
+					this.imagePreviewUrls[index] = null;
+					input.value = null;
+					document.getElementById(`deleteImage${index}`).checked = true;
+				},
+				init: function() {
+					const dealData = JSON.parse(document.getElementById('dealData').textContent);
+					this.startInstantly = dealData.StartInstantly;
+					this.ownEndDate = dealData.OwnEndDate;
+					this.runtime = dealData.DurationInHours/24;
+
+					const urls = JSON.parse(document.getElementById('dealImageUrls').textContent);
+					urls?.forEach(url => {
+						const index = url.slice(-1);
+						this.imagePreviewUrls[index] = url;
+					})
 				}
 			};
 		</script>
 	}
+}
+
+func calculateEndDate(deal model.Deal) string {
+	endDate := deal.Start.AddDate(0, 0, deal.DurationInHours/24)
+	return endDate.Format("2006-01-02")
 }
 
 type NewDealSummaryModalParameter struct {

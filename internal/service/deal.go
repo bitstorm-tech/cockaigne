@@ -37,13 +37,15 @@ func GetCategory(id int) (model.Category, error) {
 
 func SaveDeal(deal model.Deal) (dealId uuid.UUID, templateId uuid.UUID, err error) {
 	err = persistence.DB.Get(&dealId,
-		"insert into deals (dealer_id, title, description, category_id, duration_in_hours, start, payment_state, template) values ($1, $2, $3, $4, $5, $6, $7, false) returning id",
+		"insert into deals (dealer_id, title, description, category_id, duration_in_hours, start, start_instantly, own_end_date, payment_state, template) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, false) returning id",
 		deal.DealerId,
 		deal.Title,
 		deal.Description,
 		deal.CategoryId,
 		deal.DurationInHours,
 		deal.Start,
+		deal.StartInstantly,
+		deal.OwnEndDate,
 		model.DealPaymentStatePending,
 	)
 
@@ -54,13 +56,15 @@ func SaveDeal(deal model.Deal) (dealId uuid.UUID, templateId uuid.UUID, err erro
 	if deal.IsTemplate {
 		err = persistence.DB.Get(
 			&templateId,
-			"insert into deals (dealer_id, title, description, category_id, duration_in_hours, start, template) values ($1, $2, $3, $4, $5, $6, true) returning id",
+			"insert into deals (dealer_id, title, description, category_id, duration_in_hours, start, start_instantly, own_end_date, template) values ($1, $2, $3, $4, $5, $6, $7, $8, true) returning id",
 			deal.DealerId,
 			deal.Title,
 			deal.Description,
 			deal.CategoryId,
 			deal.DurationInHours,
 			deal.Start,
+			deal.StartInstantly,
+			deal.OwnEndDate,
 		)
 	}
 
@@ -625,4 +629,29 @@ func GetDealStatistics(dealId string) (model.DealStatistics, error) {
 	)
 
 	return statistics, err
+}
+
+func UpdateDeal(deal model.Deal) error {
+	_, err := persistence.DB.Exec(
+		"update deals set start_instantly = $1, own_end_date = $2, start = $3, category_id = $4, title = $5, description = $6, duration_in_hours = $7 where id = $8 and dealer_id = $9",
+		deal.StartInstantly,
+		deal.OwnEndDate,
+		deal.Start,
+		deal.CategoryId,
+		deal.Title,
+		deal.Description,
+		deal.DurationInHours,
+		deal.ID,
+		deal.DealerId,
+	)
+
+	return err
+}
+
+func DeleteDealImage(dealId string, imageName string) error {
+	return persistence.DeleteDealImage(dealId, imageName)
+}
+
+func CopyDealImages(fromDealId string, toDealId string) error {
+	return persistence.CopyDealImages(fromDealId, toDealId)
 }

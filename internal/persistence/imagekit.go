@@ -47,7 +47,15 @@ func uploadImage(folder string, name string, image *multipart.FileHeader) (strin
 		return "", err
 	}
 
-	return fmt.Sprintf("%s/%s/%s", imageKitBaseUrl, folder, name), nil
+	imageUrl := fmt.Sprintf("%s/%s/%s", imageKitBaseUrl, folder, name)
+	_, err = ik.Media.PurgeCache(context.TODO(), media.PurgeCacheParam{
+		Url: imageUrl,
+	})
+	if err != nil {
+		zap.L().Sugar().Warn("can't purge image cache: ", err)
+	}
+
+	return imageUrl, nil
 }
 
 func deleteImage(folder string, name string) error {
@@ -144,8 +152,8 @@ func DeleteProfileImage(name string) error {
 	return deleteImage(profileImagesFolder, name)
 }
 
-func DeleteDealImage(name string) error {
-	return deleteImage(dealImagesFolder, name)
+func DeleteDealImage(folder string, name string) error {
+	return deleteImage(fmt.Sprintf("%s/%s", dealImagesFolder, folder), name)
 }
 
 func DeleteDealerImage(folder string, name string) error {
@@ -162,4 +170,14 @@ func UploadDealImage(folder string, name string, image *multipart.FileHeader) (s
 
 func UploadProfileImage(name string, image *multipart.FileHeader) (string, error) {
 	return uploadImage(profileImagesFolder, name, image)
+}
+
+func CopyDealImages(fromDealId string, toDealId string) error {
+	_, err := ik.Media.CopyFolder(context.TODO(), media.CopyFolderParam{
+		SourceFolderPath:    fmt.Sprintf("%s/%s/*", dealImagesFolder, fromDealId),
+		DestinationPath:     fmt.Sprintf("%s/%s", dealImagesFolder, toDealId),
+		IncludeFileVersions: false,
+	})
+
+	return err
 }

@@ -94,6 +94,8 @@ type Deal struct {
 	IsTemplate      bool `db:"template"`
 	Created         time.Time
 	PaymentState    *DealPaymentState `db:"payment_state"`
+	StartInstantly  bool              `db:"start_instantly"`
+	OwnEndDate      bool              `db:"own_end_date"`
 }
 
 func NewDeal() Deal {
@@ -101,7 +103,7 @@ func NewDeal() Deal {
 		Title:           "",
 		Description:     "",
 		CategoryId:      0,
-		DurationInHours: 0,
+		DurationInHours: 24,
 		Start:           time.Now().Add(1 * time.Hour),
 		IsTemplate:      false,
 	}
@@ -123,9 +125,13 @@ func DealFromRequest(c echo.Context) (Deal, string) {
 		return Deal{}, "alert.select_category"
 	}
 
+	isTemplate := c.FormValue("template") == "on"
+	ownEndDate := c.FormValue("ownEndDate") == "on"
+	startInstantly := c.FormValue("startInstantly") == "on"
+
 	startDate := time.Now()
 
-	if c.FormValue("startInstantly") == "" {
+	if !startInstantly {
 		startDate, err = time.Parse("2006-01-02T15:04", c.FormValue("startDate"))
 		if err != nil {
 			return Deal{}, "alert.provide_start_date"
@@ -133,8 +139,11 @@ func DealFromRequest(c echo.Context) (Deal, string) {
 	}
 
 	duration := 0
-	endDate, err := time.Parse("2006-01-02", c.FormValue("endDate"))
-	if err == nil {
+	if ownEndDate {
+		endDate, err := time.Parse("2006-01-02", c.FormValue("endDate"))
+		if err != nil {
+			return Deal{}, "alert.provide_runtime_or_enddate"
+		}
 		duration = int(endDate.Sub(startDate.Truncate(24 * time.Hour)).Hours())
 	} else {
 		duration, err = strconv.Atoi(c.FormValue("duration"))
@@ -148,8 +157,6 @@ func DealFromRequest(c echo.Context) (Deal, string) {
 		return Deal{}, "alert.start_before_end"
 	}
 
-	isTemplate := c.FormValue("template") == "on"
-
 	return Deal{
 		Title:           title,
 		Description:     description,
@@ -157,6 +164,8 @@ func DealFromRequest(c echo.Context) (Deal, string) {
 		Start:           startDate,
 		DurationInHours: duration,
 		IsTemplate:      isTemplate,
+		OwnEndDate:      ownEndDate,
+		StartInstantly:  startInstantly,
 	}, ""
 }
 

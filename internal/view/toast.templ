@@ -1,6 +1,7 @@
 package view
 
 import "github.com/labstack/echo/v4"
+import "github.com/bitstorm-tech/cockaigne/internal/service"
 
 templ Toast(message string) {
 	<div id="toast" class="toast toast-center bottom-14" hx-delete="/ui/remove" hx-target="closest #toast" hx-swap="outerHTML" hx-trigger="load delay:2s">
@@ -12,4 +13,11 @@ templ Toast(message string) {
 
 func RenderToast(message string, c echo.Context) error {
 	return RenderToTarget(Toast(message), c, "#toast")
+}
+
+func RenderToastTranslated(translationKey string, c echo.Context) error {
+	lang := service.GetLanguageFromCookie(c)
+	message := t(translationKey, lang)
+
+	return RenderToast(message, c)
 }
