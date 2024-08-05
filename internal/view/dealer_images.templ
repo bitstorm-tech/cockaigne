@@ -61,7 +61,7 @@ templ DealerImage(url string, isOwner bool, dealerId string, index int) {
 		<img
 			src={ url }
 			alt="Dealer image"
-			class="h-32 w-full object-cover"
+			class="h-48 w-full object-cover"
 			hx-get={ fmt.Sprintf("/dealer-image-zoom-modal/%s?index=%d", dealerId, index) }
 			hx-target="#image-zoom-modal"
 		/>
