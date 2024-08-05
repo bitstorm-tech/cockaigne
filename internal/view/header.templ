@@ -1,8 +1,10 @@
 package view
 
-import "github.com/bitstorm-tech/cockaigne/internal/view/icon"
-import "strings"
-import "github.com/bitstorm-tech/cockaigne/internal/service"
+import (
+	"github.com/bitstorm-tech/cockaigne/internal/service"
+	"github.com/bitstorm-tech/cockaigne/internal/view/icon"
+	"strings"
+)
 
 templ Header(user service.User, lang string) {
 	<nav id="header" class="h-12 border-b border-b-white border-opacity-25" x-data="{showMenu: false}">
@@ -22,7 +24,7 @@ templ Header(user service.User, lang string) {
 				</div>
 				<div class="hidden gap-6 md:flex">
 					if user.IsAuthenticated {
-						<a class="menu-item" href="/settings">{ t("settings", "en") }</a>
+						<a class="menu-item" href="/settings">{ t("settings", lang) }</a>
 						<a class="menu-item" href="/contact">Kontaktiere uns</a>
 						<a class="menu-item" href="/logout">Abmelden</a>
 					} else {
