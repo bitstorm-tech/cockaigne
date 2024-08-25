@@ -29,11 +29,11 @@ func RegisterAuthHandlers(e *echo.Echo) {
 		return view.Render(view.Signup(lang), c)
 	})
 
-	e.GET("/signup-complete", completeSignup)
 	e.GET("/logout", logout)
-	e.POST("/api/signup", signup)
-	e.POST("/api/login", login)
+	e.GET("/signup-complete", completeSignup)
 	e.POST("/api/basic-login", loginAsBasicUser)
+	e.POST("/api/login", login)
+	e.POST("/api/signup", signup)
 }
 
 func completeSignup(c echo.Context) error {

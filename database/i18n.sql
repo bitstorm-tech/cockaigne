@@ -144,6 +144,7 @@ values
   ('industry', 'Branche', 'Industry'),
   ('industry_select', 'Branche auswählen', 'Select industry'),
   ('info.only_for_pro_member', 'Diese Funktion steht nur PRO-Mitglieder zur Verfügung', 'This function is only available to PRO members'),
+  ('info.profile_image_changed', 'Profilbild erfolgreich geändert', 'Profile image changed successfully'),
   ('info.send_activation_email', 'Wir haben dir an deine neue Adresse eine E-Mail mit dem Bestätigungslink geschickt', 'We have sent you an e-mail with the confirmation link to your new address'),
   ('info.send_change_pw_email', 'Wir haben dir eine E-Mail zum ändern deines Passworts geschickt', 'We have sent you an e-mail to change your password'),
   ('language', 'Sprache', 'Language'),
